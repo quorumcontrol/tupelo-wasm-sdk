@@ -14,9 +14,7 @@ const util = require('util')
 
 const RoutingDiscovery = require('./discovery')
 
-const bootstrapers = [
-  "/ip4/192.168.2.112/tcp/59054/ws/ipfs/16Uiu2HAmKfyUTac9u9LCy9htSrpPJYfYFtdLxrB2wur142u5rskn",
-]
+const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
 
 class TupeloP2P extends libp2p {
   constructor (_options) {
@@ -52,7 +50,7 @@ class TupeloP2P extends libp2p {
           autoDial: true,
           bootstrap: {
             enabled: true,
-            list: bootstrapers
+            list: _options.bootstrappers
           }
         },
         dht: {
@@ -96,7 +94,11 @@ module.exports.CreateNode = async function() {
 
     const peerID = await util.promisify(PeerId.createFromPrivKey)(key.bytes)
     const peerInfo = new PeerInfo(peerID);
-      // peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/ws')
+    if (isNodeJS) {
+      // nodejs requires that you listen to the address to be able
+      // to dial it, the browser *can't* listen to an address.
+      peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/ws')
+    }
     const node = new TupeloP2P({
       peerInfo
     });
