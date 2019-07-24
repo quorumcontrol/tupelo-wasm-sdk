@@ -7,6 +7,7 @@ import { Transaction } from 'tupelo-messages'
 import {IBlockService, IBlock} from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 
 
 export interface IPubSub {
@@ -15,6 +16,7 @@ export interface IPubSub {
 }
 
 interface IPlayTransactionOptions {
+    notaryGroup: Uint8Array,
     publisher: IPubSub,
     blockService: IBlockService, 
     privateKey: Uint8Array,
@@ -76,7 +78,7 @@ export namespace Tupelo {
         return tw.newEmptyTree(store, publicKey)
     }
 
-    export async function playTransactions(publisher: IPubSub, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
+    export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
         const tw = await TupeloWasm.get()
         console.log("serializing the transactions")
         let transBits: Uint8Array[] = new Array<Uint8Array>()
@@ -93,6 +95,7 @@ export namespace Tupelo {
         }
 
         const resp = await tw.playTransactions({
+            notaryGroup: notaryGroup.serializeBinary(),
             publisher: publisher,
             blockService: store,
             privateKey: privateKey,

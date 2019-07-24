@@ -8,7 +8,7 @@ describe('p2p', ()=> {
         let resolve:Function,reject:Function
         const p = new Promise((res,rej)=> { resolve = res, reject = rej})
 
-        var node = await p2p.createNode();
+        var node = await p2p.createNode({bootstrapAddresses:["/ip4/172.16.246.10/tcp/34001/ipfs/16Uiu2HAm3TGSEKEjagcCojSJeaT5rypaeJMKejijvYSnAjviWwV5"]});
         expect(node).to.exist;
         node.start(()=> {
             node.stop();

@@ -50,7 +50,6 @@ class TupeloP2P extends libp2p {
           autoDial: true,
           bootstrap: {
             enabled: true,
-            list: _options.bootstrappers
           }
         },
         dht: {
@@ -80,7 +79,10 @@ class TupeloP2P extends libp2p {
 
 module.exports.TupeloP2P = TupeloP2P
 
-module.exports.CreateNode = async function() {
+module.exports.CreateNode = async function(options) {
+  if (!options) {
+    options = {};
+  }
   let resolve, reject;
   const p = new Promise((res,rej) => {
       resolve = res;
@@ -99,9 +101,8 @@ module.exports.CreateNode = async function() {
       // to dial it, the browser *can't* listen to an address.
       peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/ws')
     }
-    const node = new TupeloP2P({
-      peerInfo
-    });
+    options.peerInfo = peerInfo;
+    const node = new TupeloP2P(options);
     console.log("peerIdStr ", peerID.toB58String());
     process.on("exit", () => {
         node.stop();

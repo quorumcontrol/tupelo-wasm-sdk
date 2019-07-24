@@ -3,12 +3,13 @@ import 'mocha';
 
 import './extendedglobal';
 import { p2p } from './node';
-
 import { Tupelo } from './tupelo';
-import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb'
+import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { EcdsaKey } from './crypto';
 import ChainTree from './chaintree/chaintree';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import {tomlToNotaryGroup} from './notarygroup';
+import path from 'path';
 
 const dagCBOR = require('ipld-dag-cbor');
 const IpfsRepo:any = require('ipfs-repo');
@@ -35,12 +36,14 @@ const testIpld = async () => {
 describe('Tupelo', () => {
   // requires a running tupelo
   it('plays transactions on a new tree', async ()=> {
+    const notaryGroup = tomlToNotaryGroup(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml'))
+
     let resolve:Function,reject:Function
     const p = new Promise((res,rej)=> { resolve = res, reject = rej})
 
     const blockService = await testIpld()
 
-    var node = await p2p.createNode();
+    var node = await p2p.createNode({bootstrapAddresses: notaryGroup.getBootstrapAddressesList()});
     expect(node).to.exist;
 
     const key = await EcdsaKey.generate()
@@ -68,7 +71,7 @@ describe('Tupelo', () => {
 
     node.once('enoughdiscovery', async ()=> {
       console.log("enough discovered, playing transactions")
-      Tupelo.playTransactions(node.pubsub, tree, [trans]).then(
+      Tupelo.playTransactions(node.pubsub, notaryGroup, tree, [trans]).then(
         async (success:CurrentState)=> {
           expect(success).to.be.an.instanceOf(CurrentState)
           const resolved = await tree.resolve("tree/data/hi".split("/"))
@@ -90,7 +93,7 @@ describe('Tupelo', () => {
     node.on('peer:connect', async ()=> {
       console.log("peer connect")
       connected++
-      if (connected >= 2) {
+      if (connected >= 1) {
         node.emit('enoughdiscovery')
       }
     })

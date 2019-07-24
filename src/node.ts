@@ -9,8 +9,20 @@ interface IP2PNode {
     emit(evt:string):null;
 }
 
+interface INodeOptions {
+    bootstrapAddresses?:string[]
+}
+
 export namespace p2p {
-    export async function createNode():Promise<IP2PNode> {
-        return libp2p.CreateNode()
+    export async function createNode(opts:INodeOptions):Promise<IP2PNode> {
+        return libp2p.CreateNode({
+            config: {
+                peerDiscovery: {
+                    bootstrap: {
+                        list: opts.bootstrapAddresses
+                    }
+                }
+            }
+        });
     }
 }
