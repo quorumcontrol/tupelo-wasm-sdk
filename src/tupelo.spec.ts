@@ -63,7 +63,6 @@ describe('Tupelo', () => {
     node.once('enoughdiscovery', async () => {
       console.log("enough discovered, playing transactions")
       await comPromise
-      console.log("community started: ",c.blockservice)
       const key = await EcdsaKey.generate()
 
       let tree = await ChainTree.newEmptyTree(c.blockservice, key)

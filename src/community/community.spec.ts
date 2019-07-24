@@ -82,18 +82,17 @@ describe('Community', () => {
       console.log('error')
     })
 
+    const c = new Community(node, notaryGroup, repo.repo)
+    c.start()
+
     node.once('peer:connect', async ()=> {
         console.log("node started");
         // now the node has connected to the network
-        const c = new Community(node, notaryGroup, repo)
-        c.start()
         c.on('tip', (tip:CID)=> {
             expect(tip).to.exist
             resolve(tip)
         })
     })
-
-    let c:Community
 
     node.start(()=>{
       
