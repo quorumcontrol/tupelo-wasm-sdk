@@ -7,6 +7,13 @@ export interface IBlock {
   cid: CID
 }
 
+export interface IBitSwap {
+  get(cid: CID, callback:Function): void
+  put(block: IBlock, callback:Function): void
+  start(callback:Function): void
+  stop(callback:Function): void
+}
+
 // copy/pasta from https://ipfs.github.io/js-ipfs-block-service
 // it has the following methods, I've only added the methods necessary
 // for this SDK into the interface
@@ -22,6 +29,9 @@ export interface IBlockService {
   put(block:IBlock):Promise<any>
   get(cid:CID):Promise<IBlock>
   delete(cid:CID):Promise<any>
+  setExchange(bitswap:IBitSwap):void
+  unsetExchange():void
+  hasExchange():boolean
 }
 
 interface IDagStoreResolveResponse {

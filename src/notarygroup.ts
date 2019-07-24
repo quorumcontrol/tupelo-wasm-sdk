@@ -14,8 +14,11 @@ interface INotaryGroupCreator {
 }
 
 function hexToBuffer(hex:string):Buffer {
-    return Buffer.from(hex, "hex")
+    // the hex that we export in go is always prefaced with "0x", so strip that off
+    return Buffer.from(hex.substr(2), "hex")
 }
+
+// stack overflow ftw
 function toCamel(o:any) {
     let newO:any, origKey:string, newKey:string, value:any
     if (o instanceof Array) {
@@ -54,9 +57,8 @@ export function configToNotaryGroup(obj:INotaryGroupCreator):NotaryGroup {
     let signers:PublicKeySet[] = []
     for (var s of obj.signers) {
         let publicKeySet = new PublicKeySet()
-        // the hex that we export in go is always prefaced with "0x"
-        publicKeySet.setVerKey(hexToBuffer(s.verKeyHex.substr(2)))
-        publicKeySet.setDestKey(hexToBuffer(s.destKeyHex.substr(2)))
+        publicKeySet.setVerKey(hexToBuffer(s.verKeyHex))
+        publicKeySet.setDestKey(hexToBuffer(s.destKeyHex))
         signers = signers.concat(publicKeySet)
     }
     ng.setSignersList(signers)

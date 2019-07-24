@@ -24,6 +24,12 @@ interface IPlayTransactionOptions {
     transactions: Uint8Array[],
 }
 
+interface IGetCurrentStateOptions {
+    blockService: IBlockService, 
+    tip: CID, 
+    did: string,
+}
+
 class UnderlyingWasm {
     _populated: boolean;
 
@@ -31,6 +37,9 @@ class UnderlyingWasm {
         this._populated = false;
     }
 
+    getCurrentState(opts: IGetCurrentStateOptions):Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    }
     generateKey(): Promise<Uint8Array[]> {
         return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
     }
@@ -69,6 +78,11 @@ export namespace Tupelo {
     export async function generateKey(): Promise<Uint8Array[]> {
         const tw = await TupeloWasm.get()
         return tw.generateKey()
+    }
+
+    export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<Uint8Array> {
+        const tw = await TupeloWasm.get()
+        return tw.getCurrentState(opts)
     }
 
     // newEmptyTree creates a new ChainTree with the ID populateed in the IBlockService and

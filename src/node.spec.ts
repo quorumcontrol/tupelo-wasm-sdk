@@ -15,7 +15,7 @@ describe('p2p', ()=> {
             resolve()
         });
         return p
-    }).timeout(5000)
+    })
 })
 
 

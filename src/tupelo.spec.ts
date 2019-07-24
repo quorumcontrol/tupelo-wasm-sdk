@@ -8,89 +8,97 @@ import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transa
 import { EcdsaKey } from './crypto';
 import ChainTree from './chaintree/chaintree';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
-import {tomlToNotaryGroup} from './notarygroup';
+import { tomlToNotaryGroup } from './notarygroup';
 import path from 'path';
+import { Community } from './community/community';
+import Repo from './repo';
 
 const dagCBOR = require('ipld-dag-cbor');
-const IpfsRepo:any = require('ipfs-repo');
-const IpfsBlockService:any = require('ipfs-block-service');
-const MemoryDatastore:any = require('interface-datastore').MemoryDatastore;
+const IpfsRepo: any = require('ipfs-repo');
+const IpfsBlockService: any = require('ipfs-block-service');
+const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
-const testIpld = async () => {
-    console.log('creating repo')
-    const repo = new IpfsRepo('test', {
-      lock: 'memory',
-      storageBackends: {
-        root: MemoryDatastore,
-        blocks: MemoryDatastore,
-        keys: MemoryDatastore,
-        datastore: MemoryDatastore
-      }
-    })
-    console.log('repo init')
-    await repo.init({})
-    await repo.open()
-    return new IpfsBlockService(repo)
+const testRepo = async () => {
+  console.log('creating repo')
+  const repo = new Repo('test', {
+    lock: 'memory',
+    storageBackends: {
+      root: MemoryDatastore,
+      blocks: MemoryDatastore,
+      keys: MemoryDatastore,
+      datastore: MemoryDatastore
+    }
+  })
+  console.log('repo init')
+  await repo.init({})
+  await repo.open()
+  return repo
 }
 
 describe('Tupelo', () => {
   // requires a running tupelo
-  it('plays transactions on a new tree', async ()=> {
+  it('plays transactions on a new tree', async () => {
     const notaryGroup = tomlToNotaryGroup(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml'))
 
-    let resolve:Function,reject:Function
-    const p = new Promise((res,rej)=> { resolve = res, reject = rej})
+    let resolve: Function, reject: Function
+    const p = new Promise((res, rej) => { resolve = res, reject = rej })
 
-    const blockService = await testIpld()
+    const repo = await testRepo()
 
-    var node = await p2p.createNode({bootstrapAddresses: notaryGroup.getBootstrapAddressesList()});
+    var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
     expect(node).to.exist;
 
-    const key = await EcdsaKey.generate()
+    const c = new Community(node, notaryGroup, repo.repo)
+    const comPromise = c.start()
 
-    let tree = await ChainTree.newEmptyTree(blockService, key)
-
-    const trans = new Transaction()
-    const payload = new SetDataPayload()
-    payload.setPath("/hi")
-
-    const serialized = dagCBOR.util.serialize("hihi")
-
-    payload.setValue(new Uint8Array(serialized))
-    trans.setType(Transaction.Type.SETDATA)
-    trans.setSetDataPayload(payload)
-
-    node.on('connection:start', (peer:any) => {
+    node.on('connection:start', (peer: any) => {
       console.log("connecting to ", peer.id._idB58String, " started")
     })
 
-    node.on('error', (err:any) => {
+    node.on('error', (err: any) => {
       reject(err)
       console.log('error')
     })
 
-    node.once('enoughdiscovery', async ()=> {
+    node.once('enoughdiscovery', async () => {
       console.log("enough discovered, playing transactions")
+      await comPromise
+      console.log("community started: ",c.blockservice)
+      const key = await EcdsaKey.generate()
+
+      let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+      console.log("created empty tree")
+      const trans = new Transaction()
+      const payload = new SetDataPayload()
+      payload.setPath("/hi")
+
+      const serialized = dagCBOR.util.serialize("hihi")
+
+      payload.setValue(new Uint8Array(serialized))
+      trans.setType(Transaction.Type.SETDATA)
+      trans.setSetDataPayload(payload)
+
+
       Tupelo.playTransactions(node.pubsub, notaryGroup, tree, [trans]).then(
-        async (success:CurrentState)=> {
+        async (success: CurrentState) => {
           expect(success).to.be.an.instanceOf(CurrentState)
           const resolved = await tree.resolve("tree/data/hi".split("/"))
           expect(resolved.value).to.equal("hihi")
           resolve(true)
         },
-        (err:Error)=> {
+        (err: Error) => {
           expect(err).to.be.null
           if (err) {
             reject(err)
             return
           }
           resolve(true)
-      })
+        })
     })
 
     let connected = 0;
 
-    node.on('peer:connect', async ()=> {
+    node.on('peer:connect', async () => {
       console.log("peer connect")
       connected++
       if (connected >= 1) {
@@ -98,7 +106,7 @@ describe('Tupelo', () => {
       }
     })
 
-    node.start(()=>{
+    node.start(() => {
       console.log("node started");
     });
 
