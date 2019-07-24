@@ -37,11 +37,17 @@ class UnderlyingWasm {
         this._populated = false;
     }
 
-    getCurrentState(opts: IGetCurrentStateOptions):Promise<Uint8Array> {
-        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
-    }
     generateKey(): Promise<Uint8Array[]> {
         return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
+    }
+    passPhraseKey(phrase:Uint8Array, salt:Uint8Array):Promise<Uint8Array[]> {
+        return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
+    }
+    keyFromPrivateBytes(bytes:Uint8Array):Promise<Uint8Array[]> {
+        return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
+    }
+    getCurrentState(opts: IGetCurrentStateOptions):Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
     newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID> {
         return new Promise<CID>((res,rej) => {}) // replaced by wasm
@@ -80,9 +86,24 @@ export namespace Tupelo {
         return tw.generateKey()
     }
 
-    export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<Uint8Array> {
+    export async function passPhraseKey(phrase:Uint8Array, salt:Uint8Array):Promise<Uint8Array[]> {
         const tw = await TupeloWasm.get()
-        return tw.getCurrentState(opts)
+        return tw.passPhraseKey(phrase,salt)
+    }
+
+    export async function keyFromPrivateBytes(bytes:Uint8Array):Promise<Uint8Array[]> {
+        const tw = await TupeloWasm.get()
+        return tw.keyFromPrivateBytes(bytes)
+    }
+
+    export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState> {
+        const tw = await TupeloWasm.get()
+        try {
+            let stateBits = await tw.getCurrentState(opts)
+            return CurrentState.deserializeBinary(stateBits)
+        } catch(err) {
+            throw err
+        }
     }
 
     // newEmptyTree creates a new ChainTree with the ID populateed in the IBlockService and

@@ -18,7 +18,6 @@ interface IRepo {
     blocks:IBlockService
 }
 
-
 export class Community extends EventEmitter {
     node:IP2PNode
     group:NotaryGroup

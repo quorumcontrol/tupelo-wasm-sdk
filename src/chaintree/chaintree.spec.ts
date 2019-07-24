@@ -34,8 +34,8 @@ describe('ChainTree', ()=> {
 
         const tree = await ChainTree.newEmptyTree(new WrappedBlockService(new IpfsBlockService(repo.repo)), key)
         expect(tree).to.exist
-        const resolved = await tree.resolve(new Array("id"))
-        expect(resolved.value).to.not.be.null
-        expect(resolved.value).to.include("did:tupelo:")
-    }).timeout(10000)
+        const id = await tree.id()
+        expect(id).to.not.be.null
+        expect(id).to.include("did:tupelo:")
+    }).timeout(2000)
 })

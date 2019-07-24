@@ -17,6 +17,11 @@ export class ChainTree extends Dag {
         this.key = key
         this.store = store
     }
+
+    async id() {
+        const resolveResp = await this.resolve(["id"])
+        return resolveResp.value as string | null
+    }
 }
 
 export default ChainTree

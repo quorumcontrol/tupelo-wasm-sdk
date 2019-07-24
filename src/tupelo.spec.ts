@@ -47,7 +47,10 @@ describe('Tupelo', () => {
 
     var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
     expect(node).to.exist;
-
+    p.then(() => {
+      node.stop()
+    })
+    
     const c = new Community(node, notaryGroup, repo.repo)
     const comPromise = c.start()
 
