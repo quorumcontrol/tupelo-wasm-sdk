@@ -1,6 +1,8 @@
 import { expect } from 'chai';
 import 'mocha';
 
+import fs from 'fs';
+
 import '../extendedglobal';
 import { p2p } from '../node';
 import { Community } from './community';
@@ -34,13 +36,14 @@ const testRepo = async () => {
   return repo
 }
 
+const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname,  '../../wasmtupelo/configs/wasmdocker.toml')).toString())
+
 describe('Community', () => {
 
   it('works with a repo', async () => {
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
 
-    const notaryGroup = tomlToNotaryGroup(path.join(__dirname, '../../wasmtupelo/configs/wasmdocker.toml'))
     const repo = await testRepo()
     var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
 
@@ -67,8 +70,6 @@ describe('Community', () => {
 
   // requires a running tupelo
   it('listens to tips', async () => {
-    const notaryGroup = tomlToNotaryGroup(path.join(__dirname, '../../wasmtupelo/configs/wasmdocker.toml'))
-
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
 
@@ -102,8 +103,6 @@ describe('Community', () => {
 
   // requires a running tupelo
   it('gets a chaintree tip', async () => {
-    const notaryGroup = tomlToNotaryGroup(path.join(__dirname, '../../wasmtupelo/configs/wasmdocker.toml'))
-
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
 

@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
+import fs from 'fs'
 
 import path from 'path'
 
@@ -7,7 +8,7 @@ import { tomlToNotaryGroup } from './notarygroup';
 
 describe('configToNotaryGroup', ()=> {
     it('converts a config to a notary group', async ()=> {
-        const ng = tomlToNotaryGroup(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml'))
+        const ng = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
 
         expect(ng.getId()).to.equal("wasmdocker")
         expect(ng.getSignersList()).to.have.length(3)

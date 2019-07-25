@@ -44,9 +44,8 @@ function toCamel(o:any) {
     return newO
   }
 
-export function tomlToNotaryGroup(path:string):NotaryGroup {
-    const tomlBits = fs.readFileSync(path)
-    const config = TOML.parse(tomlBits.toString())    
+export function tomlToNotaryGroup(tomlString:string):NotaryGroup {
+    const config = TOML.parse(tomlString)    
     return configToNotaryGroup(toCamel(config))
 }
 

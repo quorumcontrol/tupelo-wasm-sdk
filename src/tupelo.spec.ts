@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
+import fs from 'fs';
 
 import './extendedglobal';
 import { p2p } from './node';
@@ -14,8 +15,6 @@ import { Community } from './community/community';
 import Repo from './repo';
 
 const dagCBOR = require('ipld-dag-cbor');
-const IpfsRepo: any = require('ipfs-repo');
-const IpfsBlockService: any = require('ipfs-block-service');
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 const testRepo = async () => {
@@ -38,7 +37,7 @@ const testRepo = async () => {
 describe('Tupelo', () => {
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
-    const notaryGroup = tomlToNotaryGroup(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml'))
+    const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
 
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
