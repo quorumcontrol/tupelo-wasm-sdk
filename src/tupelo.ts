@@ -46,6 +46,9 @@ class UnderlyingWasm {
     keyFromPrivateBytes(bytes:Uint8Array):Promise<Uint8Array[]> {
         return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
     }
+    ecdsaPubkeyToDid(pubKey:Uint8Array):Promise<string> {
+        return new Promise<string>((res, rej) => { }) // replaced by wasm
+    }
     getCurrentState(opts: IGetCurrentStateOptions):Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
@@ -94,6 +97,11 @@ export namespace Tupelo {
     export async function keyFromPrivateBytes(bytes:Uint8Array):Promise<Uint8Array[]> {
         const tw = await TupeloWasm.get()
         return tw.keyFromPrivateBytes(bytes)
+    }
+
+    export async function ecdsaPubkeyToDid(pubKey:Uint8Array):Promise<string> {
+        const tw = await TupeloWasm.get()
+        return tw.ecdsaPubkeyToDid(pubKey)
     }
 
     export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState> {

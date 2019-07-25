@@ -35,6 +35,13 @@ const testRepo = async () => {
 }
 
 describe('Tupelo', () => {
+  it('gets a DID from a publicKey', async ()=> {
+    const key = await EcdsaKey.generate()
+    const did = await Tupelo.ecdsaPubkeyToDid(key.publicKey)
+    expect(did).to.include("did:tupelo:")
+    expect(did).to.have.lengthOf(53)
+  })
+
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
     const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
