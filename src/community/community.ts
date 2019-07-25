@@ -44,19 +44,37 @@ export class Community extends EventEmitter {
             console.log("bitswap started")
         })
 
-        this.node.once('start', ()=> {
-            this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg:IPubSubMessage) => {
-                this.tip = new CID(Buffer.from(msg.data))
-                this.emit('tip', this.tip)
-            }, (err:Error) => {
-                if (err) {
-                    reject(err)
-                    return
-                }
+        if (this.node.isStarted()) {
+            return this.subscribeToTips()
+        }
+
+
+        this.node.once('start', async ()=> {
+            try {
+                await this.subscribeToTips()
                 resolve()
-            })
+            } catch(err) {
+                reject(err)
+            }
         })
 
         return p
     }
+
+    async subscribeToTips() {
+        let resolve:Function,reject:Function
+        const p = new Promise((res,rej)=> { resolve = res, reject = rej})
+
+        this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg:IPubSubMessage) => {
+            this.tip = new CID(Buffer.from(msg.data))
+            this.emit('tip', this.tip)
+        }, (err:Error) => {
+            if (err) {
+                reject(err)
+                return
+            }
+            resolve()
+        })
+    }
+
 }

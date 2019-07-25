@@ -2,7 +2,9 @@ const libp2p = require('./js/p2p')
 
 export interface IP2PNode {
     pubsub:any;
+    state:any;
     start(cb:Function):null;
+    isStarted():boolean;
     stop():null;
     on(evt:string, cb:Function):null;
     once(evt:string, cb:Function):null;
