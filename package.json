@@ -40,7 +40,7 @@
     "peer-info": "^0.15.1",
     "pull-mplex": "^0.1.2",
     "pull-ws": "^3.3.2",
-    "tupelo-messages": "0.5.0-rc3",
+    "tupelo-messages": "0.5.0-rc4",
     "util": "^0.12.1"
   },
   "devDependencies": {
