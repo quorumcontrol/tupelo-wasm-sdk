@@ -90,8 +90,13 @@ export class Community extends EventEmitter {
         const p = new Promise((res,rej)=> { resolve = res, reject = rej})
 
         this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg:IPubSubMessage) => {
-            this.tip = new CID(Buffer.from(msg.data))
+            if (msg.data.length > 0) {
+                this.tip = new CID(Buffer.from(msg.data))
+            } else {
+                console.log("received null tip")
+            }
             this.emit('tip', this.tip)
+
         }, (err:Error) => {
             if (err) {
                 reject(err)
