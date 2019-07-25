@@ -25,40 +25,64 @@ export class Community extends EventEmitter {
     private repo:IRepo
     bitswap:ICallbackBitswap
     blockservice:IBlockService
+    
+    private _started:boolean
+    private _startPromise:Promise<Community>
+    private _startPromiseResolve:Function
+    private _startPromiseReject:Function
 
     constructor(node:IP2PNode, group:NotaryGroup, repo:IRepo) {
         super()
+        this._started = false;
         this.node = node;
         this.group = group;
         this.repo = repo
         this.bitswap = new IpfsBitswap(this.node, this.repo.blocks)
         this.blockservice = new WrappedBlockService(new IpfsBlockService(this.repo))
         this.blockservice.setExchange(this.bitswap)
+        this._startPromiseResolve = ()=>{} // replaced on the line below, this just stops typescript from complaining
+        this._startPromiseReject = ()=>{} // replaced on the line below, this just stops typescript from complaining
+        this._startPromise = new Promise((resolve) => { this._startPromiseResolve = resolve})
+    }
+
+    async waitForStart() {
+        return this._startPromise
     }
 
     async start() {
-        let resolve:Function,reject:Function
-        const p = new Promise((res,rej)=> { resolve = res, reject = rej})
-        
+        if (this._started) {
+            return this._startPromise
+        }
+        this._started = true
+
         this.bitswap.start(() => {
             console.log("bitswap started")
         })
 
         if (this.node.isStarted()) {
-            return this.subscribeToTips()
-        }
-
-
-        this.node.once('start', async ()=> {
             try {
                 await this.subscribeToTips()
-                resolve()
             } catch(err) {
-                reject(err)
+                this._started = false
+                this._startPromiseReject(err)
             }
+        } else {
+            this.node.once('start', async ()=> {
+                try {
+                    await this.subscribeToTips()
+                } catch(err) {
+                    this._started = false
+                    this._startPromiseReject(err)
+                }
+            })
+        }
+
+        this.once('tip', ()=> {
+            this._startPromiseResolve(this)
+            this.emit('start')
         })
 
-        return p
+        return this._startPromise
     }
 
     async subscribeToTips() {

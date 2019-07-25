@@ -85,10 +85,11 @@ describe('Community', () => {
     })
 
     const c = new Community(node, notaryGroup, repo.repo)
+    c.start()
 
     node.once('peer:connect', async () => {
       console.log("node started");
-      await c.start()
+      await c.waitForStart()
       // now the node has connected to the network
       c.on('tip', (tip: CID) => {
         expect(tip).to.exist
@@ -99,7 +100,6 @@ describe('Community', () => {
 
     return p
   }).timeout(10000)
-
 
   // requires a running tupelo
   it('gets a chaintree tip', async () => {
