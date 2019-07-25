@@ -45,11 +45,11 @@ export class Community extends EventEmitter {
         this._startPromise = new Promise((resolve) => { this._startPromiseResolve = resolve})
     }
 
-    async waitForStart() {
+    async waitForStart():Promise<Community> {
         return this._startPromise
     }
 
-    async start() {
+    async start():Promise<Community> {
         if (this._started) {
             return this._startPromise
         }
