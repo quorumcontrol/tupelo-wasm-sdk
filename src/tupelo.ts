@@ -49,6 +49,9 @@ class UnderlyingWasm {
     ecdsaPubkeyToDid(pubKey:Uint8Array):Promise<string> {
         return new Promise<string>((res, rej) => { }) // replaced by wasm
     }
+    ecdsaPubkeyToAddress(pubKey:Uint8Array):Promise<string> {
+        return new Promise<string>((res, rej) => { }) // replaced by wasm
+    }
     getCurrentState(opts: IGetCurrentStateOptions):Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
@@ -104,6 +107,11 @@ export namespace Tupelo {
         return tw.ecdsaPubkeyToDid(pubKey)
     }
 
+    export async function ecdsaPubkeyToAddress(pubKey:Uint8Array):Promise<string> {
+        const tw = await TupeloWasm.get()
+        return tw.ecdsaPubkeyToAddress(pubKey)
+    }
+    
     export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState> {
         const tw = await TupeloWasm.get()
         try {

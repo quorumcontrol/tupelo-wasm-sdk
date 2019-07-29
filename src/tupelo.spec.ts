@@ -42,6 +42,12 @@ describe('Tupelo', () => {
     expect(did).to.have.lengthOf(53)
   })
 
+  it('gets an address from a publicKey', async ()=> {
+    const key = await EcdsaKey.generate()
+    const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
+    expect(addr).to.have.lengthOf(42)
+  })
+
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
     const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
