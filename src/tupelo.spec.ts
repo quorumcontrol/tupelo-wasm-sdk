@@ -62,6 +62,7 @@ describe('Tupelo', () => {
     p.then(() => {
       node.stop()
     })
+    console.log('node exists')
     
     const c = new Community(node, notaryGroup, repo.repo)
     const comPromise = c.start()

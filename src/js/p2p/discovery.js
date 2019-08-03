@@ -92,7 +92,12 @@ class RoutingDiscovery extends EventEmitter {
             this._nsCid = await nsToCid(this._namespace);
         }
         this.node.contentRouting.findProviders(this._nsCid, 1800, (err, providers) => {
-            if (err) { throw err }
+            if (err) { 
+                if (err.message === "no providers found") {
+                    return // we don't want to throw an error when we just haven't found the providers yet
+                }
+                throw err 
+            }
         
             for (const peerInfo of providers) {
                 this.stub().emit('peer', peerInfo)
