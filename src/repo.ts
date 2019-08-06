@@ -18,6 +18,11 @@ export interface RepoOpts {
     storageBackends:IStorageBackendOpts
 }
 
+// todo: finish up the whole interface https://github.com/ipfs/interface-datastore/tree/v0.6.0
+export interface IQuery {
+    prefix:string
+}
+
 export class Repo {
     repo:any
     constructor(name:string, opts:RepoOpts) {
@@ -38,6 +43,10 @@ export class Repo {
 
     async put(key:IKey, val:Uint8Array) {
         return util.promisify(this.repo.datastore.put.bind(this.repo.datastore))(key,val)
+    }
+
+    query(query:IQuery) {
+        return this.repo.datastore.query(query)
     }
 }
 

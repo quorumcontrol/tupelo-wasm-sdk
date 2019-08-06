@@ -4,10 +4,11 @@ import Repo from '../repo';
 import { Community } from '../community/community';
 import { EcdsaKey } from '../crypto';
 import { NotaryGroup } from 'tupelo-messages';
+import {GenerateKeyResponse, ListKeysResponse} from 'tupelo-messages/services/services_pb'
 import { p2p, IP2PNode } from '../node';
 
 const Key = require("interface-datastore").Key
-
+const pull = require('pull-stream/pull')
 
 interface IRepo {
     blocks: IBlockService
@@ -17,6 +18,11 @@ interface ITupeloClientOptions {
     keystore: IDataStore
     blockstore: IDataStore
     notaryGroup: NotaryGroup
+}
+
+interface IKeyValuePair {
+    key:IKey,
+    value:Uint8Array
 }
 
 export class TupeloClient {
@@ -69,8 +75,36 @@ export class TupeloClient {
         if (ecdsaKey.privateKey === undefined) {
             throw new Error("got undefined private key from key generation")
         }
+        const resp = new GenerateKeyResponse()
+        resp.setKeyAddr(await ecdsaKey.keyAddr())
         await this.repo.put(dbKey, ecdsaKey.privateKey)
-        return ecdsaKey
+        return resp
+    }
+
+    async listKeys() {
+        let resolve:Function, reject:Function
+        const p = new Promise<ListKeysResponse>((res,rej)=> {resolve = res, reject = rej})
+       
+        const resp = new ListKeysResponse()
+        pull(
+            this.repo.query({
+                prefix: "/privatekeys"
+            }),
+            pull.collect(async (err:Error, list:IKeyValuePair[])=> {
+                if (err !== null) {
+                    console.log('error in query: ', err)
+                    reject(err)
+                }
+                let stringList = []
+                for (let i = 0; i < list.length; i++) {
+                    let ecdsaKey = await EcdsaKey.fromBytes(list[i].value)
+                    stringList[i] = await ecdsaKey.keyAddr()
+                }
+                resp.setKeyAddrsList(stringList)
+                resolve(resp)
+            })
+        )
+        return p
     }
 
     private async _startCommunity() {
