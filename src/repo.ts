@@ -45,6 +45,10 @@ export class Repo {
         return util.promisify(this.repo.datastore.put.bind(this.repo.datastore))(key,val)
     }
 
+    async get(key:IKey) {
+        return util.promisify(this.repo.datastore.get.bind(this.repo.datastore))(key)
+    }
+
     query(query:IQuery) {
         return this.repo.datastore.query(query)
     }

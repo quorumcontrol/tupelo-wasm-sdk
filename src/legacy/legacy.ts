@@ -4,8 +4,9 @@ import Repo from '../repo';
 import { Community } from '../community/community';
 import { EcdsaKey } from '../crypto';
 import { NotaryGroup } from 'tupelo-messages';
-import {GenerateKeyResponse, ListKeysResponse} from 'tupelo-messages/services/services_pb'
+import {GenerateKeyResponse, ListKeysResponse, GenerateChainResponse} from 'tupelo-messages/services/services_pb'
 import { p2p, IP2PNode } from '../node';
+import { ChainTree } from '../chaintree';
 
 const Key = require("interface-datastore").Key
 const pull = require('pull-stream/pull')
@@ -68,10 +69,9 @@ export class TupeloClient {
 
     async generateKey() {
         const ecdsaKey = await EcdsaKey.generate()
-        if (ecdsaKey.keyAddr === undefined) {
-            throw new Error("undefined ecdsa key")
-        }
-        const dbKey = new Key("/privatekeys/" + ecdsaKey.keyAddr)
+        const keyAddr = await ecdsaKey.keyAddr()
+
+        const dbKey = new Key("/privatekeys/" + keyAddr)
         if (ecdsaKey.privateKey === undefined) {
             throw new Error("got undefined private key from key generation")
         }
@@ -88,7 +88,7 @@ export class TupeloClient {
         const resp = new ListKeysResponse()
         pull(
             this.repo.query({
-                prefix: "/privatekeys"
+                prefix: "/privatekeys/"
             }),
             pull.collect(async (err:Error, list:IKeyValuePair[])=> {
                 if (err !== null) {
@@ -105,6 +105,35 @@ export class TupeloClient {
             })
         )
         return p
+    }
+
+    async createChainTree(keyAddr:string) {
+        if (this.community === undefined) {
+            throw new Error("community is undefined")
+        }
+        const resp = new GenerateChainResponse()
+        let key:EcdsaKey
+        try {
+            key = await this._getKey(keyAddr)
+        } catch(e) {
+            throw new Error("error getting key from addr: " + e.message)
+        }
+        const tree = await ChainTree.newEmptyTree(this.community.blockservice, key)
+
+        const id = await tree.id()
+        if (id == undefined) {
+            throw new Error("undefined id returned")
+        }
+
+        await this.repo.put(new Key("/chaintrees/" + id), tree.tip.buffer)
+        resp.setChainId(id)
+
+        return resp
+      }
+
+    private async _getKey(addr:string) {
+        let bits = await this.repo.get(new Key("/privatekeys/" + addr))
+        return EcdsaKey.fromBytes(bits)
     }
 
     private async _startCommunity() {
