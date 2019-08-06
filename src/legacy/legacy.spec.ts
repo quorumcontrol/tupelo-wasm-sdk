@@ -62,8 +62,18 @@ describe('TupeloClient', () => {
         let key = await client.generateKey()
         let resp = await client.createChainTree(key.getKeyAddr())
         expect(resp.getChainId()).to.equal(key.getKeyAddr())
+    })
 
+    it('listChainTrees', async ()=> {
+        const client = await createClient()
 
+        const key = await client.generateKey()
+        const treeResp = await client.createChainTree(key.getKeyAddr())
+        expect(treeResp.getChainId()).to.equal(key.getKeyAddr())
+
+        const resp = await client.listChainIds()
+        expect(resp.getChainIdsList()).to.have.length(1)
+        expect(resp.getChainIdsList()[0]).to.equal(treeResp.getChainId())
     })
 
 })

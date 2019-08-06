@@ -4,7 +4,7 @@ import Repo from '../repo';
 import { Community } from '../community/community';
 import { EcdsaKey } from '../crypto';
 import { NotaryGroup } from 'tupelo-messages';
-import {GenerateKeyResponse, ListKeysResponse, GenerateChainResponse} from 'tupelo-messages/services/services_pb'
+import { GenerateKeyResponse, ListKeysResponse, GenerateChainResponse, ListChainIdsResponse } from 'tupelo-messages/services/services_pb'
 import { p2p, IP2PNode } from '../node';
 import { ChainTree } from '../chaintree';
 
@@ -22,16 +22,16 @@ interface ITupeloClientOptions {
 }
 
 interface IKeyValuePair {
-    key:IKey,
-    value:Uint8Array
+    key: IKey,
+    value: Uint8Array
 }
 
 export class TupeloClient {
     repo: Repo
     notaryGroup: NotaryGroup
-    
-    community?:Community
-    node?:IP2PNode
+
+    community?: Community
+    node?: IP2PNode
 
     constructor(opts: ITupeloClientOptions) {
         this.repo = this._createRepo(opts)
@@ -82,15 +82,15 @@ export class TupeloClient {
     }
 
     async listKeys() {
-        let resolve:Function, reject:Function
-        const p = new Promise<ListKeysResponse>((res,rej)=> {resolve = res, reject = rej})
-       
+        let resolve: Function, reject: Function
+        const p = new Promise<ListKeysResponse>((res, rej) => { resolve = res, reject = rej })
+
         const resp = new ListKeysResponse()
         pull(
             this.repo.query({
                 prefix: "/privatekeys/"
             }),
-            pull.collect(async (err:Error, list:IKeyValuePair[])=> {
+            pull.collect(async (err: Error, list: IKeyValuePair[]) => {
                 if (err !== null) {
                     console.log('error in query: ', err)
                     reject(err)
@@ -107,15 +107,15 @@ export class TupeloClient {
         return p
     }
 
-    async createChainTree(keyAddr:string) {
+    async createChainTree(keyAddr: string) {
         if (this.community === undefined) {
             throw new Error("community is undefined")
         }
         const resp = new GenerateChainResponse()
-        let key:EcdsaKey
+        let key: EcdsaKey
         try {
             key = await this._getKey(keyAddr)
-        } catch(e) {
+        } catch (e) {
             throw new Error("error getting key from addr: " + e.message)
         }
         const tree = await ChainTree.newEmptyTree(this.community.blockservice, key)
@@ -129,9 +129,38 @@ export class TupeloClient {
         resp.setChainId(id)
 
         return resp
-      }
+    }
 
-    private async _getKey(addr:string) {
+    async listChainIds() {
+        if (this.community === undefined) {
+            throw new Error("community is undefined")
+        }
+
+        const resp = new ListChainIdsResponse()
+        let resolve: Function, reject: Function
+        const p = new Promise<ListChainIdsResponse>((res, rej) => { resolve = res, reject = rej })
+        pull(
+            this.repo.query({
+                prefix: "/chaintrees/"
+            }),
+            pull.collect(async (err: Error, list: IKeyValuePair[]) => {
+                if (err !== null) {
+                    console.log('error in query: ', err)
+                    reject(err)
+                }
+                let stringList = []
+                for (let i = 0; i < list.length; i++) {
+                    let key = list[i].key.toString().slice("/chaintrees/".length)
+                    stringList[i] = key
+                }
+                resp.setChainIdsList(stringList)
+                resolve(resp)
+            })
+        )
+        return p
+    }
+
+    private async _getKey(addr: string) {
         let bits = await this.repo.get(new Key("/privatekeys/" + addr))
         return EcdsaKey.fromBytes(bits)
     }
@@ -141,15 +170,15 @@ export class TupeloClient {
         node.on('error', (err: Error) => {
             console.error('p2p error: ', err)
         })
-    
+
         node.once('peer:connect', async () => {
             console.log("peer connected")
         })
-    
+
         node.start(() => {
             console.log("node started");
         });
-    
+
         const c = new Community(node, this.notaryGroup, this.repo.repo)
         this.community = c
         return c.start()

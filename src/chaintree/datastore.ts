@@ -1,5 +1,5 @@
 export interface IKey {
-    toString():String
+    toString():string
 }
 /*
 IDataStore describes the interface implemented by IPFS
