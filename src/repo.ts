@@ -1,8 +1,9 @@
 import util from 'util'
+import { IKey } from './chaintree/datastore';
 
 const IpfsRepo:any = require('ipfs-repo');
-const IpfsBlockService:any = require('ipfs-block-service');
-const MemoryDatastore:any = require('interface-datastore').MemoryDatastore;
+// const IpfsBlockService:any = require('ipfs-block-service');
+// const MemoryDatastore:any = require('interface-datastore').MemoryDatastore;
 
 // TODO: move these from any
 interface IStorageBackendOpts {
@@ -23,12 +24,20 @@ export class Repo {
         this.repo = new IpfsRepo(name, opts)
     }
 
-    init(opts:any) {
+    async init(opts:any) {
         return util.promisify(this.repo.init.bind(this.repo))(opts)
     }
 
-    open() {
+    async open() {
         return util.promisify(this.repo.open.bind(this.repo))()
+    }
+
+    async close() {
+        return util.promisify(this.repo.close.bind(this.repo))()
+    }
+
+    async put(key:IKey, val:Uint8Array) {
+        return util.promisify(this.repo.datastore.put.bind(this.repo.datastore))(key,val)
     }
 }
 

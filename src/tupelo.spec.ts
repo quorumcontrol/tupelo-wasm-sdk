@@ -7,7 +7,7 @@ import { p2p } from './node';
 import { Tupelo } from './tupelo';
 import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { EcdsaKey } from './crypto';
-import ChainTree from './chaintree/chaintree';
+import ChainTree, { setDataTransaction } from './chaintree/chaintree';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
 import { tomlToNotaryGroup } from './notarygroup';
 import path from 'path';
@@ -82,16 +82,7 @@ describe('Tupelo', () => {
 
       let tree = await ChainTree.newEmptyTree(c.blockservice, key)
       console.log("created empty tree")
-      const trans = new Transaction()
-      const payload = new SetDataPayload()
-      payload.setPath("/hi")
-
-      const serialized = dagCBOR.util.serialize("hihi")
-
-      payload.setValue(new Uint8Array(serialized))
-      trans.setType(Transaction.Type.SETDATA)
-      trans.setSetDataPayload(payload)
-
+      const trans = setDataTransaction("/hi", "hihi")
 
       Tupelo.playTransactions(node.pubsub, notaryGroup, tree, [trans]).then(
         async (success: CurrentState) => {

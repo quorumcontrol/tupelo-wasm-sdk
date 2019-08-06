@@ -4,10 +4,14 @@ import {Tupelo} from './tupelo'
 export class EcdsaKey {
     privateKey?: Uint8Array
     publicKey: Uint8Array
+    keyAddr?:string
 
     static generate = async ()=> {
         const pair = await Tupelo.generateKey()
-        return new EcdsaKey(pair[1], pair[0])
+        const addr = await Tupelo.ecdsaPubkeyToDid(pair[1])
+        const key = new EcdsaKey(pair[1], pair[0])
+        key.keyAddr = addr
+        return key
     }
 
     static passPhraseKey = async (phrase:Uint8Array, salt:Uint8Array) => {
