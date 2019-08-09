@@ -11,7 +11,7 @@ import path from 'path';
 import CID from 'cids';
 import Repo from '../repo'
 import { EcdsaKey } from '../crypto';
-import ChainTree from '../chaintree/chaintree';
+import ChainTree, { setDataTransaction } from '../chaintree/chaintree';
 import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import Tupelo from '../tupelo';
 
@@ -164,5 +164,36 @@ describe('Community', () => {
 
     return p
   }).timeout(10000)
+
+  it('plays transactions', async ()=> {
+    let resolve: Function, reject: Function
+    const p = new Promise((res, rej) => { resolve = res, reject = rej })
+
+    const repo = await testRepo()
+
+    var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
+    p.then(() => {
+      node.stop()
+    })
+    node.on('error', (err: any) => {
+      reject(err)
+      console.log('error')
+    })
+    node.start(() => { });
+
+
+    const c = new Community(node, notaryGroup, repo.repo)
+    await c.start()
+
+    const trans = [setDataTransaction("/test", "oh really")]
+
+    const key = await EcdsaKey.generate()
+    const tree = await ChainTree.newEmptyTree(c.blockservice, key)
+    const resp = await c.playTransactions(tree, trans)
+    expect(resp.getSignature).to.exist
+    
+    setTimeout(()=>{resolve()}, 0)
+    return p
+  })
 
 })

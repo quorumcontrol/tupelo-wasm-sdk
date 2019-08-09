@@ -1,11 +1,13 @@
 import EventEmitter from 'events';
 import { IP2PNode, IPubSubMessage } from '../node';
 import { NotaryGroup } from 'tupelo-messages';
+import {Transaction} from 'tupelo-messages/transactions/transactions_pb'
 import CID from 'cids';
 import { IBlockService } from '../chaintree/dag/dag'
 import { ICallbackBitswap } from './wrappedbitswap'
 import { WrappedBlockService } from './wrappedblockservice'
 import Tupelo from '../tupelo';
+import { ChainTree } from '../chaintree';
 
 // const IpfsBlockService:any = require('ipfs-block-service');
 const IpfsBitswap: any = require('ipfs-bitswap')
@@ -64,6 +66,13 @@ export class Community extends EventEmitter {
             blockService: this.blockservice,
             tip: this.tip,
         })
+    }
+
+    /* playTransactions is a convenience wrapper on community to make calling the underlying Tupelo.playTransactions
+       easier when using a fully community client
+    */
+    async playTransactions(tree:ChainTree, transactions:Transaction[]) {
+        return Tupelo.playTransactions(this.node.pubsub, this.group, tree, transactions)
     }
 
     /* next update is a helper function
