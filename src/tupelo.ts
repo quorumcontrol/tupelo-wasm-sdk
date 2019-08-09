@@ -159,11 +159,11 @@ export namespace Tupelo {
 
         const currState = CurrentState.deserializeBinary(resp)
         const sig = currState.getSignature()
-        if (!sig) {
+        if (sig == undefined) {
             throw new Error("empty signature received from CurrState")
         }
 
-        tree.tip = new CID(Buffer.from(sig!.getNewTip_asU8()))
+        tree.tip = new CID(Buffer.from(sig.getNewTip_asU8()))
         return currState
     }
 }

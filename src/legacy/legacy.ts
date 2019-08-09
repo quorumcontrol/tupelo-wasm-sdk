@@ -4,9 +4,12 @@ import Repo from '../repo';
 import { Community } from '../community/community';
 import { EcdsaKey } from '../crypto';
 import { NotaryGroup } from 'tupelo-messages';
-import { GenerateKeyResponse, ListKeysResponse, GenerateChainResponse, ListChainIdsResponse, GetTipResponse } from 'tupelo-messages/services/services_pb'
+import {Transaction} from 'tupelo-messages/transactions/transactions_pb'
+import { GenerateKeyResponse, ListKeysResponse, GenerateChainResponse, ListChainIdsResponse, GetTipResponse, PlayTransactionsResponse } from 'tupelo-messages/services/services_pb'
 import { p2p, IP2PNode } from '../node';
 import { ChainTree } from '../chaintree';
+import CID from 'cids';
+import Tupelo from '../tupelo';
 
 const Key = require("interface-datastore").Key
 const pull = require('pull-stream/pull')
@@ -165,14 +168,40 @@ export class TupeloClient {
             throw new Error("community is undefined")
         }
         const resp = new GetTipResponse()
-        
-        // var req = new services.GetTipRequest();
-        // req.setCreds(this.walletCreds);
-        // req.setChainId(chainId);
-    
-        // return promiseAroundRpcCallback((clbk) => {
-        //   this.rpc.getTip(req, clbk);
-        // });
+        const currState = await this.community.getCurrentState(chainId)
+        const sig = currState.getSignature()
+        if (sig == undefined) {
+            throw new Error("empty signature received from CurrState")
+        }
+
+        const tip = new CID(Buffer.from(sig.getNewTip_asU8()))
+        resp.setTip(tip.toString())
+        return resp
+    }
+
+    async playTransactions(chainId:string, keyAddr:string, transactions:Transaction[]) {
+        if (this.community === undefined) {
+            throw new Error("community is undefined")
+        }
+        const key = await this._getKey(keyAddr)
+        const treeTipBits = await this.repo.get("/chaintrees/" + chainId)
+        const treeTip = new CID(treeTipBits)
+        const tree = new ChainTree({
+            store: this.community.blockservice,
+            tip: treeTip,
+            key: key,
+        })
+        const currState = await Tupelo.playTransactions(this.community.node.pubsub, this.community.group, tree, transactions)
+        const resp = new PlayTransactionsResponse()
+        const sig = currState.getSignature()
+        if (sig == undefined) {
+            throw new Error("empty signature received from CurrState")
+        }
+
+        const tip = new CID(Buffer.from(sig.getNewTip_asU8()))
+        resp.setTip(tip.toString())
+
+        return resp
     }
 
     private async _getKey(addr: string) {
