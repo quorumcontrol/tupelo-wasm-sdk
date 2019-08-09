@@ -130,6 +130,9 @@ export namespace Tupelo {
     }
 
     export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
+        if (tree.key == undefined) {
+            throw new Error("playing transactions on a tree requires the tree to have a private key, use tree.key = <ecdsaKey>")
+        }
         const tw = await TupeloWasm.get()
         console.log("serializing the transactions")
         let transBits: Uint8Array[] = new Array<Uint8Array>()

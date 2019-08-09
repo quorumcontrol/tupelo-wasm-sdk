@@ -7,19 +7,29 @@ import { SetDataPayload, Transaction, SetOwnershipPayload, TokenMonetaryPolicy, 
 
 const dagCBOR = require('ipld-dag-cbor');
 
+interface IChainTreeInitializer {
+    key?:EcdsaKey
+    tip:CID,
+    store:IBlockService,
+}
+
 export class ChainTree extends Dag {
-    key: EcdsaKey
+    key?: EcdsaKey
     store: IBlockService
 
     static newEmptyTree = async (store: IBlockService, key: EcdsaKey) => {
         const tip = await Tupelo.newEmptyTree(store, key.publicKey)
-        return new ChainTree(key, tip, store)
+        return new ChainTree({
+            key: key, 
+            tip: tip, 
+            store: store,
+        })
     }
 
-    constructor(key: EcdsaKey, tip: CID, store: IBlockService) {
-        super(tip, store)
-        this.key = key
-        this.store = store
+    constructor(opts:IChainTreeInitializer) {
+        super(opts.tip, opts.store)
+        this.key = opts.key
+        this.store = opts.store
     }
 
     async id() {
