@@ -4,7 +4,7 @@ import Repo from '../repo';
 import { Community } from '../community/community';
 import { EcdsaKey } from '../crypto';
 import { NotaryGroup } from 'tupelo-messages';
-import { GenerateKeyResponse, ListKeysResponse, GenerateChainResponse, ListChainIdsResponse } from 'tupelo-messages/services/services_pb'
+import { GenerateKeyResponse, ListKeysResponse, GenerateChainResponse, ListChainIdsResponse, GetTipResponse } from 'tupelo-messages/services/services_pb'
 import { p2p, IP2PNode } from '../node';
 import { ChainTree } from '../chaintree';
 
@@ -158,6 +158,21 @@ export class TupeloClient {
             })
         )
         return p
+    }
+
+    async getTip(chainId:string) {
+        if (this.community === undefined) {
+            throw new Error("community is undefined")
+        }
+        const resp = new GetTipResponse()
+        
+        // var req = new services.GetTipRequest();
+        // req.setCreds(this.walletCreds);
+        // req.setChainId(chainId);
+    
+        // return promiseAroundRpcCallback((clbk) => {
+        //   this.rpc.getTip(req, clbk);
+        // });
     }
 
     private async _getKey(addr: string) {

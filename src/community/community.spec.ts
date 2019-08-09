@@ -36,7 +36,7 @@ const testRepo = async () => {
   return repo
 }
 
-const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname,  '../../wasmtupelo/configs/wasmdocker.toml')).toString())
+const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '../../wasmtupelo/configs/wasmdocker.toml')).toString())
 
 describe('Community', () => {
 
@@ -141,28 +141,23 @@ describe('Community', () => {
       let transCurrentSig = transCurrent.getSignature()
       console.log('transaction complete')
 
-      c.on('tip', async () => {
-        console.log("getting current state of transaction")
-        const id = await tree.id()
-        if (id !== null && c.tip != undefined) {
-          const communityCurrent = await Tupelo.getCurrentState({
-            did: id,
-            blockService: c.blockservice,
-            tip: c.tip,
-          })
-          let communityCurrentSig = communityCurrent.getSignature()
-          if (transCurrentSig !== undefined && communityCurrentSig !== undefined) {
-            expect(communityCurrentSig.getSignature().toString()).to.equal(transCurrentSig.getSignature().toString())
-            resolve()
-            return
-          }
-          reject("undefined signatures")
-          return
-        }
-        reject("id was undefined")
-      })
+      console.log("getting current state of transaction")
+      const id = await tree.id()
+      if (id == undefined) {
+        reject(new Error("undefined"))
+        throw new Error("undefined")
 
-
+      }
+      await c.nextUpdate()
+      const communityCurrent = await c.getCurrentState(id)
+      let communityCurrentSig = communityCurrent.getSignature()
+      if (transCurrentSig !== undefined && communityCurrentSig !== undefined) {
+        expect(communityCurrentSig.getSignature().toString()).to.equal(transCurrentSig.getSignature().toString())
+        resolve()
+        return
+      }
+      reject("undefined signatures")
+      return
     })
 
     node.start(() => { });
