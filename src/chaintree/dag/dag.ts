@@ -73,7 +73,7 @@ export interface IDagStore {
  */
 export interface IResolveResponse {
   remainderPath: string[]
-  value: Object | null
+  value: any
 }
 
 /**
