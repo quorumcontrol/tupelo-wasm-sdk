@@ -1,10 +1,11 @@
 export interface IKey {
     toString():string
 }
-/*
-IDataStore describes the interface implemented by IPFS
-Note that we are currently on 0.6.0 of the datastore which uses a callback
-style insted of promises
+/** 
+ * Describes the interface implemented by IPFS
+ * @remarks
+ * we are currently on 0.6.0 of the datastore which uses a callback style insted of promises
+ * 
 */
 export interface IDataStore {
     has(key:IKey, cb:Function):void

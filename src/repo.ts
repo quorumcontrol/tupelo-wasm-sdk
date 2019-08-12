@@ -13,18 +13,36 @@ interface IStorageBackendOpts {
     datastore:any
 }
 
+/**
+ * Options used to create a new IPFS repo. {@link https://github.com/ipfs/js-ipfs-repo}
+ * @public
+ */
 export interface RepoOpts {
     lock:string
     storageBackends:IStorageBackendOpts
 }
 
-// todo: finish up the whole interface https://github.com/ipfs/interface-datastore/tree/v0.6.0
+/**
+ * The interface to an IPFS Query {@link https://github.com/ipfs/interface-datastore}
+ * @remarks
+ * todo: finish up the whole interface https://github.com/ipfs/interface-datastore/tree/v0.6.0
+ * @public
+ */
 export interface IQuery {
     prefix:string
 }
 
+/**
+ * Repo is a typescript wrapper around the IPFS Repo {@link https://github.com/ipfs/js-ipfs-repo}
+ * @public
+ */
 export class Repo {
     repo:any
+    /**
+     * @param name - The name of the repo
+     * @param opts - {@link RepoOpts}
+     * @public
+     */
     constructor(name:string, opts:RepoOpts) {
         this.repo = new IpfsRepo(name, opts)
     }

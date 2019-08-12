@@ -21,6 +21,12 @@ interface IRepo {
     blocks: IBlockService
 }
 
+/**
+ * Commmunity is a combination of a Tupelo NotaryGroup and the application 'Community' running.
+ * The remote p2p community app will also store blocks, and this is the default supported way
+ * that the current wasm-sdk works.
+ * @public
+ */
 export class Community extends EventEmitter {
     node: IP2PNode
     group: NotaryGroup

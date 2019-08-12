@@ -7,16 +7,32 @@ import { SetDataPayload, Transaction, SetOwnershipPayload, TokenMonetaryPolicy, 
 
 const dagCBOR = require('ipld-dag-cbor');
 
-interface IChainTreeInitializer {
+/**
+ * The options to create a new ChainTree.
+ * @public
+ */
+export interface IChainTreeInitializer {
     key?:EcdsaKey
     tip:CID,
     store:IBlockService,
 }
 
+/**
+ * ChainTree is the main class used for interacting with the data of Tupelo. 
+ * See {@link https://docs.quorumcontrol.com/docs/chaintree.html} for a detailed description
+ * of what a ChainTree is.
+ * @public
+ */
 export class ChainTree extends Dag {
     key?: EcdsaKey
     store: IBlockService
 
+    /**
+     * Creates a new empty chaintree using the specified key and blockservice.
+     * @param store - The {@link IBlockService} to store the new blocks in (Community exports a block service)
+     * @param key - The {@link EcdsaKey} to use to name the ChainTree (this is used to create the DID)
+     * @public
+     */
     static newEmptyTree = async (store: IBlockService, key: EcdsaKey) => {
         const tip = await Tupelo.newEmptyTree(store, key.publicKey)
         return new ChainTree({
@@ -26,12 +42,21 @@ export class ChainTree extends Dag {
         })
     }
 
+    /**
+     * Creates a new ChainTree
+     * @param opts - {@link IChainTreeInitializer}
+     * @public
+     */
     constructor(opts:IChainTreeInitializer) {
         super(opts.tip, opts.store)
         this.key = opts.key
         this.store = opts.store
     }
 
+    /** 
+     * Returns the DID of the ChainTree
+     * @public
+     */
     async id() {
         const resolveResp = await this.resolve(["id"])
         return resolveResp.value as string | null
@@ -45,6 +70,11 @@ const setOwnershipPayload = (newOwnerKeys: string[]) => {
     return payload;
 };
 
+/**
+ * returns a setOwnershipTransaction
+ * @param newOwnerKeys - An array of the addresses of the new owners
+ * @public
+ */
 export const setOwnershipTransaction = (newOwnerKeys: string[]) => {
     var payload = setOwnershipPayload(newOwnerKeys);
     var txn = new Transaction();
@@ -63,6 +93,12 @@ const setDataPayloadMaker = (path: string, value: any) => {
     return payload;
 };
 
+/**
+ * Returns a setDataTransaction
+ * @param path - The path of the Tree to set
+ * @param value - An object to set at the path (this will be CBOR encoded for you).
+ * @public
+ */
 export const setDataTransaction = (path: string, value: any) => {
     var payload = setDataPayloadMaker(path, value);
     var txn = new Transaction();
@@ -83,6 +119,11 @@ const establishTokenPayload = (name: string, maximum: number) => {
     return payload;
 };
 
+/** 
+ * Returns a new establishTokenTransaction which is used to setup the monetary policy
+ * of a new token on a ChainTree
+ * @public
+ */
 export const establishTokenTransaction = (name: string, maximum: number) => {
     var payload = establishTokenPayload(name, maximum);
 
@@ -101,6 +142,9 @@ const mintTokenPayload = (name: string, amount: number) => {
     return payload;
 };
 
+/** 
+ * @public 
+ */
 export const mintTokenTransaction = (name: string, amount: number) => {
     var payload = mintTokenPayload(name, amount);
 
@@ -121,6 +165,9 @@ const sendTokenPayload = (sendId: string, name: string, amount: number, destinat
     return payload;
 };
 
+/** 
+ * @public
+ */
 export const sendTokenTransaction = (sendId: string, name: string, amount: number, destinationChainId: string) => {
     var payload = sendTokenPayload(sendId, name, amount, destinationChainId);
 
@@ -141,6 +188,9 @@ const receiveTokenPayload = (sendId: string, tip: Uint8Array, signature: Signatu
     return payload;
 };
 
+/** 
+ * @public
+ */
 export const receiveTokenTransaction = (sendId: string, tip: Uint8Array, signature: Signature, leaves: Uint8Array[]) => {
     var payload = receiveTokenPayload(sendId, tip, signature, leaves);
 

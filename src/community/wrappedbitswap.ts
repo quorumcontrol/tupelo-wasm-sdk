@@ -2,6 +2,10 @@ import {IBlock, IBlockService} from '../chaintree/dag/dag'
 import CID from 'cids'
 import util from 'util';
 
+/**
+ * The callback-based version of Bitswap (current master).
+ * @public
+ */
 export interface ICallbackBitswap {
     put(block:IBlock, cb:Function):void
     get(cid:CID, cb:Function):void
@@ -16,6 +20,11 @@ export interface ICallbackBitswap {
     stat():any //Object
 }
 
+/**
+ * A wrapper around an IPFS call-back-based bitswap that turns it into async/await compatible.
+ * There is currently an open PR on the bitswap repo that will allow us to switch to the IPFS-maintained bitswap completely.
+ * @public
+ */
 export class WrappedBitswap {
     private bitswap:ICallbackBitswap
     constructor(bitswap:ICallbackBitswap) {

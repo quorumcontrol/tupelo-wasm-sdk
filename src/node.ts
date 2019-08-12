@@ -1,5 +1,9 @@
 const libp2p = require('./js/p2p')
 
+/**
+ * A instance of a js-libp2p node
+ * @public
+ */
 export interface IP2PNode {
     pubsub:any;
     state:any;
@@ -11,6 +15,10 @@ export interface IP2PNode {
     emit(evt:string):null;
 }
 
+/**
+ * Defines the interface used by libp2p for delivering pubsub messages
+ * @public
+ */
 export interface IPubSubMessage {
     from:string
     data:Uint8Array
@@ -18,11 +26,23 @@ export interface IPubSubMessage {
     topicIDs:string[]
 }
 
-interface INodeOptions {
+/**
+ * Defines the options to create a p2p node
+ * @public
+ */
+export interface INodeOptions {
     bootstrapAddresses?:string[]
 }
 
+/**
+ * @public
+ */
 export namespace p2p {
+    /**
+     * 
+     * @param opts - {@link INodeOptions}
+     * @public
+     */
     export async function createNode(opts:INodeOptions):Promise<IP2PNode> {
         return libp2p.CreateNode({
             config: {

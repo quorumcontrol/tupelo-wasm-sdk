@@ -9,7 +9,10 @@ import ChainTree from './chaintree/chaintree';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 
-
+/**
+ * The interface describing libp2p pubsub
+ * @public
+ */
 export interface IPubSub {
     publish(topic: string, data: Uint8Array, cb: Function): null
     subscribe(topic: string, onMsg: Function, cb: Function): null
@@ -82,8 +85,12 @@ namespace TupeloWasm {
     }
 }
 
-// Tupelo is the more "raw" namespace, it is generally expected (with the possible exception of playTransactions)
-// that you would use higher level wrapper classes around this namespace
+/**
+ * Tupelo is the more "raw" namespace, it is generally expected
+ * that you would use higher level wrapper classes around this namespace.
+ * For example: {@link EcdsaKey} or {@link Community}
+ * @public
+ */
 export namespace Tupelo {
 
     // generateKey returns a two element array of the bytes for [privateKey, publicKey]

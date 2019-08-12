@@ -11,6 +11,11 @@ interface ICallbackBlockService {
     hasExchange():boolean
 }
 
+/**
+ * A wrapper around a callback-based IBlockService that allows async/await
+ * There is an open PR on the bitswap PR which will allow us to switch to the ipfs-maintained version.
+ * @public
+ */
 export class WrappedBlockService implements IBlockService {
     private blockservice:ICallbackBlockService
 
