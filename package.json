@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "tsc && cp -r src/js lib/",
+    "build": "./build.sh",
     "test": "mocha --exit -r ts-node/register src/*.spec.ts src/**/*.spec.ts",
     "build:wasm": "cd ./tupelo-go-sdk/wasm && GOOS=js GOARCH=wasm go build -ldflags='-s -w' -o ../../src/js/go/main.wasm"
   },
@@ -44,6 +44,8 @@
     "util": "^0.12.1"
   },
   "devDependencies": {
+    "@microsoft/api-documenter": "^7.3.14",
+    "@microsoft/api-extractor": "^7.3.7",
     "@types/chai": "^4.1.7",
     "@types/google-protobuf": "^3.7.1",
     "@types/mocha": "^5.2.7",
