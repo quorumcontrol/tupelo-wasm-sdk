@@ -245,7 +245,7 @@ export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, signatur
 
 // @public
 export class Repo {
-    constructor(name: string, opts: RepoOpts);
+    constructor(name: string, opts?: RepoOpts);
     // (undocumented)
     close(): Promise<any>;
     // (undocumented)
