@@ -1,3 +1,4 @@
 main.wasm
 node_modules
 lib // ignore the generated code
+.tmp
