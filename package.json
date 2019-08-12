@@ -1,5 +1,5 @@
 {
-  "name": "tupelo-wasm",
+  "name": "tupelo-wasm-sdk",
   "version": "0.0.1",
   "description": "a test interaction of tupelo wasm",
   "main": "lib/index.js",
