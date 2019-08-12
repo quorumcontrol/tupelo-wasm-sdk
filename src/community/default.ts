@@ -51,9 +51,9 @@ DestKeyHex = "0x0419b700ed19ad89ebe515e6b7863b998552bca2750f61a5ffb7cd27e89c4efe
 
 export const defaultNotaryGroup = tomlToNotaryGroup(testNetToml)
 
-let _defaultCommunity: Community
+let _defaultCommunity: Community|undefined
 
-export const defaultCommunity = async (repo:Repo): Promise<Community> => {
+export const getDefault = async (repo:Repo): Promise<Community> => {
     if (_defaultCommunity !== undefined) {
         return _defaultCommunity.start()
     }
@@ -63,13 +63,14 @@ export const defaultCommunity = async (repo:Repo): Promise<Community> => {
         console.error('p2p error: ', err)
     })
 
-    node.once('peer:connect', async () => {
-        console.log("peer connected")
-    })
-
     node.start(() => {
         console.log("node started");
     });
+
+    // clear the defaultcommunity on a node stopage
+    node.once('stop', async ()=> {
+        _defaultCommunity = undefined
+    })
 
     const c = new Community(node, defaultNotaryGroup, repo.repo)
     _defaultCommunity = c

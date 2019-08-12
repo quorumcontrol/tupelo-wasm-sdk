@@ -6,8 +6,6 @@ import path from 'path';
 import { TupeloClient } from './legacy'
 import { tomlToNotaryGroup } from '../notarygroup';
 import { IDataStore } from '../chaintree/datastore';
-import { createClient } from 'http';
-import { create } from 'domain';
 import { setDataTransaction } from '../chaintree';
 
 const MemoryDatastore: IDataStore = require('interface-datastore').MemoryDatastore;
@@ -108,6 +106,6 @@ describe('TupeloClient', () => {
         await client.community.nextUpdate()
         const tipResp = await client.getTip(treeResp.getChainId())
         expect(tipResp.getTip()).to.equal(playResp.getTip())
-    })
+    }).timeout(5000)
 
 })
