@@ -53,6 +53,7 @@ describe('Repo', () => {
     const val = Buffer.from("hi")
     await repo.put(key, val)
     const retVal = await repo.get(key)
+    await repo.close()
     expect(retVal.toString()).to.equal(val.toString())
   })
 })

@@ -168,13 +168,7 @@ export class TupeloClient {
             throw new Error("community is undefined")
         }
         const resp = new GetTipResponse()
-        const currState = await this.community.getCurrentState(chainId)
-        const sig = currState.getSignature()
-        if (sig == undefined) {
-            throw new Error("empty signature received from CurrState")
-        }
-
-        const tip = new CID(Buffer.from(sig.getNewTip_asU8()))
+        const tip = await this.community.getTip(chainId)
         resp.setTip(tip.toString())
         return resp
     }

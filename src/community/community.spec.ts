@@ -101,8 +101,40 @@ describe('Community', () => {
     return p
   }).timeout(10000)
 
+  it('gets a chaintree tip', async ()=> {
+    let resolve: Function, reject: Function
+    const p = new Promise((res, rej) => { resolve = res, reject = rej })
+
+    const repo = await testRepo()
+
+    var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
+    p.then(() => {
+      node.stop()
+    })
+    node.on('error', (err: any) => {
+      reject(err)
+      console.log('error')
+    })
+    node.start(()=>{})
+
+    const c = new Community(node, notaryGroup, repo.repo)
+    await c.start()
+
+    const key = await EcdsaKey.generate()
+    const tree = await ChainTree.newEmptyTree(c.blockservice, key)
+    const id = await tree.id()
+    if (id == null) {
+      throw new Error("error getting id")
+    }
+    await c.playTransactions(tree, [setDataTransaction("/somewhere/cool", "foo")])
+    await c.nextUpdate()
+
+    const respTip = await c.getTip(id)
+    expect(respTip.toString()).to.equal(tree.tip.toString())
+  }).timeout(10000)
+
   // requires a running tupelo
-  it('gets a chaintree tip', async () => {
+  it('gets a chaintree currentState', async () => {
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
 
@@ -144,9 +176,7 @@ describe('Community', () => {
       console.log("getting current state of transaction")
       const id = await tree.id()
       if (id == undefined) {
-        reject(new Error("undefined"))
         throw new Error("undefined")
-
       }
       await c.nextUpdate()
       const communityCurrent = await c.getCurrentState(id)
@@ -189,10 +219,13 @@ describe('Community', () => {
 
     const key = await EcdsaKey.generate()
     const tree = await ChainTree.newEmptyTree(c.blockservice, key)
-    const resp = await c.playTransactions(tree, trans)
-    expect(resp.getSignature).to.exist
+    c.playTransactions(tree, trans).then((resp)=> {
+      expect(resp.getSignature).to.exist
+      resolve()
+    }, (err)=> {
+      reject(err)
+    })
     
-    setTimeout(()=>{resolve()}, 0)
     return p
   })
 

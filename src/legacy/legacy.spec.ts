@@ -10,17 +10,7 @@ import { setDataTransaction } from '../chaintree';
 
 const MemoryDatastore: IDataStore = require('interface-datastore').MemoryDatastore;
 
-describe('TupeloClient', () => {
-    let cleanupFunc: Function | undefined
-    let client: TupeloClient
-
-    afterEach(() => {
-        if (cleanupFunc !== undefined) {
-            cleanupFunc()
-            cleanupFunc = undefined
-        }
-    })
-
+describe('legacy TupeloClient', () => {
     const createClient = async () => {
         const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
 
@@ -30,9 +20,6 @@ describe('TupeloClient', () => {
             notaryGroup: notaryGroup,
         })
 
-        cleanupFunc = () => {
-            client.close()
-        }
         await client.start()
         return client
     }
@@ -43,6 +30,7 @@ describe('TupeloClient', () => {
         let key = await client.generateKey()
 
         expect(key.getKeyAddr()).to.have.length(53)
+        // await client.close()
     })
 
     it('listKeys', async () => {
@@ -53,6 +41,7 @@ describe('TupeloClient', () => {
         let keys = await client.listKeys()
         expect(keys.getKeyAddrsList()).to.have.length(1)
         expect(keys.getKeyAddrsList()[0]).to.equal(key.getKeyAddr())
+        // await client.close()
     })
 
     it('createChainTree', async () => {
@@ -61,6 +50,8 @@ describe('TupeloClient', () => {
         let key = await client.generateKey()
         let resp = await client.createChainTree(key.getKeyAddr())
         expect(resp.getChainId()).to.equal(key.getKeyAddr())
+        // await client.close()
+
     })
 
     it('listChainTrees', async ()=> {
@@ -73,6 +64,8 @@ describe('TupeloClient', () => {
         const resp = await client.listChainIds()
         expect(resp.getChainIdsList()).to.have.length(1)
         expect(resp.getChainIdsList()[0]).to.equal(treeResp.getChainId())
+        // await client.close()
+
     })
 
     it('plays transactions', async ()=> {
@@ -86,6 +79,8 @@ describe('TupeloClient', () => {
 
         const resp = await client.playTransactions(treeResp.getChainId(), key.getKeyAddr(), trans)
         expect(resp.getTip()).to.have.length(59)
+        // await client.close()
+
     })
 
     it('getTip', async ()=> {
@@ -96,16 +91,20 @@ describe('TupeloClient', () => {
         expect(treeResp.getChainId()).to.equal(key.getKeyAddr())
 
         const trans = [setDataTransaction("/test", "bob")]
-
+        console.log('playResp')
         const playResp = await client.playTransactions(treeResp.getChainId(), key.getKeyAddr(), trans)
         expect(playResp.getTip()).to.have.length(59)
 
         if (client.community == undefined) {
             throw new Error("Client has no community")
         }
+        console.log('nextUpdate')
         await client.community.nextUpdate()
+        console.log('getTip')
         const tipResp = await client.getTip(treeResp.getChainId())
         expect(tipResp.getTip()).to.equal(playResp.getTip())
-    }).timeout(5000)
+        await client.close()
+
+    }).timeout(10000)
 
 })
