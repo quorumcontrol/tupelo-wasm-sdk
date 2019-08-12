@@ -72,6 +72,11 @@ class TupeloP2P extends libp2p {
         console.log("discovery started");
       })
     })
+    this.once('stop', ()=> {
+      routingDiscoverer.stop(()=> {
+        console.log("routing stopped");
+      })
+    })
    
     this._routingDiscoverer = routingDiscoverer
   }
@@ -104,9 +109,6 @@ module.exports.CreateNode = async function(options) {
     options.peerInfo = peerInfo;
     const node = new TupeloP2P(options);
     console.log("peerIdStr ", peerID.toB58String());
-    process.on("exit", () => {
-        node.stop();
-    });
     resolve(node);
   })
   return p;

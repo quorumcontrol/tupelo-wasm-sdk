@@ -38,17 +38,14 @@ export class Community extends EventEmitter {
     bitswap: ICallbackBitswap;
     // (undocumented)
     blockservice: IBlockService;
-    // (undocumented)
     getCurrentState(did: string): Promise<import("tupelo-messages/signatures/signatures_pb").CurrentState>;
+    getTip(did: string): Promise<CID_2>;
     // (undocumented)
     group: NotaryGroup_2;
-    // (undocumented)
     nextUpdate(): Promise<unknown>;
     // (undocumented)
     node: IP2PNode;
-    // (undocumented)
     playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/signatures/signatures_pb").CurrentState>;
-    // (undocumented)
     start(): Promise<Community>;
     // (undocumented)
     subscribeToTips(): Promise<void>;
