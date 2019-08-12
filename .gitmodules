@@ -1,3 +1,0 @@
-[submodule "tupelo-go-sdk"]
-	path = tupelo-go-sdk
-	url = git@github.com:quorumcontrol/tupelo-go-sdk.git
