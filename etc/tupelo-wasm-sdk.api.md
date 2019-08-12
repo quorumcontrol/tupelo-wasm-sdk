@@ -66,6 +66,9 @@ export class Dag {
 }
 
 // @public
+export const defaultNotaryGroup: import("tupelo-messages").NotaryGroup;
+
+// @public
 export class EcdsaKey {
     constructor(publicKeyBits: Uint8Array, privateKeyBits?: Uint8Array);
     // (undocumented)
@@ -82,6 +85,9 @@ export class EcdsaKey {
 
 // @public
 export const establishTokenTransaction: (name: string, maximum: number) => Transaction_2;
+
+// @public (undocumented)
+export const getDefault: (repo?: Repo | undefined) => Promise<Community>;
 
 // @public
 export interface IBitSwap {

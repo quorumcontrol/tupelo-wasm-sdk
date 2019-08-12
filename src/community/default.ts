@@ -2,6 +2,7 @@ import { Community } from "./community";
 import { tomlToNotaryGroup } from "../notarygroup";
 import Repo from "../repo";
 import { p2p } from "../node";
+const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 
 const testNetToml = `id = "testnet"
@@ -49,11 +50,39 @@ VerKeyHex = "0x26cc537988fee1df1e558dfed052082d656a9dbc204228345a64643418ae2c047
 DestKeyHex = "0x0419b700ed19ad89ebe515e6b7863b998552bca2750f61a5ffb7cd27e89c4efe4e1499b30d31172b4421cac42afb30df5938ee162eb8dcf7a419279e8fe5616ba3"
 `
 
+/**
+ * The default (testnet) notary group for the Tupelo Network
+ * @public
+ */
 export const defaultNotaryGroup = tomlToNotaryGroup(testNetToml)
 
 let _defaultCommunity: Community|undefined
 
-export const getDefault = async (repo:Repo): Promise<Community> => {
+const createDefaultRepo = async () => {
+    const repo = new Repo('test', {
+        lock: 'memory',
+        storageBackends: {
+          root: MemoryDatastore,
+          blocks: MemoryDatastore,
+          keys: MemoryDatastore,
+          datastore: MemoryDatastore
+        }
+      })
+      await repo.init({})
+      await repo.open()
+      return repo
+}
+
+/**
+ * 
+ * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
+ * @public
+ */
+export const getDefault = async (repo?:Repo): Promise<Community> => {
+    if (repo == undefined) {
+        repo = await createDefaultRepo()
+    }
+
     if (_defaultCommunity !== undefined) {
         return _defaultCommunity.start()
     }
