@@ -8,7 +8,6 @@ const Key = require("interface-datastore").Key
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 const testRepo = async () => {
-  console.log('creating repo')
   const repo = new Repo('test', {
     lock: 'memory',
     storageBackends: {
@@ -18,7 +17,6 @@ const testRepo = async () => {
       datastore: MemoryDatastore
     }
   })
-  console.log('repo init')
   await repo.init({})
   await repo.open()
   return repo

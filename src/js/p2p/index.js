@@ -12,6 +12,8 @@ const PeerId = require('peer-id')
 const TCP = require('libp2p-tcp')
 const util = require('util')
 
+const log = require('debug')("p2p")
+
 const RoutingDiscovery = require('./discovery')
 
 const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
@@ -69,12 +71,12 @@ class TupeloP2P extends libp2p {
     routingDiscoverer.node = this;
     this.once('peer:connect', () => {
       routingDiscoverer.start(() => {
-        console.log("discovery started");
+        log("discovery started");
       })
     })
     this.once('stop', ()=> {
       routingDiscoverer.stop(()=> {
-        console.log("routing stopped");
+        log("routing stopped");
       })
     })
    
@@ -108,7 +110,7 @@ module.exports.CreateNode = async function(options) {
     }
     options.peerInfo = peerInfo;
     const node = new TupeloP2P(options);
-    console.log("peerIdStr ", peerID.toB58String());
+    log("peerIdStr ", peerID.toB58String());
     resolve(node);
   })
   return p;

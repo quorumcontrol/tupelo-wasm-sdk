@@ -13,12 +13,14 @@ import { tomlToNotaryGroup } from './notarygroup';
 import path from 'path';
 import { Community } from './community/community';
 import Repo from './repo';
+import debug from 'debug';
+
+const debugLog = debug("tupelospec")
 
 const dagCBOR = require('ipld-dag-cbor');
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 const testRepo = async () => {
-  console.log('creating repo')
   const repo = new Repo('test', {
     lock: 'memory',
     storageBackends: {
@@ -28,7 +30,6 @@ const testRepo = async () => {
       datastore: MemoryDatastore
     }
   })
-  console.log('repo init')
   await repo.init({})
   await repo.open()
   return repo
@@ -67,21 +68,21 @@ describe('Tupelo', () => {
     const comPromise = c.start()
 
     node.on('connection:start', (peer: any) => {
-      console.log("connecting to ", peer.id._idB58String, " started")
+      debugLog("connecting to ", peer.id._idB58String, " started")
     })
 
     node.on('error', (err: any) => {
       reject(err)
-      console.log('error')
+      console.error('error')
     })
 
     node.once('enoughdiscovery', async () => {
-      console.log("enough discovered, playing transactions")
+      debugLog("enough discovered, playing transactions")
       await comPromise
       const key = await EcdsaKey.generate()
 
       let tree = await ChainTree.newEmptyTree(c.blockservice, key)
-      console.log("created empty tree")
+      debugLog("created empty tree")
       const trans = setDataTransaction("/hi", "hihi")
 
       Tupelo.playTransactions(node.pubsub, notaryGroup, tree, [trans]).then(
@@ -104,7 +105,7 @@ describe('Tupelo', () => {
     let connected = 0;
 
     node.on('peer:connect', async () => {
-      console.log("peer connect")
+      debugLog("peer connect")
       connected++
       if (connected >= 1) {
         node.emit('enoughdiscovery')
@@ -112,7 +113,7 @@ describe('Tupelo', () => {
     })
 
     node.start(() => {
-      console.log("node started");
+      debugLog("node started");
     });
 
     return p

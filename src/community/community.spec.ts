@@ -14,13 +14,15 @@ import { EcdsaKey } from '../crypto';
 import ChainTree, { setDataTransaction } from '../chaintree/chaintree';
 import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import Tupelo from '../tupelo';
+import debug from 'debug';
+
+const log = debug("communityspec")
 
 const dagCBOR = require('ipld-dag-cbor');
 const Block = require('ipfs-block');
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 const testRepo = async () => {
-  console.log('creating repo')
   const repo = new Repo('test', {
     lock: 'memory',
     storageBackends: {
@@ -30,7 +32,6 @@ const testRepo = async () => {
       datastore: MemoryDatastore
     }
   })
-  console.log('repo init')
   await repo.init({})
   await repo.open()
   return repo
@@ -50,7 +51,7 @@ describe('Community', () => {
     const c = new Community(node, notaryGroup, repo.repo)
 
     node.once('peer:connect', async () => {
-      console.log("peer connected");
+      log("peer connected");
       // now the node has connected to the network
       const nodeBuff = Buffer.from("hi");
       const nodeCid = await dagCBOR.util.cid(nodeBuff);
@@ -62,7 +63,7 @@ describe('Community', () => {
     })
     node.start(() => {
       c.start()
-      console.log('node started')
+      log('node started')
     })
     return p
   }).timeout(10000)
@@ -78,7 +79,7 @@ describe('Community', () => {
     var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
     node.on('error', (err: any) => {
       reject(err)
-      console.log('error')
+      log('error')
     })
     p.then(() => {
       node.stop()
@@ -88,7 +89,7 @@ describe('Community', () => {
     c.start()
 
     node.once('peer:connect', async () => {
-      console.log("node started");
+      log("node started");
       await c.waitForStart()
       // now the node has connected to the network
       c.on('tip', (tip: CID) => {
@@ -113,7 +114,7 @@ describe('Community', () => {
     })
     node.on('error', (err: any) => {
       reject(err)
-      console.log('error')
+      log('error')
     })
     node.start(()=>{})
 
@@ -146,18 +147,18 @@ describe('Community', () => {
     })
     node.on('error', (err: any) => {
       reject(err)
-      console.log('error')
+      log('error')
     })
 
     const c = new Community(node, notaryGroup, repo.repo)
     c.start()
 
     node.once('peer:connect', async () => {
-      console.log("node started");
+      log("node started");
       const key = await EcdsaKey.generate()
 
       let tree = await ChainTree.newEmptyTree(c.blockservice, key)
-      console.log("created empty tree")
+      log("created empty tree")
       const trans = new Transaction()
       const payload = new SetDataPayload()
       payload.setPath("/hi")
@@ -171,9 +172,9 @@ describe('Community', () => {
 
       let transCurrent = await Tupelo.playTransactions(node.pubsub, notaryGroup, tree, [trans])
       let transCurrentSig = transCurrent.getSignature()
-      console.log('transaction complete')
+      log('transaction complete')
 
-      console.log("getting current state of transaction")
+      log("getting current state of transaction")
       const id = await tree.id()
       if (id == undefined) {
         throw new Error("undefined")
@@ -207,7 +208,7 @@ describe('Community', () => {
     })
     node.on('error', (err: any) => {
       reject(err)
-      console.log('error')
+      console.error('error')
     })
     node.start(() => { });
 

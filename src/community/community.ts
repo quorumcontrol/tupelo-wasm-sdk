@@ -9,6 +9,10 @@ import { WrappedBlockService } from './wrappedblockservice'
 import Tupelo from '../tupelo';
 import { ChainTree } from '../chaintree';
 
+import debug from 'debug'
+
+const debugLog = debug("community")
+
 // const IpfsBlockService:any = require('ipfs-block-service');
 const IpfsBitswap: any = require('ipfs-bitswap')
 const IpfsBlockService: any = require('ipfs-block-service');
@@ -119,7 +123,7 @@ export class Community extends EventEmitter {
         this._started = true
 
         this.bitswap.start(() => {
-            console.log("bitswap started")
+            debugLog("bitswap started")
         })
 
         if (this.node.isStarted()) {
@@ -156,7 +160,7 @@ export class Community extends EventEmitter {
             if (msg.data.length > 0) {
                 this.tip = new CID(Buffer.from(msg.data))
             } else {
-                console.log("received null tip")
+                debugLog("received null tip")
             }
             this.emit('tip', this.tip)
 

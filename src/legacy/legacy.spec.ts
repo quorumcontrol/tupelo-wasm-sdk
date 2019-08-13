@@ -91,16 +91,13 @@ describe('legacy TupeloClient', () => {
         expect(treeResp.getChainId()).to.equal(key.getKeyAddr())
 
         const trans = [setDataTransaction("/test", "bob")]
-        console.log('playResp')
         const playResp = await client.playTransactions(treeResp.getChainId(), key.getKeyAddr(), trans)
         expect(playResp.getTip()).to.have.length(59)
 
         if (client.community == undefined) {
             throw new Error("Client has no community")
         }
-        console.log('nextUpdate')
         await client.community.nextUpdate()
-        console.log('getTip')
         const tipResp = await client.getTip(treeResp.getChainId())
         expect(tipResp.getTip()).to.equal(playResp.getTip())
         await client.close()

@@ -2,6 +2,10 @@ import { Community } from "./community";
 import { tomlToNotaryGroup } from "../notarygroup";
 import Repo from "../repo";
 import { p2p } from "../node";
+import debug from 'debug';
+
+const log = debug("community:default")
+
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 
@@ -80,7 +84,7 @@ export const getDefault = async (repo?:Repo): Promise<Community> => {
     })
 
     node.start(() => {
-        console.log("node started");
+        log("node started");
     });
 
     // clear the defaultcommunity on a node stopage
