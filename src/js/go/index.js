@@ -461,7 +461,7 @@ const runner = {
             const fs = require('fs');
             const path = require('path');
 
-            result = await WebAssembly.instantiate(fs.readFileSync(path.join(__dirname, 'main.wasm')), go.importObject)
+            result = await WebAssembly.instantiate(fs.readFileSync(path.join(__dirname, 'tupelo.wasm')), go.importObject)
         
             process.on("exit", (code) => { // Node.js exits if no event handler is pending
                 Go.exit();
@@ -474,10 +474,10 @@ const runner = {
         } else {
             console.log("is not nodejs")
             if (typeof WebAssembly.instantiateStreaming == 'function') {
-                result = await WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
+                result = await WebAssembly.instantiateStreaming(fetch("/tupelo.wasm"), go.importObject)
             } else {
                 console.log('fetching wasm')
-                const wasmResp = await fetch("main.wasm")
+                const wasmResp = await fetch("/tupelo.wasm")
                 console.log('turning it into an array buffer')
                 const wasm = await wasmResp.arrayBuffer()
                 console.log('instantiating')

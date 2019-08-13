@@ -1,4 +1,4 @@
-main.wasm
+tupelo.wasm
 node_modules
 lib // ignore the generated code
 .tmp
