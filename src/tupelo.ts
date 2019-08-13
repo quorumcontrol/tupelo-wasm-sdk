@@ -7,19 +7,30 @@ import { Transaction } from 'tupelo-messages'
 import {IBlockService, IBlock} from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 
-
+/**
+ * The interface describing libp2p pubsub
+ * @public
+ */
 export interface IPubSub {
     publish(topic: string, data: Uint8Array, cb: Function): null
     subscribe(topic: string, onMsg: Function, cb: Function): null
 }
 
 interface IPlayTransactionOptions {
+    notaryGroup: Uint8Array,
     publisher: IPubSub,
     blockService: IBlockService, 
     privateKey: Uint8Array,
     tip: CID, 
     transactions: Uint8Array[],
+}
+
+interface IGetCurrentStateOptions {
+    blockService: IBlockService, 
+    tip: CID, 
+    did: string,
 }
 
 class UnderlyingWasm {
@@ -31,6 +42,21 @@ class UnderlyingWasm {
 
     generateKey(): Promise<Uint8Array[]> {
         return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
+    }
+    passPhraseKey(phrase:Uint8Array, salt:Uint8Array):Promise<Uint8Array[]> {
+        return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
+    }
+    keyFromPrivateBytes(bytes:Uint8Array):Promise<Uint8Array[]> {
+        return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
+    }
+    ecdsaPubkeyToDid(pubKey:Uint8Array):Promise<string> {
+        return new Promise<string>((res, rej) => { }) // replaced by wasm
+    }
+    ecdsaPubkeyToAddress(pubKey:Uint8Array):Promise<string> {
+        return new Promise<string>((res, rej) => { }) // replaced by wasm
+    }
+    getCurrentState(opts: IGetCurrentStateOptions):Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
     newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID> {
         return new Promise<CID>((res,rej) => {}) // replaced by wasm
@@ -59,14 +85,48 @@ namespace TupeloWasm {
     }
 }
 
-// Tupelo is the more "raw" namespace, it is generally expected (with the possible exception of playTransactions)
-// that you would use higher level wrapper classes around this namespace
+/**
+ * Tupelo is the more "raw" namespace, it is generally expected
+ * that you would use higher level wrapper classes around this namespace.
+ * For example: {@link EcdsaKey} or {@link Community}
+ * @public
+ */
 export namespace Tupelo {
 
     // generateKey returns a two element array of the bytes for [privateKey, publicKey]
     export async function generateKey(): Promise<Uint8Array[]> {
         const tw = await TupeloWasm.get()
         return tw.generateKey()
+    }
+
+    export async function passPhraseKey(phrase:Uint8Array, salt:Uint8Array):Promise<Uint8Array[]> {
+        const tw = await TupeloWasm.get()
+        return tw.passPhraseKey(phrase,salt)
+    }
+
+    export async function keyFromPrivateBytes(bytes:Uint8Array):Promise<Uint8Array[]> {
+        const tw = await TupeloWasm.get()
+        return tw.keyFromPrivateBytes(bytes)
+    }
+
+    export async function ecdsaPubkeyToDid(pubKey:Uint8Array):Promise<string> {
+        const tw = await TupeloWasm.get()
+        return tw.ecdsaPubkeyToDid(pubKey)
+    }
+
+    export async function ecdsaPubkeyToAddress(pubKey:Uint8Array):Promise<string> {
+        const tw = await TupeloWasm.get()
+        return tw.ecdsaPubkeyToAddress(pubKey)
+    }
+    
+    export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState> {
+        const tw = await TupeloWasm.get()
+        try {
+            let stateBits = await tw.getCurrentState(opts)
+            return CurrentState.deserializeBinary(stateBits)
+        } catch(err) {
+            throw err
+        }
     }
 
     // newEmptyTree creates a new ChainTree with the ID populateed in the IBlockService and
@@ -76,9 +136,11 @@ export namespace Tupelo {
         return tw.newEmptyTree(store, publicKey)
     }
 
-    export async function playTransactions(publisher: IPubSub, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
+    export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
+        if (tree.key == undefined) {
+            throw new Error("playing transactions on a tree requires the tree to have a private key, use tree.key = <ecdsaKey>")
+        }
         const tw = await TupeloWasm.get()
-        console.log("serializing the transactions")
         let transBits: Uint8Array[] = new Array<Uint8Array>()
         for (var t of transactions) {
             const serialized = t.serializeBinary()
@@ -93,6 +155,7 @@ export namespace Tupelo {
         }
 
         const resp = await tw.playTransactions({
+            notaryGroup: notaryGroup.serializeBinary(),
             publisher: publisher,
             blockService: store,
             privateKey: privateKey,
@@ -102,11 +165,11 @@ export namespace Tupelo {
 
         const currState = CurrentState.deserializeBinary(resp)
         const sig = currState.getSignature()
-        if (!sig) {
+        if (sig == undefined) {
             throw new Error("empty signature received from CurrState")
         }
 
-        tree.tip = new CID(Buffer.from(sig!.getNewTip_asU8()))
+        tree.tip = new CID(Buffer.from(sig.getNewTip_asU8()))
         return currState
     }
 }

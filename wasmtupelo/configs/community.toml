@@ -1,0 +1,15 @@
+Name = "integration-test"
+Shards = 32
+
+CacheMessages = false
+CacheBlocks = true
+RebroadcastCommit = true
+TrackPeers = false
+
+NotaryGroupConfig = "./wasmdocker.toml"
+IP = "172.16.246.11"
+WebsocketPort = 50000
+Key = "0x550f72e2dc77aa83c0c7077f7e063638ba69a81121da1057fd30d77ea2963a51"
+
+[Storage]
+Kind = "memory"

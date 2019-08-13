@@ -2,9 +2,24 @@ import CID from 'cids';
 
 const Ipld: any = require('ipld');
 
+/** 
+ * An IPFS Block
+ * @public
+ */
 export interface IBlock {
   data: Buffer
   cid: CID
+}
+
+/**
+ * An IPFS Bitswap instance.
+ * @public
+ */
+export interface IBitSwap {
+  get(cid: CID, callback:Function): void
+  put(block: IBlock, callback:Function): void
+  start(callback:Function): void
+  stop(callback:Function): void
 }
 
 // copy/pasta from https://ipfs.github.io/js-ipfs-block-service
@@ -18,10 +33,18 @@ export interface IBlock {
 // get
 // getMany
 // delete
+
+/**
+ * The interface to a js-ipfs block-service. See: {@link https://ipfs.github.io/js-ipfs-block-service}
+ * @public
+ */
 export interface IBlockService {
   put(block:IBlock):Promise<any>
   get(cid:CID):Promise<IBlock>
   delete(cid:CID):Promise<any>
+  setExchange(bitswap:IBitSwap):void
+  unsetExchange():void
+  hasExchange():boolean
 }
 
 interface IDagStoreResolveResponse {
@@ -35,16 +58,29 @@ interface IExtendedDagStoreIterator {
   all():Promise<IDagStoreResolveResponse[]>
 }
 
+/**
+ * An IPFS DagStore instance
+ * @public
+ */
 export interface IDagStore {
   get(cid: CID): Promise<Object>
   resolve(cid: CID, path: string): IExtendedDagStoreIterator
 }
 
+/**
+ * This defines the resolve response when doing queries against the DAG from IPFS
+ * @public
+ */
 export interface IResolveResponse {
   remainderPath: string[]
-  value: Object | null
+  value: any
 }
 
+/**
+ * Underlies a ChainTree, it represents a DAG of IPLD nodes and supports resolving accross
+ * multiple nodes.
+ * @public
+ */
 export class Dag {
   tip: CID
   dagStore: IDagStore
@@ -54,14 +90,30 @@ export class Dag {
     this.dagStore = new Ipld({blockService: store});
   }
 
+  /**
+   * Gets a node from the dag
+   * @param cid - The CID of the node to get from the DAG
+   * @public
+   */
   async get(cid: CID) {
     return this.dagStore.get(cid)
   }
 
+  /**
+   * 
+   * @param path - an array of strings which form a path to the desired node/key in the DAG
+   * @public
+   */
   async resolve(path: Array<string>):Promise<IResolveResponse> {
     return this.resolveAt(this.tip, path)
   }
 
+  /**
+   * Similar to resolve, but allows you to start at a specific tip of a dag rather than the current tip.
+   * @param tip - The tip of the dag to start at
+   * @param path - the path to find the value
+   * @public
+   */
   async resolveAt(tip: CID, path: Array<string>):Promise<IResolveResponse> {
     const str_path  = path.join("/")
     const resolved = this.dagStore.resolve(tip, str_path)

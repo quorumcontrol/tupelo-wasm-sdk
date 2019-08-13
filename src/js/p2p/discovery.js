@@ -75,6 +75,10 @@ class RoutingDiscovery extends EventEmitter {
             throw new Error("you must set node on this discoverer before starting");
         }
 
+        if (!this.node.isStarted()) {
+            throw new Error("you must start the node before discovering")
+        }
+
         if (this._timer) {
             return process.nextTick(() => callback())
         }
@@ -92,7 +96,22 @@ class RoutingDiscovery extends EventEmitter {
             this._nsCid = await nsToCid(this._namespace);
         }
         this.node.contentRouting.findProviders(this._nsCid, 1800, (err, providers) => {
-            if (err) { throw err }
+            if (err) {
+                if (!this.node.isStarted()) {
+                    this.stop(()=> {
+                        console.error("self-stopping the discoverer, because the node is stopped")
+                    })
+                }
+                if (err.message === "no providers found") {
+                    return // we don't want to throw an error when we just haven't found the providers yet
+                }
+                if (err.message === 'Callback function "anonymous" timed out.') {
+                    console.error("timeout on findProviders")
+                    return // do nothing here either, don't want to blow up due to a timeout
+                }
+                console.error("throwing an error: ", err.message)
+                throw err 
+            }
         
             for (const peerInfo of providers) {
                 this.stub().emit('peer', peerInfo)
