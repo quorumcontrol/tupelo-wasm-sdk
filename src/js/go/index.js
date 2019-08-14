@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+const log = require('debug')('gowasm');
+const fs = require('fs');
+const path = require('path');
+
 (() => {
     if (typeof global !== "undefined") {
         // global already exists
@@ -18,7 +22,7 @@
     // Map web browser API and Node.js API to a single common API (preferring web standards over Node.js API).
     const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
     if (isNodeJS) {
-        console.log('nodejs running');
+        log('nodejs running');
         global.require = require;
         global.fs = require("fs");
 
@@ -40,7 +44,7 @@
         encoder = new util.TextEncoder;
         decoder = new util.TextDecoder;
     } else {
-        console.log('browser running');
+        log('browser running');
         let outputBuf = "";
         global.fs = {
             constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1 }, // unused
@@ -79,6 +83,7 @@
     }
 
     global.Go = class {
+        static wasmPath = isNodeJS ? fs.readFileSync(path.join(__dirname, "tupelo.wasm")) : "/tupelo.wasm"
         constructor() {
             this.argv = ["js"];
             this.env = {};
@@ -449,7 +454,7 @@
 
 const runner = {
     run: async () => {
-        console.log('outer go.run')
+        log('outer go.run')
         const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
 
         const go = new Go();
@@ -458,10 +463,7 @@ const runner = {
         let result
 
         if (isNodeJS) {
-            const fs = require('fs');
-            const path = require('path');
-
-            result = await WebAssembly.instantiate(fs.readFileSync(path.join(__dirname, 'main.wasm')), go.importObject)
+            result = await WebAssembly.instantiate(Go.wasmPath, go.importObject)
         
             process.on("exit", (code) => { // Node.js exits if no event handler is pending
                 Go.exit();
@@ -472,20 +474,20 @@ const runner = {
                 }
             });
         } else {
-            console.log("is not nodejs")
+            log("is not nodejs")
             if (typeof WebAssembly.instantiateStreaming == 'function') {
-                result = await WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
+                result = await WebAssembly.instantiateStreaming(fetch(Go.wasmPath), go.importObject)
             } else {
-                console.log('fetching wasm')
-                const wasmResp = await fetch("main.wasm")
-                console.log('turning it into an array buffer')
+                log('fetching wasm')
+                const wasmResp = await fetch(Go.wasmPath)
+                log('turning it into an array buffer')
                 const wasm = await wasmResp.arrayBuffer()
-                console.log('instantiating')
+                log('instantiating')
                 result = await WebAssembly.instantiate(wasm, go.importObject)
             }
 
         }
-        console.log('inner go.run')
+        log('inner go.run')
         return go.run(result.instance);
     },
     ready: async (path) => {

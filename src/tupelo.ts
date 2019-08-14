@@ -4,9 +4,10 @@ import CID from 'cids';
 
 const go = require('./js/go')
 import { Transaction } from 'tupelo-messages'
+import {TokenPayload} from 'tupelo-messages/transactions/transactions_pb'
 import {IBlockService, IBlock} from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
-import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { CurrentState,Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 
 /**
@@ -31,6 +32,22 @@ interface IGetCurrentStateOptions {
     blockService: IBlockService, 
     tip: CID, 
     did: string,
+}
+
+interface IWASMTransactionPayloadOpts {
+    blockService: IBlockService
+    tip: CID
+    tokenName: string
+    sendId: string
+    jsSendTxSig: Uint8Array
+}
+
+interface ITransactionPayloadOpts {
+    blockService: IBlockService
+    tip: CID
+    tokenName: string
+    sendId: string
+    signature: Signature
 }
 
 class UnderlyingWasm {
@@ -62,6 +79,9 @@ class UnderlyingWasm {
         return new Promise<CID>((res,rej) => {}) // replaced by wasm
     }
     playTransactions(opts: IPlayTransactionOptions): Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    }
+    tokenPayloadForTransaction(opts:IWASMTransactionPayloadOpts): Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
 }
@@ -136,12 +156,23 @@ export namespace Tupelo {
         return tw.newEmptyTree(store, publicKey)
     }
 
+    export async function tokenPayloadForTransaction(opts:ITransactionPayloadOpts):Promise<TokenPayload> {
+        const tw = await TupeloWasm.get()
+        const respBits = await tw.tokenPayloadForTransaction({
+            blockService: opts.blockService,
+            tip: opts.tip,
+            tokenName: opts.tokenName,
+            sendId: opts.sendId,
+            jsSendTxSig: opts.signature.serializeBinary(),  
+        })
+        return TokenPayload.deserializeBinary(respBits)
+    }
+
     export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
         if (tree.key == undefined) {
             throw new Error("playing transactions on a tree requires the tree to have a private key, use tree.key = <ecdsaKey>")
         }
         const tw = await TupeloWasm.get()
-        console.log("serializing the transactions")
         let transBits: Uint8Array[] = new Array<Uint8Array>()
         for (var t of transactions) {
             const serialized = t.serializeBinary()

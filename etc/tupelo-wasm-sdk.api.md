@@ -9,7 +9,9 @@ import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
+import OldCID from 'cids';
 import { Signature } from 'tupelo-messages/signatures/signatures_pb';
+import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
 
@@ -25,6 +27,11 @@ export class ChainTree extends Dag {
 }
 
 // @public
+export class CID extends OldCID {
+    constructor(version: string | number | Buffer | CID, codec?: string, multihash?: Buffer, multibaseName?: string);
+}
+
+// @public
 export class Community extends EventEmitter {
     // Warning: (ae-forgotten-export) The symbol "IRepo" needs to be exported by the entry point index.d.ts
     constructor(node: IP2PNode, group: NotaryGroup_2, repo: IRepo);
@@ -32,38 +39,40 @@ export class Community extends EventEmitter {
     bitswap: ICallbackBitswap;
     // (undocumented)
     blockservice: IBlockService;
-    // (undocumented)
     getCurrentState(did: string): Promise<import("tupelo-messages/signatures/signatures_pb").CurrentState>;
+    getTip(did: string): Promise<CID_2>;
     // (undocumented)
     group: NotaryGroup_2;
-    // (undocumented)
     nextUpdate(): Promise<unknown>;
     // (undocumented)
     node: IP2PNode;
-    // (undocumented)
     playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/signatures/signatures_pb").CurrentState>;
     // (undocumented)
+    sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
     // (undocumented)
     subscribeToTips(): Promise<void>;
     // (undocumented)
-    tip?: CID;
+    tip?: CID_2;
     // (undocumented)
     waitForStart(): Promise<Community>;
 }
 
 // @public
 export class Dag {
-    constructor(tip: CID, store: IBlockService);
+    constructor(tip: CID_2, store: IBlockService);
     // (undocumented)
     dagStore: IDagStore;
-    get(cid: CID): Promise<Object>;
+    get(cid: CID_2): Promise<Object>;
     // (undocumented)
     resolve(path: Array<string>): Promise<IResolveResponse>;
-    resolveAt(tip: CID, path: Array<string>): Promise<IResolveResponse>;
+    resolveAt(tip: CID_2, path: Array<string>): Promise<IResolveResponse>;
     // (undocumented)
-    tip: CID;
+    tip: CID_2;
 }
+
+// @public
+export const defaultNotaryGroup: import("tupelo-messages").NotaryGroup;
 
 // @public
 export class EcdsaKey {
@@ -83,10 +92,13 @@ export class EcdsaKey {
 // @public
 export const establishTokenTransaction: (name: string, maximum: number) => Transaction_2;
 
+// @public (undocumented)
+export const getDefault: (repo?: Repo | undefined) => Promise<Community>;
+
 // @public
 export interface IBitSwap {
     // (undocumented)
-    get(cid: CID, callback: Function): void;
+    get(cid: CID_2, callback: Function): void;
     // (undocumented)
     put(block: IBlock, callback: Function): void;
     // (undocumented)
@@ -98,7 +110,7 @@ export interface IBitSwap {
 // @public
 export interface IBlock {
     // (undocumented)
-    cid: CID;
+    cid: CID_2;
     // (undocumented)
     data: Buffer;
 }
@@ -106,9 +118,9 @@ export interface IBlock {
 // @public
 export interface IBlockService {
     // (undocumented)
-    delete(cid: CID): Promise<any>;
+    delete(cid: CID_2): Promise<any>;
     // (undocumented)
-    get(cid: CID): Promise<IBlock>;
+    get(cid: CID_2): Promise<IBlock>;
     // (undocumented)
     hasExchange(): boolean;
     // (undocumented)
@@ -122,9 +134,9 @@ export interface IBlockService {
 // @public
 export interface ICallbackBitswap {
     // (undocumented)
-    get(cid: CID, cb: Function): void;
+    get(cid: CID_2, cb: Function): void;
     // (undocumented)
-    getMany(cids: CID[], callback: Function): void;
+    getMany(cids: CID_2[], callback: Function): void;
     // (undocumented)
     getWantlist(): any;
     // (undocumented)
@@ -152,17 +164,17 @@ export interface IChainTreeInitializer {
     // (undocumented)
     store: IBlockService;
     // (undocumented)
-    tip: CID;
+    tip: CID_2;
 }
 
 // @public
 export interface IDagStore {
     // (undocumented)
-    get(cid: CID): Promise<Object>;
+    get(cid: CID_2): Promise<Object>;
     // Warning: (ae-forgotten-export) The symbol "IExtendedDagStoreIterator" needs to be exported by the entry point index.d.ts
     // 
     // (undocumented)
-    resolve(cid: CID, path: string): IExtendedDagStoreIterator;
+    resolve(cid: CID_2, path: string): IExtendedDagStoreIterator;
 }
 
 // @public
@@ -222,7 +234,7 @@ export interface IResolveResponse {
     // (undocumented)
     remainderPath: string[];
     // (undocumented)
-    value: Object | null;
+    value: any;
 }
 
 // @public (undocumented)
@@ -238,8 +250,11 @@ export namespace p2p {
 export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, signature: Signature, leaves: Uint8Array[]) => Transaction_2;
 
 // @public
+export const receiveTokenTransactionFromPayload: (payload: TokenPayload) => Transaction_2;
+
+// @public
 export class Repo {
-    constructor(name: string, opts: RepoOpts);
+    constructor(name: string, opts?: RepoOpts);
     // (undocumented)
     close(): Promise<any>;
     // (undocumented)
@@ -295,22 +310,26 @@ export namespace Tupelo {
     // (undocumented)
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
-    export function newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID>;
+    export function newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID_2>;
     // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
     export function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState>;
+    // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
+    // 
+    // (undocumented)
+    export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
 }
 
 // @public
 export class WrappedBitswap {
     constructor(bitswap: ICallbackBitswap);
     // (undocumented)
-    delete(cid: CID): Promise<unknown>;
+    delete(cid: CID_2): Promise<unknown>;
     // (undocumented)
-    get(cid: CID): Promise<IBlock>;
+    get(cid: CID_2): Promise<IBlock>;
     // (undocumented)
-    getMany(cids: CID[]): Promise<unknown>;
+    getMany(cids: CID_2[]): Promise<unknown>;
     // (undocumented)
     getWantlist(): any;
     // (undocumented)
@@ -336,9 +355,9 @@ export class WrappedBlockService implements IBlockService {
     // Warning: (ae-forgotten-export) The symbol "ICallbackBlockService" needs to be exported by the entry point index.d.ts
     constructor(blockservice: ICallbackBlockService);
     // (undocumented)
-    delete(cid: CID): Promise<any>;
+    delete(cid: CID_2): Promise<any>;
     // (undocumented)
-    get(cid: CID): Promise<IBlock>;
+    get(cid: CID_2): Promise<IBlock>;
     // (undocumented)
     hasExchange(): boolean;
     // (undocumented)

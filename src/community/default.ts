@@ -2,13 +2,18 @@ import { Community } from "./community";
 import { tomlToNotaryGroup } from "../notarygroup";
 import Repo from "../repo";
 import { p2p } from "../node";
+import debug from 'debug';
+
+const log = debug("community:default")
+
+const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 
 const testNetToml = `id = "testnet"
 BootstrapAddresses = [
-  "/ip4/35.156.246.136/tcp/34001/ipfs/16Uiu2HAmPU1Q7cf5Vpw6SjgKT763eYCBuonbAkTeJ8ryZTzbD822",
-  "/ip4/3.223.223.236/tcp/34001/ipfs/16Uiu2HAmL6z7bcVBqjdFLbBprsVUbxTA5ggrtiXS2RAUXkonvZEc",
-  "/ip4/3.214.22.211/tcp/34011/ipfs/16Uiu2HAmF99kspNyHKtkeB1hC3P8NnRwa6xwWj72oDfdF3ym3im7",
+  #"/ip4/35.156.246.136/tcp/34001/ipfs/16Uiu2HAmPU1Q7cf5Vpw6SjgKT763eYCBuonbAkTeJ8ryZTzbD822",
+  #"/ip4/3.223.223.236/tcp/34001/ipfs/16Uiu2HAmL6z7bcVBqjdFLbBprsVUbxTA5ggrtiXS2RAUXkonvZEc",
+  #"/ip4/3.214.22.211/tcp/34011/ipfs/16Uiu2HAmF99kspNyHKtkeB1hC3P8NnRwa6xwWj72oDfdF3ym3im7",
   "/ip4/3.214.22.211/tcp/34012/ws/ipfs/16Uiu2HAmF99kspNyHKtkeB1hC3P8NnRwa6xwWj72oDfdF3ym3im7",
 ]
 
@@ -49,11 +54,26 @@ VerKeyHex = "0x26cc537988fee1df1e558dfed052082d656a9dbc204228345a64643418ae2c047
 DestKeyHex = "0x0419b700ed19ad89ebe515e6b7863b998552bca2750f61a5ffb7cd27e89c4efe4e1499b30d31172b4421cac42afb30df5938ee162eb8dcf7a419279e8fe5616ba3"
 `
 
+/**
+ * The default (testnet) notary group for the Tupelo Network
+ * @public
+ */
 export const defaultNotaryGroup = tomlToNotaryGroup(testNetToml)
 
 let _defaultCommunity: Community|undefined
 
-export const getDefault = async (repo:Repo): Promise<Community> => {
+/**
+ * 
+ * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
+ * @public
+ */
+export const getDefault = async (repo?:Repo): Promise<Community> => {
+    if (repo == undefined) {
+        repo = new Repo("default")
+        await repo.init({})
+        await repo.open()
+    }
+
     if (_defaultCommunity !== undefined) {
         return _defaultCommunity.start()
     }
@@ -64,7 +84,7 @@ export const getDefault = async (repo:Repo): Promise<Community> => {
     })
 
     node.start(() => {
-        console.log("node started");
+        log("node started");
     });
 
     // clear the defaultcommunity on a node stopage

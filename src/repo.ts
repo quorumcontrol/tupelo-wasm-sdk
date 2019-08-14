@@ -2,10 +2,7 @@ import util from 'util'
 import { IKey } from './chaintree/datastore';
 
 const IpfsRepo:any = require('ipfs-repo');
-// const IpfsBlockService:any = require('ipfs-block-service');
-// const MemoryDatastore:any = require('interface-datastore').MemoryDatastore;
 
-// TODO: move these from any
 interface IStorageBackendOpts {
     root:any
     blocks:any
@@ -37,13 +34,14 @@ export interface IQuery {
  * @public
  */
 export class Repo {
+
     repo:any
     /**
      * @param name - The name of the repo
-     * @param opts - {@link RepoOpts}
+     * @param opts - (optional) {@link RepoOpts} - if opts are unspecified, it will use the IPFS repo defaults
      * @public
      */
-    constructor(name:string, opts:RepoOpts) {
+    constructor(name:string, opts?:RepoOpts) {
         this.repo = new IpfsRepo(name, opts)
     }
 

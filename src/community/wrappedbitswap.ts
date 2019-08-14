@@ -1,6 +1,8 @@
 import {IBlock, IBlockService} from '../chaintree/dag/dag'
 import CID from 'cids'
 import util from 'util';
+import debug from 'debug';
+const log = debug("wrappedbitswap")
 
 /**
  * The callback-based version of Bitswap (current master).
@@ -38,7 +40,7 @@ export class WrappedBitswap {
     put(block: IBlock):Promise<any> {
         let resolve: Function, reject: Function
         const p = new Promise((res, rej) => { resolve = res, reject = rej })
-        console.log("bitswap put: ", this.bitswap.put.toString())
+        log("bitswap put: ", this.bitswap.put.toString())
         this.bitswap.put(block, (err:Error)=> {
             if (err) {
                 reject(err)

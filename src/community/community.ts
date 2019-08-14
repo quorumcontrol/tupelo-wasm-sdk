@@ -9,6 +9,10 @@ import { WrappedBlockService } from './wrappedblockservice'
 import Tupelo from '../tupelo';
 import { ChainTree } from '../chaintree';
 
+import debug from 'debug'
+
+const debugLog = debug("community")
+
 // const IpfsBlockService:any = require('ipfs-block-service');
 const IpfsBitswap: any = require('ipfs-bitswap')
 const IpfsBlockService: any = require('ipfs-block-service');
@@ -59,8 +63,10 @@ export class Community extends EventEmitter {
     }
 
 
-    /* getCurrentState returns the current state (signatures)
-    for a given ChainTree (its DID)
+    /**
+     * getCurrentState returns the current state (signatures)
+     * for a given ChainTree (its DID)
+     * @public
     */
     async getCurrentState(did: string) {
         await this.start()
@@ -74,16 +80,51 @@ export class Community extends EventEmitter {
         })
     }
 
-    /* playTransactions is a convenience wrapper on community to make calling the underlying Tupelo.playTransactions
-       easier when using a fully community client
+    /**
+     * returns the TIP as a CID of the ChainTree. This is more of a convenience function 
+     * around getting the current state, and then casting the tip, etc.
+     * @param did - The DID of the ChainTree
+     */
+    async getTip(did:string) {
+        const state = await this.getCurrentState(did)
+        const sig = state.getSignature()
+        if (sig == undefined) {
+            throw new Error("undefined signature")
+        }
+        return new CID(Buffer.from(sig.getNewTip_asU8()))
+    }
+
+    async sendTokenAndGetPayload(tree:ChainTree, tx:Transaction) {
+        const sendTokenPayload = tx.getSendTokenPayload()
+        if (tx.getType() != Transaction.Type.SENDTOKEN || sendTokenPayload === undefined) {
+            throw new Error("must use a send token transaction here")
+        }
+
+        const resp = await this.playTransactions(tree, [tx])
+        const sig = resp.getSignature()
+        if (sig === undefined) {
+            throw new Error('received undefined signature')
+        }
+        return Tupelo.tokenPayloadForTransaction({
+            blockService: this.blockservice,
+            tip: tree.tip,
+            tokenName: sendTokenPayload.getName(),
+            sendId: sendTokenPayload.getId(),
+            signature: sig,
+        })
+    }
+
+    /**
+     * playTransactions is a convenience wrapper on community to make calling the underlying Tupelo.playTransactions
+     * easier when using a fully community client
     */
     async playTransactions(tree:ChainTree, transactions:Transaction[]) {
         return Tupelo.playTransactions(this.node.pubsub, this.group, tree, transactions)
     }
 
-    /* next update is a helper function
-    which lets you do an await until the next tip
-    update of the community
+    /** next update is a helper function
+     * which lets you do an await until the next tip
+     * update of the community
     */
     async nextUpdate() {
         let resolve:Function
@@ -92,7 +133,8 @@ export class Community extends EventEmitter {
         return p
     }
 
-    /* start starts up the community
+    /**
+     * starts up the community
     */
     async start(): Promise<Community> {
         if (this._started) {
@@ -101,7 +143,7 @@ export class Community extends EventEmitter {
         this._started = true
 
         this.bitswap.start(() => {
-            console.log("bitswap started")
+            debugLog("bitswap started")
         })
 
         if (this.node.isStarted()) {
@@ -138,7 +180,7 @@ export class Community extends EventEmitter {
             if (msg.data.length > 0) {
                 this.tip = new CID(Buffer.from(msg.data))
             } else {
-                console.log("received null tip")
+                debugLog("received null tip")
             }
             this.emit('tip', this.tip)
 

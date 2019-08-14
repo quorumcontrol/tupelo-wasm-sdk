@@ -1,6 +1,6 @@
 {
   "name": "tupelo-wasm-sdk",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "a test interaction of tupelo wasm",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -8,11 +8,12 @@
     "build": "./build.sh",
     "docs": "./build-docs.sh",
     "test": "mocha --exit -r ts-node/register src/*.spec.ts src/**/*.spec.ts",
-    "build:wasm": "cd ./tupelo-go-sdk/wasm && GOOS=js GOARCH=wasm go build -ldflags='-s -w' -o ../../src/js/go/main.wasm"
+    "build:wasm": "cd ./tupelo-go-sdk/wasm && GOOS=js GOARCH=wasm go build -ldflags='-s -w' -o ../../src/js/go/tupelo.wasm"
   },
   "author": "",
   "license": "rights reserved.",
   "dependencies": {
+    "@types/debug": "^4.1.5",
     "@types/protobufjs": "^6.0.0",
     "base-x": "^3.0.6",
     "cids": "^0.7.1",
@@ -53,6 +54,7 @@
     "@types/node": "^12.6.2",
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
+    "rimraf": "^2.6.3",
     "toml": "^3.0.0",
     "ts-node": "^8.3.0",
     "tsc": "^1.20150623.0",

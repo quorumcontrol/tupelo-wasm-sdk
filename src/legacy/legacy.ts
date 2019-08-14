@@ -10,6 +10,9 @@ import { p2p, IP2PNode } from '../node';
 import { ChainTree } from '../chaintree';
 import CID from 'cids';
 import Tupelo from '../tupelo';
+import debug from 'debug';
+
+const log = debug("legacy")
 
 const Key = require("interface-datastore").Key
 const pull = require('pull-stream/pull')
@@ -95,7 +98,7 @@ export class TupeloClient {
             }),
             pull.collect(async (err: Error, list: IKeyValuePair[]) => {
                 if (err !== null) {
-                    console.log('error in query: ', err)
+                    console.error('error in query: ', err)
                     reject(err)
                 }
                 let stringList = []
@@ -148,7 +151,7 @@ export class TupeloClient {
             }),
             pull.collect(async (err: Error, list: IKeyValuePair[]) => {
                 if (err !== null) {
-                    console.log('error in query: ', err)
+                    console.error('error in query: ', err)
                     reject(err)
                 }
                 let stringList = []
@@ -168,13 +171,7 @@ export class TupeloClient {
             throw new Error("community is undefined")
         }
         const resp = new GetTipResponse()
-        const currState = await this.community.getCurrentState(chainId)
-        const sig = currState.getSignature()
-        if (sig == undefined) {
-            throw new Error("empty signature received from CurrState")
-        }
-
-        const tip = new CID(Buffer.from(sig.getNewTip_asU8()))
+        const tip = await this.community.getTip(chainId)
         resp.setTip(tip.toString())
         return resp
     }
@@ -216,11 +213,11 @@ export class TupeloClient {
         })
 
         node.once('peer:connect', async () => {
-            console.log("peer connected")
+            log("peer connected")
         })
 
         node.start(() => {
-            console.log("node started");
+            log("node started");
         });
 
         const c = new Community(node, this.notaryGroup, this.repo.repo)

@@ -7,18 +7,20 @@ import { p2p } from './node';
 import { Tupelo } from './tupelo';
 import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { EcdsaKey } from './crypto';
-import ChainTree, { setDataTransaction } from './chaintree/chaintree';
+import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction } from './chaintree/chaintree';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
 import { tomlToNotaryGroup } from './notarygroup';
 import path from 'path';
 import { Community } from './community/community';
 import Repo from './repo';
+import debug from 'debug';
+
+const debugLog = debug("tupelospec")
 
 const dagCBOR = require('ipld-dag-cbor');
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 const testRepo = async () => {
-  console.log('creating repo')
   const repo = new Repo('test', {
     lock: 'memory',
     storageBackends: {
@@ -28,7 +30,6 @@ const testRepo = async () => {
       datastore: MemoryDatastore
     }
   })
-  console.log('repo init')
   await repo.init({})
   await repo.open()
   return repo
@@ -47,6 +48,67 @@ describe('Tupelo', () => {
     const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
     expect(addr).to.have.lengthOf(42)
   })
+
+  it('gets token payload', async ()=> {
+    const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
+
+    let resolve: Function, reject: Function
+    const p = new Promise((res, rej) => { resolve = res, reject = rej })
+
+    const repo = await testRepo()
+
+    var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
+    expect(node).to.exist;
+    p.then(() => {
+      node.stop()
+    })
+
+    node.on('error', (err: any) => {
+      reject(err)
+      console.error('error')
+    })
+
+    node.start(()=>{})
+    
+    const c = new Community(node, notaryGroup, repo.repo)
+    await c.start()
+
+    const receiverKey = await EcdsaKey.generate()
+    const receiverTree = await ChainTree.newEmptyTree(c.blockservice, receiverKey)
+    const receiverId = await receiverTree.id()
+    if (receiverId == null) {
+      throw new Error("unknown receiver id")
+    }
+
+    const senderKey = await EcdsaKey.generate()
+    const senderTree = await ChainTree.newEmptyTree(c.blockservice, senderKey)
+    const senderid = await senderTree.id()
+    if (senderid == null) {
+      throw new Error("unknown sender id")
+    }
+    const tokenName = "testtoken"
+    await c.playTransactions(senderTree, [establishTokenTransaction(tokenName, 10)])
+    await c.playTransactions(senderTree, [mintTokenTransaction(tokenName, 5)])
+
+    const sendId = "anewsendid"
+    let resp = await c.playTransactions(senderTree, [sendTokenTransaction(sendId, tokenName, 5, receiverId)])
+    const sig = resp.getSignature()
+    if (sig == undefined) {
+      throw new Error("undefined signature")
+    }
+    Tupelo.tokenPayloadForTransaction({
+      blockService: c.blockservice,
+      tip: senderTree.tip,
+      signature: sig,
+      tokenName: senderid + ":" + tokenName,
+      sendId:sendId,
+    }).then((payload)=> {
+      expect(payload).to.exist
+      resolve()
+    }, (err)=> {reject(err)})
+
+    return p
+  }).timeout(10000)
 
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
@@ -67,21 +129,21 @@ describe('Tupelo', () => {
     const comPromise = c.start()
 
     node.on('connection:start', (peer: any) => {
-      console.log("connecting to ", peer.id._idB58String, " started")
+      debugLog("connecting to ", peer.id._idB58String, " started")
     })
 
     node.on('error', (err: any) => {
       reject(err)
-      console.log('error')
+      console.error('error')
     })
 
     node.once('enoughdiscovery', async () => {
-      console.log("enough discovered, playing transactions")
+      debugLog("enough discovered, playing transactions")
       await comPromise
       const key = await EcdsaKey.generate()
 
       let tree = await ChainTree.newEmptyTree(c.blockservice, key)
-      console.log("created empty tree")
+      debugLog("created empty tree")
       const trans = setDataTransaction("/hi", "hihi")
 
       Tupelo.playTransactions(node.pubsub, notaryGroup, tree, [trans]).then(
@@ -104,7 +166,7 @@ describe('Tupelo', () => {
     let connected = 0;
 
     node.on('peer:connect', async () => {
-      console.log("peer connect")
+      debugLog("peer connect")
       connected++
       if (connected >= 1) {
         node.emit('enoughdiscovery')
@@ -112,7 +174,7 @@ describe('Tupelo', () => {
     })
 
     node.start(() => {
-      console.log("node started");
+      debugLog("node started");
     });
 
     return p
