@@ -11,6 +11,7 @@ import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
 import OldCID from 'cids';
 import { Signature } from 'tupelo-messages/signatures/signatures_pb';
+import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
 
@@ -46,6 +47,8 @@ export class Community extends EventEmitter {
     // (undocumented)
     node: IP2PNode;
     playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/signatures/signatures_pb").CurrentState>;
+    // (undocumented)
+    sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
     // (undocumented)
     subscribeToTips(): Promise<void>;
@@ -247,6 +250,9 @@ export namespace p2p {
 export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, signature: Signature, leaves: Uint8Array[]) => Transaction_2;
 
 // @public
+export const receiveTokenTransactionFromPayload: (payload: TokenPayload) => Transaction_2;
+
+// @public
 export class Repo {
     constructor(name: string, opts?: RepoOpts);
     // (undocumented)
@@ -309,6 +315,10 @@ export namespace Tupelo {
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
     export function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState>;
+    // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
+    // 
+    // (undocumented)
+    export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
 }
 
 // @public
