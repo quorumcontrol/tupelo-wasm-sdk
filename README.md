@@ -55,3 +55,11 @@ const [remaining,value] = await tree.resolve(["tree", "data", "path"])
 
 By default the wasm is loaded from the tupelo.wasm included in the npm package of this repo (src/js/go/tupelo.wasm) for node and from `/tupelo.wasm` (from the root of the server) in the browser.
 This is customizable by setting Go.wasmPath equal to whever is better for your app.
+
+## Running the tests
+
+In order for the tests to run, you need to have a tupelo running. In the directory [./wasmtupelo](./wasmtupelo) there is a docker-compose which will enable the tests.
+
+``$ cd wasmtupelo && docker-compose up``
+
+Then `npm test` should be green.
