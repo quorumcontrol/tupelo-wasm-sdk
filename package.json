@@ -1,6 +1,6 @@
 {
   "name": "tupelo-wasm-sdk",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "a test interaction of tupelo wasm",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

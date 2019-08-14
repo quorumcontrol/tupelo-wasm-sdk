@@ -4,6 +4,9 @@ V2 of the tupelo-js-sdk is a standalone SDK that works with wasm to talk directl
 
 Note: in the words of IPFS: this project is still in Alpha, lots of development is happening, API might change, beware of the Dragons 🐉..
 
+## API
+See: [https://quorumcontrol.github.io/tupelo-wasm-sdk/docs/tupelo-wasm-sdk.html](https://quorumcontrol.github.io/tupelo-wasm-sdk/docs/tupelo-wasm-sdk.html)
+
 ## Getting Started
 
 The following snippet of code is all you need to send a transaction to our Testnet

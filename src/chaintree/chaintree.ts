@@ -206,6 +206,7 @@ export const receiveTokenTransaction = (sendId: string, tip: Uint8Array, signatu
  * no need to deconstruct and the reconstruct the payload. Often wallets will send this payload as base64.
  * 
  * @param payload - The receive token payload
+ * @public
  */
 export const receiveTokenTransactionFromPayload = (payload:TokenPayload) => {
     var txn = new Transaction();
