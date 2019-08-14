@@ -94,6 +94,26 @@ export class Community extends EventEmitter {
         return new CID(Buffer.from(sig.getNewTip_asU8()))
     }
 
+    async sendTokenAndGetPayload(tree:ChainTree, tx:Transaction) {
+        const sendTokenPayload = tx.getSendTokenPayload()
+        if (tx.getType() != Transaction.Type.SENDTOKEN || sendTokenPayload === undefined) {
+            throw new Error("must use a send token transaction here")
+        }
+
+        const resp = await this.playTransactions(tree, [tx])
+        const sig = resp.getSignature()
+        if (sig === undefined) {
+            throw new Error('received undefined signature')
+        }
+        return Tupelo.tokenPayloadForTransaction({
+            blockService: this.blockservice,
+            tip: tree.tip,
+            tokenName: sendTokenPayload.getName(),
+            sendId: sendTokenPayload.getId(),
+            signature: sig,
+        })
+    }
+
     /**
      * playTransactions is a convenience wrapper on community to make calling the underlying Tupelo.playTransactions
      * easier when using a fully community client

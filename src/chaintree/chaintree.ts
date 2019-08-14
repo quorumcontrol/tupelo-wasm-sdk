@@ -3,7 +3,7 @@ import CID from 'cids'
 import { EcdsaKey } from '../crypto'
 import { Tupelo } from '../tupelo';
 import { Signature } from 'tupelo-messages/signatures/signatures_pb';
-import { SetDataPayload, Transaction, SetOwnershipPayload, TokenMonetaryPolicy, EstablishTokenPayload, MintTokenPayload, SendTokenPayload, ReceiveTokenPayload } from 'tupelo-messages/transactions/transactions_pb';
+import { SetDataPayload, Transaction, SetOwnershipPayload, TokenMonetaryPolicy, EstablishTokenPayload, MintTokenPayload, SendTokenPayload, ReceiveTokenPayload, TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 
 const dagCBOR = require('ipld-dag-cbor');
 
@@ -200,5 +200,32 @@ export const receiveTokenTransaction = (sendId: string, tip: Uint8Array, signatu
 
     return txn;
 };
+
+/**
+ * This function is useful if you have the full payload from the send token sent to you
+ * no need to deconstruct and the reconstruct the payload. Often wallets will send this payload as base64.
+ * 
+ * @param payload - The receive token payload
+ */
+export const receiveTokenTransactionFromPayload = (payload:TokenPayload) => {
+    var txn = new Transaction();
+    txn.setType(Transaction.Type.RECEIVETOKEN);
+    const tip = new CID(payload.getTip())
+    const sig = payload.getSignature()
+    if (sig === undefined) {
+        throw new Error("signature must be defined")
+    }
+    const leaves = payload.getLeavesList_asU8()
+    if (leaves === undefined) {
+        throw new Error('leaves must be defined')
+    }
+    txn.setReceiveTokenPayload(receiveTokenPayload(
+        payload.getTransactionId(),
+        tip.buffer,
+        sig,
+        leaves,
+    ));
+    return txn
+}
 
 export default ChainTree
