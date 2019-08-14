@@ -3,6 +3,8 @@
 // license that can be found in the LICENSE file.
 
 const log = require('debug')('gowasm');
+const fs = require('fs');
+const path = require('path');
 
 (() => {
     if (typeof global !== "undefined") {
@@ -81,6 +83,7 @@ const log = require('debug')('gowasm');
     }
 
     global.Go = class {
+        static wasmPath = isNodeJS ? fs.readFileSync(path.join(__dirname, "tupelo.wasm")) : "/tupelo.wasm"
         constructor() {
             this.argv = ["js"];
             this.env = {};
@@ -460,10 +463,7 @@ const runner = {
         let result
 
         if (isNodeJS) {
-            const fs = require('fs');
-            const path = require('path');
-
-            result = await WebAssembly.instantiate(fs.readFileSync(path.join(__dirname, 'tupelo.wasm')), go.importObject)
+            result = await WebAssembly.instantiate(Go.wasmPath, go.importObject)
         
             process.on("exit", (code) => { // Node.js exits if no event handler is pending
                 Go.exit();
@@ -476,10 +476,10 @@ const runner = {
         } else {
             log("is not nodejs")
             if (typeof WebAssembly.instantiateStreaming == 'function') {
-                result = await WebAssembly.instantiateStreaming(fetch("/tupelo.wasm"), go.importObject)
+                result = await WebAssembly.instantiateStreaming(fetch(Go.wasmPath), go.importObject)
             } else {
                 log('fetching wasm')
-                const wasmResp = await fetch("/tupelo.wasm")
+                const wasmResp = await fetch(Go.wasmPath)
                 log('turning it into an array buffer')
                 const wasm = await wasmResp.arrayBuffer()
                 log('instantiating')
