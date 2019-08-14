@@ -9,7 +9,7 @@ Constructs a new instance of the `Repo` class
 <b>Signature:</b>
 
 ```typescript
-constructor(name: string, opts: RepoOpts);
+constructor(name: string, opts?: RepoOpts);
 ```
 
 ## Parameters
@@ -17,5 +17,5 @@ constructor(name: string, opts: RepoOpts);
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  name | <code>string</code> | The name of the repo |
-|  opts | <code>RepoOpts</code> | [RepoOpts](./tupelo-wasm-sdk.repoopts.md) |
+|  opts | <code>RepoOpts</code> | (optional) [RepoOpts](./tupelo-wasm-sdk.repoopts.md) - if opts are unspecified, it will use the IPFS repo defaults |
 

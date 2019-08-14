@@ -4,6 +4,8 @@
 
 ## Community.getCurrentState() method
 
+getCurrentState returns the current state (signatures) for a given ChainTree (its DID)
+
 <b>Signature:</b>
 
 ```typescript

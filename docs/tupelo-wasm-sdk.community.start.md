@@ -4,6 +4,8 @@
 
 ## Community.start() method
 
+starts up the community
+
 <b>Signature:</b>
 
 ```typescript

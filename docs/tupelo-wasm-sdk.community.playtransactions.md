@@ -4,6 +4,8 @@
 
 ## Community.playTransactions() method
 
+playTransactions is a convenience wrapper on community to make calling the underlying Tupelo.playTransactions easier when using a fully community client
+
 <b>Signature:</b>
 
 ```typescript

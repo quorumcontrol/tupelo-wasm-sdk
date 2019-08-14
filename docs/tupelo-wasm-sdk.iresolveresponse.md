@@ -17,5 +17,5 @@ export interface IResolveResponse
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [remainderPath](./tupelo-wasm-sdk.iresolveresponse.remainderpath.md) | <code>string[]</code> |  |
-|  [value](./tupelo-wasm-sdk.iresolveresponse.value.md) | <code>Object &#124; null</code> |  |
+|  [value](./tupelo-wasm-sdk.iresolveresponse.value.md) | <code>any</code> |  |
 

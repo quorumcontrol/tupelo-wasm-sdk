@@ -32,10 +32,12 @@ export declare class Community extends EventEmitter
 
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
-|  [getCurrentState(did)](./tupelo-wasm-sdk.community.getcurrentstate.md) |  |  |
-|  [nextUpdate()](./tupelo-wasm-sdk.community.nextupdate.md) |  |  |
-|  [playTransactions(tree, transactions)](./tupelo-wasm-sdk.community.playtransactions.md) |  |  |
-|  [start()](./tupelo-wasm-sdk.community.start.md) |  |  |
+|  [getCurrentState(did)](./tupelo-wasm-sdk.community.getcurrentstate.md) |  | getCurrentState returns the current state (signatures) for a given ChainTree (its DID) |
+|  [getTip(did)](./tupelo-wasm-sdk.community.gettip.md) |  | returns the TIP as a CID of the ChainTree. This is more of a convenience function around getting the current state, and then casting the tip, etc. |
+|  [nextUpdate()](./tupelo-wasm-sdk.community.nextupdate.md) |  | next update is a helper function which lets you do an await until the next tip update of the community |
+|  [playTransactions(tree, transactions)](./tupelo-wasm-sdk.community.playtransactions.md) |  | playTransactions is a convenience wrapper on community to make calling the underlying Tupelo.playTransactions easier when using a fully community client |
+|  [sendTokenAndGetPayload(tree, tx)](./tupelo-wasm-sdk.community.sendtokenandgetpayload.md) |  |  |
+|  [start()](./tupelo-wasm-sdk.community.start.md) |  | starts up the community |
 |  [subscribeToTips()](./tupelo-wasm-sdk.community.subscribetotips.md) |  |  |
 |  [waitForStart()](./tupelo-wasm-sdk.community.waitforstart.md) |  |  |
 

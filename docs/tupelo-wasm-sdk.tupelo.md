@@ -24,4 +24,5 @@ export declare namespace Tupelo
 |  [newEmptyTree(store, publicKey)](./tupelo-wasm-sdk.tupelo.newemptytree.md) |  |
 |  [passPhraseKey(phrase, salt)](./tupelo-wasm-sdk.tupelo.passphrasekey.md) |  |
 |  [playTransactions(publisher, notaryGroup, tree, transactions)](./tupelo-wasm-sdk.tupelo.playtransactions.md) |  |
+|  [tokenPayloadForTransaction(opts)](./tupelo-wasm-sdk.tupelo.tokenpayloadfortransaction.md) |  |
 

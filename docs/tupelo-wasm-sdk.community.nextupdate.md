@@ -4,6 +4,8 @@
 
 ## Community.nextUpdate() method
 
+next update is a helper function which lets you do an await until the next tip update of the community
+
 <b>Signature:</b>
 
 ```typescript

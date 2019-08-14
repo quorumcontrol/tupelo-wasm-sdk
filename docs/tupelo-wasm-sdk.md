@@ -11,6 +11,7 @@ The Tupelo WASM SDK is designed to be used in both nodejs and the browser.
 |  Class | Description |
 |  --- | --- |
 |  [ChainTree](./tupelo-wasm-sdk.chaintree.md) | ChainTree is the main class used for interacting with the data of Tupelo. See [https://docs.quorumcontrol.com/docs/chaintree.html](https://docs.quorumcontrol.com/docs/chaintree.html) for a detailed description of what a ChainTree is. |
+|  [CID](./tupelo-wasm-sdk.cid.md) | This is a helper class so that CID descriptions can be used in other repos. |
 |  [Community](./tupelo-wasm-sdk.community.md) | Commmunity is a combination of a Tupelo NotaryGroup and the application 'Community' running. The remote p2p community app will also store blocks, and this is the default supported way that the current wasm-sdk works. |
 |  [Dag](./tupelo-wasm-sdk.dag.md) | Underlies a ChainTree, it represents a DAG of IPLD nodes and supports resolving accross multiple nodes. |
 |  [EcdsaKey](./tupelo-wasm-sdk.ecdsakey.md) | EcdsaKey defines the public/private key-pairs used to interact with Tupelo. It also supportes generating new keys either randomly or through a passphrase. |
@@ -53,9 +54,12 @@ The Tupelo WASM SDK is designed to be used in both nodejs and the browser.
 
 |  Variable | Description |
 |  --- | --- |
+|  [defaultNotaryGroup](./tupelo-wasm-sdk.defaultnotarygroup.md) | The default (testnet) notary group for the Tupelo Network |
 |  [establishTokenTransaction](./tupelo-wasm-sdk.establishtokentransaction.md) | Returns a new establishTokenTransaction which is used to setup the monetary policy of a new token on a ChainTree |
+|  [getDefault](./tupelo-wasm-sdk.getdefault.md) |  |
 |  [mintTokenTransaction](./tupelo-wasm-sdk.minttokentransaction.md) |  |
 |  [receiveTokenTransaction](./tupelo-wasm-sdk.receivetokentransaction.md) |  |
+|  [receiveTokenTransactionFromPayload](./tupelo-wasm-sdk.receivetokentransactionfrompayload.md) | This function is useful if you have the full payload from the send token sent to you no need to deconstruct and the reconstruct the payload. Often wallets will send this payload as base64. |
 |  [sendTokenTransaction](./tupelo-wasm-sdk.sendtokentransaction.md) |  |
 |  [setDataTransaction](./tupelo-wasm-sdk.setdatatransaction.md) | Returns a setDataTransaction |
 |  [setOwnershipTransaction](./tupelo-wasm-sdk.setownershiptransaction.md) | returns a setOwnershipTransaction |
