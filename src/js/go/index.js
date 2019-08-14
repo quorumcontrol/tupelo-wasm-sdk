@@ -83,7 +83,6 @@ const path = require('path');
     }
 
     global.Go = class {
-        static wasmPath = isNodeJS ? fs.readFileSync(path.join(__dirname, "tupelo.wasm")) : "/tupelo.wasm"
         constructor() {
             this.argv = ["js"];
             this.env = {};
@@ -446,6 +445,8 @@ const path = require('path');
             };
         }
     }
+
+    global.Go.wasmPath = isNodeJS ? fs.readFileSync(path.join(__dirname, "tupelo.wasm")) : "/tupelo.wasm"
 
     global.Go.readyPromise = new Promise((resolve) => {
         global.Go.readyResolver = resolve;
