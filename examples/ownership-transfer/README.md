@@ -26,7 +26,7 @@ Assuming you're still in the example's directory, i.e. tupelo-wasm-sdk/examples/
 execute it as follows:
 
 ```
-$ node .
+$ npm start
 ```
 
 If everything works, you should see output along the lines of the following:
