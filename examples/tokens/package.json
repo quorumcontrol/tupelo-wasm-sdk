@@ -2,7 +2,7 @@
   "name": "tokens",
   "version": "1.0.0",
   "description": "A quick example of sending and receiving tokens in Tupelo",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "start": "ts-node ."
   },

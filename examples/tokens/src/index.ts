@@ -1,8 +1,6 @@
 import { Repo, getDefault, EcdsaKey, ChainTree, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction, receiveTokenTransactionFromPayload } from 'tupelo-wasm-sdk';
-// use require here because interface-datastore doesn't have any types associated
-const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
-// also use require for uuidv4 since no types defined.
-const uuidv4: () => string = require('uuid/v4');
+import { MemoryDatastore } from 'interface-datastore';
+import uuidv4 from 'uuid/v4'
 
 // Using an in-memory repo here to avoid having a directory written to the filesystem.
 // getDefault() in the community package will build a default repo for you (on the FS) if you 
