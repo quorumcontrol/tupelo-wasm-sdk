@@ -1,0 +1,17 @@
+{
+  "name": "tokens",
+  "version": "1.0.0",
+  "description": "A quick example of sending and receiving tokens in Tupelo",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node ."
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "ts-node": "^8.3.0",
+    "tupelo-wasm-sdk": "0.0.6",
+    "typescript": "^3.5.3",
+    "uuid": "^3.3.2"
+  }
+}
