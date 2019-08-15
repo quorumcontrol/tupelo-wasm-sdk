@@ -1,14 +1,29 @@
 #!/usr/bin/env node
 import assert from 'assert';
-import { ChainTree, EcdsaKey, getDefault, setOwnershipTransaction, Tupelo } from 'tupelo-wasm-sdk';
+import { MemoryDatastore } from 'interface-datastore';
+import { ChainTree, EcdsaKey, getDefault, Repo, setOwnershipTransaction, Tupelo } from 'tupelo-wasm-sdk';
+
+const getRepo = async () => {
+  const repo = new Repo('test', {
+    lock: 'memory',
+    storageBackends: {
+      root: MemoryDatastore,
+      blocks: MemoryDatastore,
+      keys: MemoryDatastore,
+      datastore: MemoryDatastore
+    }
+  });
+  await repo.init({});
+  await repo.open();
+  return repo;
+};
 
 const main = async () => {
-  const community = await getDefault();
+  const repo = await getRepo();
+  const community = await getDefault(repo);
 
   // Create a key pair representing Alice
   const aliceKey = await EcdsaKey.generate();
-  // Get the address of Alice's key pair
-  const aliceAddress = await Tupelo.ecdsaPubkeyToAddress(aliceKey.publicKey);
   // Create a ChainTree representing a trading card, owned by Alice
   const tradingCard = await ChainTree.newEmptyTree(community.blockservice, aliceKey);
 
