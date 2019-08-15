@@ -3,8 +3,6 @@
 // license that can be found in the LICENSE file.
 
 const log = require('debug')('gowasm');
-const fs = require('fs');
-const path = require('path');
 
 (() => {
     if (typeof global !== "undefined") {
@@ -45,6 +43,7 @@ const path = require('path');
         decoder = new util.TextDecoder;
     } else {
         log('browser running');
+        global.Buffer = require('buffer').Buffer;
         let outputBuf = "";
         global.fs = {
             constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1 }, // unused
@@ -230,7 +229,7 @@ const path = require('path');
                         const fd = getInt64(sp + 8);
                         const p = getInt64(sp + 16);
                         const n = mem().getInt32(sp + 24, true);
-                        fs.writeSync(fd, new Uint8Array(this._inst.exports.mem.buffer, p, n));
+                        global.fs.writeSync(fd, new Uint8Array(this._inst.exports.mem.buffer, p, n));
                     },
 
                     // func nanotime() int64
@@ -446,7 +445,7 @@ const path = require('path');
         }
     }
 
-    global.Go.wasmPath = isNodeJS ? fs.readFileSync(path.join(__dirname, "tupelo.wasm")) : "/tupelo.wasm"
+    global.Go.wasmPath = isNodeJS ? global.fs.readFileSync(require("path").join(__dirname, "tupelo.wasm")) : "/tupelo.wasm"
 
     global.Go.readyPromise = new Promise((resolve) => {
         global.Go.readyResolver = resolve;
