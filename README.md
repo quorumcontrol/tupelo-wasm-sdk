@@ -1,4 +1,4 @@
-# Tupelo WASM SDK
+# Tupelo Wasm SDK
 
 V2 of the tupelo-js-sdk is a standalone SDK that works with wasm to talk directly to the Tupelo network and does not require a rpc server.
 
@@ -48,16 +48,24 @@ const [remaining,value] = await tree.resolve(["tree", "data", "path"])
 
 // remaining = []
 // value = true
-
 ```
 
-## Path to WASM
+## Examples
+We have a comprehensive collection of examples in the *examples/* directory, which should
+help you get up to speed quickly on various aspects of the SDK.
+
+## Tupelo ChainTree Explorer
+We have made a main demo app based on the SDK, the 
+[Tupelo ChainTree Explorer](https://github.com/quorumcontrol/wasm-explorer). This lets you explore
+ChainTrees in the Tupelo testnet, and should be a great reference for learning how to use
+the Tupelo Wasm SDK in depth!
+
+## Path to Wasm
 
 By default the wasm is loaded from the tupelo.wasm included in the npm package of this repo (src/js/go/tupelo.wasm) for node and from `/tupelo.wasm` (from the root of the server) in the browser.
 This is customizable by setting Go.wasmPath equal to whever is better for your app.
 
 ## Building
-
 In order to build this project, you first of all need to get the Git submodules:
 
 ```
