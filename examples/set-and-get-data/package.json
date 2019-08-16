@@ -1,0 +1,28 @@
+{
+  "name": "set-and-get-data",
+  "version": "1.0.0",
+  "description": "An example of setting and getting data with the Tupelo Wasm SDK",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quorumcontrol/tupelo-wasm-sdk.git"
+  },
+  "author": "Quorum Control Team",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/quorumcontrol/tupelo-wasm-sdk/issues"
+  },
+  "homepage": "https://github.com/quorumcontrol/tupelo-wasm-sdk#readme",
+  "dependencies": {
+    "@types/node": "^12.7.2",
+    "tupelo-wasm-sdk": "^0.0.6"
+  },
+  "devDependencies": {
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
+  }
+}
