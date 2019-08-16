@@ -62,12 +62,12 @@ export const defaultNotaryGroup = tomlToNotaryGroup(testNetToml)
 
 let _defaultCommunity: Community|undefined
 
+
 /**
  * 
- * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
- * @public
+ * @internal
  */
-export const getDefault = async (repo?:Repo): Promise<Community> => {
+export const _getDefault = async (repo?:Repo): Promise<Community> => {
     if (repo == undefined) {
         repo = new Repo("default")
         await repo.init({})

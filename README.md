@@ -15,7 +15,7 @@ The following snippet of code is all you need to send a transaction to our Testn
 const sdk = require('tupelo-wasm-sdk')
 
 // setup a connection to the default community and Tupelo TestNet
-const community = await sdk.getDefault() 
+const community = await sdk.Community.getDefault() 
 
 // Generate a new public/private keypair
 const key = await sdk.EcdsaKey.generate() 
@@ -35,7 +35,7 @@ You can also find ChainTrees by their DID and resolve data on them, easily:
 const sdk = require('tupelo-wasm-sdk')
 
 // setup a connection to the default community and Tupelo TestNet
-const community = await sdk.getDefault() 
+const community = await sdk.Community.getDefault() 
 
 const tip = await community.getTip("did:tupelo:0xD1a9826f3A06d393368C9949535De802A35cD6b2")
 
