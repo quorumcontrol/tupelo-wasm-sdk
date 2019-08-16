@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node
 import assert from 'assert';
 import { MemoryDatastore } from 'interface-datastore';
 import { ChainTree, EcdsaKey, getDefault, Repo, setOwnershipTransaction, Tupelo } from 'tupelo-wasm-sdk';
