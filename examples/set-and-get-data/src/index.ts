@@ -1,7 +1,7 @@
 #!/usr/bin/env ts-node
 import assert from 'assert';
 import { MemoryDatastore } from 'interface-datastore';
-import { ChainTree, EcdsaKey, getDefault, Repo, setDataTransaction } from 'tupelo-wasm-sdk';
+import { ChainTree, EcdsaKey, Community, Repo, setDataTransaction } from 'tupelo-wasm-sdk';
 
 const getRepo = async () => {
   const repo = new Repo('test', {
@@ -20,7 +20,7 @@ const getRepo = async () => {
 
 const main = async () => {
   const repo = await getRepo();
-  const community = await getDefault(repo);
+  const community = await Community.getDefault(repo);
 
   // Create a key pair representing Alice
   const aliceKey = await EcdsaKey.generate();

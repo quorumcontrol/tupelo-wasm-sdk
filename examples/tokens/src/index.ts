@@ -1,4 +1,4 @@
-import { Repo, getDefault, EcdsaKey, ChainTree, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction, receiveTokenTransactionFromPayload } from 'tupelo-wasm-sdk';
+import { Repo, Community, EcdsaKey, ChainTree, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction, receiveTokenTransactionFromPayload } from 'tupelo-wasm-sdk';
 import { MemoryDatastore } from 'interface-datastore';
 import uuidv4 from 'uuid/v4'
 
@@ -24,7 +24,7 @@ async function executeAsync() {
   const repo = await testRepo()
   // connect to the Tupelo testnet (you must be on the internet), but use
   // a in-memory only IPFS repo.
-  const community = await getDefault(repo)
+  const community = await Community.getDefault(repo)
 
   // Generate keys for alice and bob
   console.log("creating keys for alice and bob")
