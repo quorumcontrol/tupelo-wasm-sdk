@@ -1,15 +1,17 @@
 import EventEmitter from 'events';
 import { IP2PNode, IPubSubMessage } from '../node';
 import { NotaryGroup } from 'tupelo-messages';
-import {Transaction} from 'tupelo-messages/transactions/transactions_pb'
+import { Transaction } from 'tupelo-messages/transactions/transactions_pb'
 import CID from 'cids';
 import { IBlockService } from '../chaintree/dag/dag'
 import { ICallbackBitswap } from './wrappedbitswap'
 import { WrappedBlockService } from './wrappedblockservice'
 import Tupelo from '../tupelo';
 import { ChainTree } from '../chaintree';
+import { _getDefault } from './default';
 
 import debug from 'debug'
+import Repo from '../repo';
 
 const debugLog = debug("community")
 
@@ -58,8 +60,8 @@ export class Community extends EventEmitter {
         this._startPromise = new Promise((resolve) => { this._startPromiseResolve = resolve })
     }
 
-    async waitForStart(): Promise<Community> { 
-       return this._startPromise
+    async waitForStart(): Promise<Community> {
+        return this._startPromise
     }
 
 
@@ -85,7 +87,7 @@ export class Community extends EventEmitter {
      * around getting the current state, and then casting the tip, etc.
      * @param did - The DID of the ChainTree
      */
-    async getTip(did:string) {
+    async getTip(did: string) {
         const state = await this.getCurrentState(did)
         const sig = state.getSignature()
         if (sig == undefined) {
@@ -94,7 +96,7 @@ export class Community extends EventEmitter {
         return new CID(Buffer.from(sig.getNewTip_asU8()))
     }
 
-    async sendTokenAndGetPayload(tree:ChainTree, tx:Transaction) {
+    async sendTokenAndGetPayload(tree: ChainTree, tx: Transaction) {
         const sendTokenPayload = tx.getSendTokenPayload()
         if (tx.getType() != Transaction.Type.SENDTOKEN || sendTokenPayload === undefined) {
             throw new Error("must use a send token transaction here")
@@ -118,7 +120,7 @@ export class Community extends EventEmitter {
      * playTransactions is a convenience wrapper on community to make calling the underlying Tupelo.playTransactions
      * easier when using a fully community client
     */
-    async playTransactions(tree:ChainTree, transactions:Transaction[]) {
+    async playTransactions(tree: ChainTree, transactions: Transaction[]) {
         return Tupelo.playTransactions(this.node.pubsub, this.group, tree, transactions)
     }
 
@@ -127,9 +129,9 @@ export class Community extends EventEmitter {
      * update of the community
     */
     async nextUpdate() {
-        let resolve:Function
-        const p = new Promise((res,_rej) => { resolve = res })
-        this.once('tip', ()=> {resolve()})
+        let resolve: Function
+        const p = new Promise((res, _rej) => { resolve = res })
+        this.once('tip', () => { resolve() })
         return p
     }
 
@@ -193,4 +195,18 @@ export class Community extends EventEmitter {
         })
     }
 
+}
+
+export namespace Community {
+    /**
+     * getDefault returns the default Tupelo commuity. This is currently the Tupelo testnet. 
+     * It creates a libp2p node and connects to the testnet, establishes the community connection.
+     * This method optionally takes a {@link Repo}. If you do not pass in a Repo, then it will create a 
+     * default repo. Details on the default can be found: 
+     * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
+     * @public
+    */
+    export async function getDefault(repo?: Repo) {
+        return _getDefault(repo)
+    }
 }

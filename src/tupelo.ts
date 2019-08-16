@@ -108,7 +108,7 @@ namespace TupeloWasm {
 /**
  * Tupelo is the more "raw" namespace, it is generally expected
  * that you would use higher level wrapper classes around this namespace.
- * For example: {@link EcdsaKey} or {@link Community}
+ * For example: {@link EcdsaKey} or {@link Community#"class"}
  * @public
  */
 export namespace Tupelo {
