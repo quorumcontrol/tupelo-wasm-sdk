@@ -29,9 +29,16 @@ const log = require('debug')('gowasm');
 
 	if (!global.require && typeof require !== "undefined") {
 		global.require = require;
-	}
+    }
+    
+    if (!global.process) {
+        global.process = {
+            pid: 2,
+            title: global.navigator.appName
+        };
+    }
 
-	if (!global.fs && global.require) {
+	if ((!global.fs || !global.fs.writeSync) && global.require) {
 		global.fs = require("fs");
 	}
 
@@ -250,7 +257,7 @@ const log = require('debug')('gowasm');
 						const fd = getInt64(sp + 8);
 						const p = getInt64(sp + 16);
 						const n = mem().getInt32(sp + 24, true);
-						fs.writeSync(fd, new Uint8Array(this._inst.exports.mem.buffer, p, n));
+						global.fs.writeSync(fd, new Uint8Array(this._inst.exports.mem.buffer, p, n));
 					},
 
 					// func nanotime() int64
