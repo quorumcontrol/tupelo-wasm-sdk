@@ -8,3 +8,9 @@ etc
 markdown
 temp
 .tmp
+examples
+.gitattributes
+api-extractor.json
+docs
+build-docs.sh
+build.sh
