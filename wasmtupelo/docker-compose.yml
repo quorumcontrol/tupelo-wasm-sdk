@@ -34,7 +34,7 @@ services:
       "-L", "${TUPELO_LOG_LEVEL:-error}"]
 
   community:
-    image: quorumcontrol/community:tip-broadcast
+    image: quorumcontrol/community:master
     volumes:
       - ./configs:/configs
     command: ["-c", "/configs/community.toml"]

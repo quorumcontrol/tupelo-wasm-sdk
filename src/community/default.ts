@@ -10,11 +10,12 @@ const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 
 const testNetToml = `id = "testnet"
+
+# These are all community nodes exposing websocket endpoints
 BootstrapAddresses = [
-  #"/ip4/35.156.246.136/tcp/34001/ipfs/16Uiu2HAmPU1Q7cf5Vpw6SjgKT763eYCBuonbAkTeJ8ryZTzbD822",
-  #"/ip4/3.223.223.236/tcp/34001/ipfs/16Uiu2HAmL6z7bcVBqjdFLbBprsVUbxTA5ggrtiXS2RAUXkonvZEc",
-  #"/ip4/3.214.22.211/tcp/34011/ipfs/16Uiu2HAmF99kspNyHKtkeB1hC3P8NnRwa6xwWj72oDfdF3ym3im7",
   "/ip4/3.214.22.211/tcp/34012/ws/ipfs/16Uiu2HAmF99kspNyHKtkeB1hC3P8NnRwa6xwWj72oDfdF3ym3im7",
+  "/ip4/13.52.108.33/tcp/34012/ws/ipfs/16Uiu2HAmQSpqPKSNg7v1SVHvBw3q3tkHZrrvidoiFByH9uhrPUX9",
+  "/ip4/3.123.69.57/tcp/34012/ws/ipfs/16Uiu2HAmUroxVcUmXtFenmhDuQzviRm8pyktvGLKsLmchPz9nyxF",
 ]
 
 [[signers]]
