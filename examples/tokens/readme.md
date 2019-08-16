@@ -1,23 +1,18 @@
 # Token Transfer Example
 
-This is an example of using the SDK to mint, and send tokens from one ChainTree to another.
+This is an example of using the tupelo-wasm-sdk to establish, mint, and send tokens from one ChainTree to another.
 
-The example program will use the public Tupelo testnet, so you will need to be connected to the
-Internet.
+The example program will use the public Tupelo testnet, so you will need to be connected to the Internet.
 
 There's a video walkthrough of token transfer here:
+
 [![Play video](http://img.youtube.com/vi/kjysUm0eTKc/1.jpg)](https://youtu.be/kjysUm0eTKc "Wallet Walkthrough")
 
 Unlike other systems, Tupelo models individual objects *first* (as ChainTrees) and then layers tokens on top of those individual objects.
 
-ChainTrees may mint their own tokens and send and receive tokens from other ChainTrees. Within a ChainTree a token can have an arbitrary name, the canonical name of the token is the DID of the ChainTree prepended on that arbitrary name. For example if ChainTree `did:tupelo:xyz` minted a `stockToken` the canonical token name would be `did:tupelo:xyz:stockToken`
+ChainTrees may mint their own tokens and send and receive tokens from other ChainTrees. Within a ChainTree a token can have an arbitrary name (unique to the individual ChainTree), the canonical name of the token is the DID of the ChainTree with the arbitrary name appended. For example, if ChainTree `did:tupelo:xyz` minted a `stockToken` the canonical token name would be `did:tupelo:xyz:stockToken`
 
-The basic flow of creating and sending/receiving tokens is as follows:
-
-1. Establish Token
-1. Mint Token
-1. Send Token
-1. Receive Token
+There are four transactions in the Tupelo API that deal with tokens: `ESTABLISHTOKEN`, `MINTTOKEN`, `SENDTOKEN`, and `RECEIVETOKEN`. `ESTABLISHTOKEN` defines the token specification and monetary policy, `MINTTOKEN` creates new tokens once a token has already been established, and `SENDTOKEN`/`RECEIVETOKEN` transfers already minted tokens between ChainTrees.
 
 ## Establish Token
 
@@ -30,7 +25,7 @@ await community.playTransactions(aliceTree, [establishTokenTransaction('stockTok
 
 ## Mint Token
 
-This transaction mints an amount of already extablished Tokens. Only the establishing ChainTree may mint tokens.
+This transaction mints an amount of already established tokens. Only the establishing ChainTree may mint tokens.
 
 ```
 await community.playTransactions(aliceTree, [mintTokenTransaction('stockToken', 10) // mints 10 tokens
@@ -38,7 +33,7 @@ await community.playTransactions(aliceTree, [mintTokenTransaction('stockToken', 
 
 ## Send Token
 
-Send a token to a destination. A send transaction requires a unique sendID (unique to the *receiving* ChainTree). 
+Send tokens to a different ChainTree. A send transaction requires a unique sendId (unique to the *receiving* ChainTree). 
 
 ```
 const uuid = uuidv4()    
@@ -48,7 +43,7 @@ const payload = await community.sendTokenAndGetPayload(tree, sendTokenTransactio
 
 ## Receive Token
 
-Receiving tokens is straight forward, but requires the output of a sendToken transaction (sent out-of-band of Tupelo). 
+Receiving tokens is straight forward, but requires the output of a `sendTokenAndGetPayload` (a `TokenPayload` protobuf, sent out-of-band of Tupelo). 
 
 ```
 await community.playTransactions(tree, [receiveTokenTransactionFromPayload(payload)])
