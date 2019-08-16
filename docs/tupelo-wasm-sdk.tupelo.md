@@ -4,7 +4,7 @@
 
 ## Tupelo namespace
 
-Tupelo is the more "raw" namespace, it is generally expected that you would use higher level wrapper classes around this namespace. For example: [EcdsaKey](./tupelo-wasm-sdk.ecdsakey.md) or [Community](./tupelo-wasm-sdk.community.md)
+Tupelo is the more "raw" namespace, it is generally expected that you would use higher level wrapper classes around this namespace. For example: [EcdsaKey](./tupelo-wasm-sdk.ecdsakey.md) or 
 
 <b>Signature:</b>
 

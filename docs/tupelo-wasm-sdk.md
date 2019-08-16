@@ -47,8 +47,9 @@ The Tupelo WASM SDK is designed to be used in both nodejs and the browser.
 
 |  Namespace | Description |
 |  --- | --- |
+|  [Community](./tupelo-wasm-sdk.community.md) |  |
 |  [p2p](./tupelo-wasm-sdk.p2p.md) |  |
-|  [Tupelo](./tupelo-wasm-sdk.tupelo.md) | Tupelo is the more "raw" namespace, it is generally expected that you would use higher level wrapper classes around this namespace. For example: [EcdsaKey](./tupelo-wasm-sdk.ecdsakey.md) or [Community](./tupelo-wasm-sdk.community.md) |
+|  [Tupelo](./tupelo-wasm-sdk.tupelo.md) | Tupelo is the more "raw" namespace, it is generally expected that you would use higher level wrapper classes around this namespace. For example: [EcdsaKey](./tupelo-wasm-sdk.ecdsakey.md) or  |
 
 ## Variables
 
@@ -56,7 +57,6 @@ The Tupelo WASM SDK is designed to be used in both nodejs and the browser.
 |  --- | --- |
 |  [defaultNotaryGroup](./tupelo-wasm-sdk.defaultnotarygroup.md) | The default (testnet) notary group for the Tupelo Network |
 |  [establishTokenTransaction](./tupelo-wasm-sdk.establishtokentransaction.md) | Returns a new establishTokenTransaction which is used to setup the monetary policy of a new token on a ChainTree |
-|  [getDefault](./tupelo-wasm-sdk.getdefault.md) |  |
 |  [mintTokenTransaction](./tupelo-wasm-sdk.minttokentransaction.md) |  |
 |  [receiveTokenTransaction](./tupelo-wasm-sdk.receivetokentransaction.md) |  |
 |  [receiveTokenTransactionFromPayload](./tupelo-wasm-sdk.receivetokentransactionfrompayload.md) | This function is useful if you have the full payload from the send token sent to you no need to deconstruct and the reconstruct the payload. Often wallets will send this payload as base64. |
