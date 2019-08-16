@@ -58,6 +58,11 @@ export class Community extends EventEmitter {
     waitForStart(): Promise<Community>;
 }
 
+// @public (undocumented)
+export namespace Community {
+    export function getDefault(repo?: Repo): Promise<Community>;
+}
+
 // @public
 export class Dag {
     constructor(tip: CID_2, store: IBlockService);
@@ -91,9 +96,6 @@ export class EcdsaKey {
 
 // @public
 export const establishTokenTransaction: (name: string, maximum: number) => Transaction_2;
-
-// @public (undocumented)
-export const getDefault: (repo?: Repo | undefined) => Promise<Community>;
 
 // @public
 export interface IBitSwap {
