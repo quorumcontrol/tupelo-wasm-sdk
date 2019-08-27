@@ -36,6 +36,9 @@ const main = async () => {
     setDataTransaction('item', '#48 - Frank Lampard'),
     setDataTransaction('condition', 'Mint condition'),
   ]);
+  // wait for all 3 community updates
+  await community.nextUpdate();
+  await community.nextUpdate();
   await community.nextUpdate();
   const id = await tradingCard.id()
   const tip = await community.getTip(id || "")
