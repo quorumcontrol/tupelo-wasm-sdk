@@ -107,6 +107,7 @@ module.exports.CreateNode = async function(options) {
       // nodejs requires that you listen to the address to be able
       // to dial it, the browser *can't* listen to an address.
       peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/ws')
+      peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/wss')
     }
     options.peerInfo = peerInfo;
     const node = new TupeloP2P(options);
