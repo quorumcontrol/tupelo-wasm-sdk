@@ -447,6 +447,10 @@ const log = require('debug')('gowasm');
 
     global.Go.wasmPath = isNodeJS ? global.fs.readFileSync(require("path").join(__dirname, "tupelo.wasm")) : "/tupelo.wasm"
 
+    global.Go.setWasmPath = (path) => {
+        global.Go.wasmPath = path;
+    }
+
     global.Go.readyPromise = new Promise((resolve) => {
         global.Go.readyResolver = resolve;
     });

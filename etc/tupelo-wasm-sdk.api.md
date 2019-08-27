@@ -9,7 +9,7 @@ import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
-import OldCID from 'cids';
+import OldCId from 'cids';
 import { Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
@@ -27,9 +27,7 @@ export class ChainTree extends Dag {
 }
 
 // @public
-export class CID extends OldCID {
-    constructor(version: string | number | Buffer | CID, codec?: string, multihash?: Buffer, multibaseName?: string);
-}
+export const CID: typeof OldCId;
 
 // @public
 export class Community extends EventEmitter {

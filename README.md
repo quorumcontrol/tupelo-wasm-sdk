@@ -65,7 +65,7 @@ const [remaining,value] = await tree.resolve(["tree", "data", "path"])
 ## Path to Wasm
 
 By default the wasm is loaded from the tupelo.wasm included in the npm package of this repo (src/js/go/tupelo.wasm) for node and from `/tupelo.wasm` (from the root of the server) in the browser.
-This is customizable by setting Go.wasmPath equal to whever is better for your app.
+This is customizable by calling `Go.setWasmPath()` with wherever is better for your app.
 
 ## Building
 In order to build this project, you first of all need to get the Git submodules:
