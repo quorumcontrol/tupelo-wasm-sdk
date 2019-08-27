@@ -480,6 +480,7 @@ const runner = {
         } else {
             log("is not nodejs")
             if (typeof WebAssembly.instantiateStreaming == 'function') {
+                console.log("wasm path: ", Go.wasmPath)
                 result = await WebAssembly.instantiateStreaming(fetch(Go.wasmPath), go.importObject)
             } else {
                 log('fetching wasm')
