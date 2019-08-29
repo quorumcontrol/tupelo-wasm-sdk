@@ -72,8 +72,9 @@ export class Community extends EventEmitter {
     */
     async getCurrentState(did: string) {
         await this.start()
+        await this.nextUpdate()
         if (this.tip == undefined) {
-            throw new Error("tip still undefined, even though community started")
+            throw new Error("tip still undefined, even though community started and update received")
         }
         return Tupelo.getCurrentState({
             did: did,
@@ -166,10 +167,8 @@ export class Community extends EventEmitter {
             })
         }
 
-        this.once('tip', () => {
-            this._startPromiseResolve(this)
-            this.emit('start')
-        })
+        this._startPromiseResolve(this)
+        this.emit('start')
 
         return this._startPromise
     }
@@ -181,16 +180,18 @@ export class Community extends EventEmitter {
         this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg: IPubSubMessage) => {
             if (msg.data.length > 0) {
                 this.tip = new CID(Buffer.from(msg.data))
+                this.emit('tip', this.tip)
+                debugLog("tip received: cid: ", this.tip, " raw: ", msg.data)
             } else {
                 debugLog("received null tip")
             }
-            this.emit('tip', this.tip)
 
         }, (err: Error) => {
             if (err) {
                 reject(err)
                 return
             }
+            debugLog("subscribed to tips")
             resolve()
         })
     }

@@ -28,7 +28,7 @@ const main = async () => {
   const tradingCard = await ChainTree.newEmptyTree(community.blockservice, aliceKey);
 
   console.log(
-    `* Setting properties of Alice's trading card...`
+    `* Setting properties of Alice's trading card: `, await tradingCard.id()
   );
   // Set the properties of the trading card
   await community.playTransactions(tradingCard, [
@@ -36,8 +36,13 @@ const main = async () => {
     setDataTransaction('item', '#48 - Frank Lampard'),
     setDataTransaction('condition', 'Mint condition'),
   ]);
+  // wait for all 3 community updates
   await community.nextUpdate();
-
+  await community.nextUpdate();
+  await community.nextUpdate();
+  const id = await tradingCard.id()
+  const tip = await community.getTip(id || "")
+  console.log("new tip: ", tip.toString())
   // Get trading card properties stored in ChainTree
   const { value: { series, item, condition, }, } = await tradingCard.resolve(['tree', 'data',]);
   assert.strictEqual(series, 'Topps UCL Living Set Card');
