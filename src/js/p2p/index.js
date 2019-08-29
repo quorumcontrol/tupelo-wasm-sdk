@@ -15,7 +15,7 @@ const util = require('util')
 const log = require('debug')("p2p")
 
 const RoutingDiscovery = require('./discovery')
-
+  
 const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
 
 class TupeloP2P extends libp2p {
@@ -70,6 +70,7 @@ class TupeloP2P extends libp2p {
     super(mergeOptions(defaults, _options))
     routingDiscoverer.node = this;
     this.once('peer:connect', () => {
+      log("first peer:connect")
       routingDiscoverer.start(() => {
         log("discovery started");
       })

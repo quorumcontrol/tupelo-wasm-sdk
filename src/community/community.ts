@@ -191,6 +191,7 @@ export class Community extends EventEmitter {
                 reject(err)
                 return
             }
+            debugLog("subscribed to tips")
             resolve()
         })
     }
