@@ -10,7 +10,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "ts-node": "^8.3.0",
-    "tupelo-wasm-sdk": "0.0.9",
+    "tupelo-wasm-sdk": "0.0.10",
     "typescript": "^3.5.3",
     "uuid": "^3.3.2"
   }
