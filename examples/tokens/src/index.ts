@@ -39,7 +39,7 @@ async function executeAsync() {
   const tokenName = "aliceToken"
   const canonicalName = (await aliceTree.id()) + ":" + tokenName
 
-  console.log("playing the establish token transaction")
+  console.log("playing the establish token transaction: ", await aliceTree.id())
   await community.playTransactions(aliceTree, [establishTokenTransaction(tokenName, 0)]) // 0 means unlimited supply
   console.log("playing the mint token transaction")
   await community.playTransactions(aliceTree, [mintTokenTransaction(tokenName, 1)])
