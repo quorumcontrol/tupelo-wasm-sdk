@@ -40,9 +40,7 @@ export class CommunityMessenger {
             env.setTopicsList([Buffer.from(topic)])
             env.setTo(Buffer.from(communityTopic))
             try {
-                log("getSendableEnvelopeBytes")
                 const bits = await Tupelo.getSendableEnvelopeBytes(env, this.key)
-                log("bits length: ", bits.length)
                 this.pubsub.publish(communityTopic, bits, (err?:Error)=> {
                     if (err === undefined) {
                         log("error publishing: ", err)
@@ -66,10 +64,8 @@ export class CommunityMessenger {
         const communityTopic = await this._communityTopic(topic)
         log("subscribing to: ", communityTopic)
         this.pubsub.subscribe(communityTopic, (msg:IPubSubMessage) => {
-            log("community topic received message")
             const any = Any.deserializeBinary(msg.data)
             const env = Envelope.deserializeBinary(any.getValue_asU8())
-            log("env topics: ", env.getTopicsList_asU8(), " topic: ", Buffer.from(topic))
             if (topicsListIncludes(env.getTopicsList_asU8(), topic)) {
                 log("message matches requested topic")
                 cb(env)

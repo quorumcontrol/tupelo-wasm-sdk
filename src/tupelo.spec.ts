@@ -15,7 +15,8 @@ import { Community } from './community/community';
 import Repo from './repo';
 import debug from 'debug';
 import { Envelope } from 'tupelo-messages/community/community_pb';
-import {Any} from 'google-protobuf/google/protobuf/any_pb.js';
+import { Any } from 'google-protobuf/google/protobuf/any_pb.js';
+import { freshLocalTestCommunity } from './community/local';
 
 // import {LocalCommunity} from 'local-tupelo';
 
@@ -39,20 +40,20 @@ const testRepo = async () => {
 }
 
 describe('Tupelo', () => {
-  it('gets a DID from a publicKey', async ()=> {
+  it('gets a DID from a publicKey', async () => {
     const key = await EcdsaKey.generate()
     const did = await Tupelo.ecdsaPubkeyToDid(key.publicKey)
     expect(did).to.include("did:tupelo:")
     expect(did).to.have.lengthOf(53)
   })
 
-  it('gets an address from a publicKey', async ()=> {
+  it('gets an address from a publicKey', async () => {
     const key = await EcdsaKey.generate()
     const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
     expect(addr).to.have.lengthOf(42)
   })
 
-  it('gets token payload', async ()=> {
+  it('gets token payload', async () => {
     const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
 
     let resolve: Function, reject: Function
@@ -71,8 +72,8 @@ describe('Tupelo', () => {
       console.error('error')
     })
 
-    node.start(()=>{})
-    
+    node.start(() => { })
+
     const c = new Community(node, notaryGroup, repo.repo)
     await c.start()
 
@@ -105,86 +106,53 @@ describe('Tupelo', () => {
       tip: senderTree.tip,
       signature: sig,
       tokenName: senderid + ":" + tokenName,
-      sendId:sendId,
-    }).then((payload)=> {
+      sendId: sendId,
+    }).then((payload) => {
       expect(payload).to.exist
       resolve()
-    }, (err)=> {reject(err)})
+    }, (err) => { reject(err) })
 
     return p
   }).timeout(10000)
 
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
-    const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
+    const c = await freshLocalTestCommunity()
 
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
+    p.then(() => { c.stop() })
 
-    const repo = await testRepo()
-
-    var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
-    expect(node).to.exist;
-    p.then(() => {
-      node.stop()
-    })
-    
-    const c = new Community(node, notaryGroup, repo.repo)
-    const comPromise = c.start()
-
-    node.on('connection:start', (peer: any) => {
-      debugLog("connecting to ", peer.id._idB58String, " started")
-    })
-
-    node.on('error', (err: any) => {
+    c.node.on('error', (err: any) => {
       reject(err)
       console.error('error')
     })
 
-    node.once('enoughdiscovery', async () => {
-      debugLog("enough discovered, playing transactions")
-      await comPromise
-      const key = await EcdsaKey.generate()
+    const key = await EcdsaKey.generate()
 
-      let tree = await ChainTree.newEmptyTree(c.blockservice, key)
-      debugLog("created empty tree")
-      const trans = setDataTransaction("/hi", "hihi")
+    let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+    debugLog("created empty tree")
+    const trans = setDataTransaction("/hi", "hihi")
 
-      Tupelo.playTransactions(node.pubsub, notaryGroup, tree, [trans]).then(
-        async (success: CurrentState) => {
-          expect(success).to.be.an.instanceOf(CurrentState)
-          const resolved = await tree.resolve("tree/data/hi".split("/"))
-          expect(resolved.value).to.equal("hihi")
-          resolve(true)
-        },
-        (err: Error) => {
-          expect(err).to.be.null
-          if (err) {
-            reject(err)
-            return
-          }
-          resolve(true)
-        })
-    })
-
-    let connected = 0;
-
-    node.on('peer:connect', async () => {
-      debugLog("peer connect")
-      connected++
-      if (connected >= 1) {
-        node.emit('enoughdiscovery')
-      }
-    })
-
-    node.start(() => {
-      debugLog("node started");
-    });
-
+    Tupelo.playTransactions(c.node.pubsub, c.group, tree, [trans]).then(
+      async (success: CurrentState) => {
+        expect(success).to.be.an.instanceOf(CurrentState)
+        const resolved = await tree.resolve("tree/data/hi".split("/"))
+        expect(resolved.value).to.equal("hihi")
+        resolve(true)
+      },
+      (err: Error) => {
+        expect(err).to.be.null
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(true)
+      })
     return p
   }).timeout(10000)
 
-  it('gets envelope bits', async ()=> {
+  it('gets envelope bits', async () => {
     const key = await EcdsaKey.generate()
 
     const topic = "alongertopicworks"
@@ -202,38 +170,5 @@ describe('Tupelo', () => {
 
     expect(Buffer.from(reconstitituted.getTopicsList_asU8()[0]).toString()).to.equal(topic)
   })
-
-  // it('plays good', async () => {
-  //     let c = await LocalCommunity.getDefault()
-      
-  //     const key = await EcdsaKey.generate()
-
-  //     let tree = await ChainTree.newEmptyTree(c.blockservice, key)
-  //     debugLog("created empty tree")
-  //     const trans = setDataTransaction("/hi", "hihi")
-
-  //     let resolve: Function, reject: Function
-  //     const p = new Promise((res, rej) => { resolve = res, reject = rej })
-
-  //     c.playTransactions(tree, [trans]).then(
-  //       async (success: CurrentState) => {
-  //         console.log("success: ", success, " ")
-        
-  //         // expect(success).to.be.an.instanceOf(CurrentState)
-  //         const resolved = await tree.resolve("tree/data/hi".split("/"))
-  //         expect(resolved.value).to.equal("hihi")
-  //         resolve(true)
-  //       },
-  //       (err: Error) => {
-  //         console.error("rejected: ", err)
-  //         expect(err).to.be.null
-  //         if (err) {
-  //           reject(err)
-  //           return
-  //         }
-  //         resolve(true)
-  //       })
-  //     return p
-  //   }).timeout(10000)
 
 })
