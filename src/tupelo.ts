@@ -3,13 +3,14 @@ declare const Go: any;
 import CID from 'cids';
 
 const go = require('./js/go')
-import { Transaction } from 'tupelo-messages'
+import { Transaction, Envelope } from 'tupelo-messages'
 import {TokenPayload} from 'tupelo-messages/transactions/transactions_pb'
 import {IBlockService, IBlock} from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
 import { CurrentState,Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import debug from 'debug'
+import { EcdsaKey } from './crypto';
 
 const logger = debug("tupelo")
 
@@ -85,6 +86,12 @@ class UnderlyingWasm {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
     tokenPayloadForTransaction(opts:IWASMTransactionPayloadOpts): Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    }
+    hashToShardNumber(topic:string,numberOfShards:number):number {
+        return 0 // replaced by wasm
+    }
+    getSendableEnvelopeBytes(envelopeBytes:Uint8Array,key:Uint8Array):Promise<Uint8Array>{
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
 }
@@ -177,6 +184,22 @@ export namespace Tupelo {
             jsSendTxSig: opts.signature.serializeBinary(),  
         })
         return TokenPayload.deserializeBinary(respBits)
+    }
+
+    export async function hashToShardNumber(topic:string, maxShards:number):Promise<number> {
+        const tw = await TupeloWasm.get()
+        return tw.hashToShardNumber(topic,maxShards)
+    }
+
+    export async function getSendableEnvelopeBytes(env:Envelope, key:EcdsaKey):Promise<Uint8Array> {
+        if (key.privateKey === undefined) {
+            throw new Error("key needs to have a private key in order to sign the envelope")
+        }
+        const tw = await TupeloWasm.get()
+        const envBits = env.serializeBinary()
+        const keyBits = key.privateKey
+        logger("getSendableEnvelopeBytes to wasm")
+        return tw.getSendableEnvelopeBytes(envBits,keyBits)
     }
 
     export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {

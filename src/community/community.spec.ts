@@ -183,7 +183,7 @@ describe('Community', () => {
       const communityCurrent = await c.getCurrentState(id)
       let communityCurrentSig = communityCurrent.getSignature()
       if (transCurrentSig !== undefined && communityCurrentSig !== undefined) {
-        expect(communityCurrentSig.getSignature().toString()).to.equal(transCurrentSig.getSignature().toString())
+        expect(communityCurrentSig.getNewTip_asB64()).to.equal(transCurrentSig.getNewTip_asB64())
         resolve()
         return
       }

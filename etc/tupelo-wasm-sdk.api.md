@@ -6,6 +6,7 @@
 
 import CID from 'cids';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { Envelope } from 'tupelo-messages';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
@@ -307,6 +308,10 @@ export namespace Tupelo {
     // 
     // (undocumented)
     export function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState>;
+    // (undocumented)
+    export function getSendableEnvelopeBytes(env: Envelope, key: EcdsaKey): Promise<Uint8Array>;
+    // (undocumented)
+    export function hashToShardNumber(topic: string, maxShards: number): Promise<number>;
     // (undocumented)
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)

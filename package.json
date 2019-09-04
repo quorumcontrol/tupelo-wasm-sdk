@@ -42,7 +42,7 @@
     "pull-mplex": "^0.1.2",
     "pull-ws": "^3.3.2",
     "toml": "^3.0.0",
-    "tupelo-messages": "0.5.0-rc4",
+    "tupelo-messages": "file://../messages/build/js",
     "util": "^0.12.1"
   },
   "devDependencies": {
@@ -53,6 +53,7 @@
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.6.2",
     "chai": "^4.2.0",
+    "local-tupelo": "file:../local-tupelo",
     "mocha": "^6.1.4",
     "rimraf": "^2.6.3",
     "ts-node": "^8.3.0",

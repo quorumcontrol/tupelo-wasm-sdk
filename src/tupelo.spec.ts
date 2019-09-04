@@ -14,10 +14,13 @@ import path from 'path';
 import { Community } from './community/community';
 import Repo from './repo';
 import debug from 'debug';
+import { Envelope } from 'tupelo-messages/community/community_pb';
+import {Any} from 'google-protobuf/google/protobuf/any_pb.js';
+
+// import {LocalCommunity} from 'local-tupelo';
 
 const debugLog = debug("tupelospec")
 
-const dagCBOR = require('ipld-dag-cbor');
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 const testRepo = async () => {
@@ -72,6 +75,7 @@ describe('Tupelo', () => {
     
     const c = new Community(node, notaryGroup, repo.repo)
     await c.start()
+
 
     const receiverKey = await EcdsaKey.generate()
     const receiverTree = await ChainTree.newEmptyTree(c.blockservice, receiverKey)
@@ -179,5 +183,57 @@ describe('Tupelo', () => {
 
     return p
   }).timeout(10000)
+
+  it('gets envelope bits', async ()=> {
+    const key = await EcdsaKey.generate()
+
+    const topic = "alongertopicworks"
+
+    const env = new Envelope()
+    env.setFrom("from")
+    env.setPayload(Buffer.from("test"))
+    env.setTopicsList([Buffer.from(topic)])
+
+    const bits = await Tupelo.getSendableEnvelopeBytes(env, key)
+
+    const any = Any.deserializeBinary(bits)
+    const reconstitituted = Envelope.deserializeBinary(any.getValue_asU8())
+    expect(reconstitituted.getFrom_asB64()).to.equal(env.getFrom_asB64())
+
+    expect(Buffer.from(reconstitituted.getTopicsList_asU8()[0]).toString()).to.equal(topic)
+  })
+
+  // it('plays good', async () => {
+  //     let c = await LocalCommunity.getDefault()
+      
+  //     const key = await EcdsaKey.generate()
+
+  //     let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+  //     debugLog("created empty tree")
+  //     const trans = setDataTransaction("/hi", "hihi")
+
+  //     let resolve: Function, reject: Function
+  //     const p = new Promise((res, rej) => { resolve = res, reject = rej })
+
+  //     c.playTransactions(tree, [trans]).then(
+  //       async (success: CurrentState) => {
+  //         console.log("success: ", success, " ")
+        
+  //         // expect(success).to.be.an.instanceOf(CurrentState)
+  //         const resolved = await tree.resolve("tree/data/hi".split("/"))
+  //         expect(resolved.value).to.equal("hihi")
+  //         resolve(true)
+  //       },
+  //       (err: Error) => {
+  //         console.error("rejected: ", err)
+  //         expect(err).to.be.null
+  //         if (err) {
+  //           reject(err)
+  //           return
+  //         }
+  //         resolve(true)
+  //       })
+  //     return p
+  //   }).timeout(10000)
 
 })
