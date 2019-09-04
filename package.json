@@ -53,7 +53,6 @@
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.6.2",
     "chai": "^4.2.0",
-    "local-tupelo": "file:../local-tupelo",
     "mocha": "^6.1.4",
     "rimraf": "^2.6.3",
     "ts-node": "^8.3.0",
