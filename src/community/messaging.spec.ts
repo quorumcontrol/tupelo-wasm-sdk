@@ -29,7 +29,7 @@ const testRepo = async () => {
     return repo
   }
 
-describe("community messaging", ()=> {
+describe("Community messaging", ()=> {
     it('publishes and subscribes', async ()=> {
         let resolve:Function,reject:Function
         const p = new Promise((res,rej) => {resolve = res; reject= rej});
@@ -51,7 +51,6 @@ describe("community messaging", ()=> {
         setTimeout(async ()=> {
             await senderM.publish(topic, Buffer.from("test"))
         },500) // need to wait for the subscribe to reach the network
-
 
         return p
     }).timeout(5000)

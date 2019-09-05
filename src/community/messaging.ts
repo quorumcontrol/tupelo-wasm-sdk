@@ -13,6 +13,7 @@ const log = debug("community:messaging")
  * that nodes correctly relay messages within this community.
  * Community listends to a number of libp2p topics (we call shards here) and internal community topics
  * are broadcast on those libp2p topics so that libp2p will correctly relay those messages.
+ * @beta
  */
 export class CommunityMessenger {
     name:string
@@ -29,6 +30,12 @@ export class CommunityMessenger {
         this.key = key
     }
 
+    /**
+     * 
+     * @param topic - the topic to broadcast to (the community topic, not the pubsub topic)
+     * @param payload - the data to send
+     * @beta
+     */
     async publish(topic:string, payload:Uint8Array) {
         return new Promise(async (resolve,reject) => {
             log("publish called for ", topic)
@@ -57,6 +64,12 @@ export class CommunityMessenger {
         });       
     }
 
+    /**
+     * 
+     * @param topic - the community topic to subscribe to
+     * @param cb - a callback function which will be called with a protobuf instance of Envelope ( the js object, not the bytes )
+     * @beta 
+     */
     async subscribe(topic:string, cb:Function) {
         let resolve:Function,reject:Function
         const p = new Promise((res,rej) => {resolve = res; reject= rej});
