@@ -50,6 +50,8 @@ export class Community extends EventEmitter {
     sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
     // (undocumented)
+    stop(): Promise<void>;
+    // (undocumented)
     subscribeToTips(): Promise<void>;
     // (undocumented)
     tip?: CID_2;
@@ -60,6 +62,19 @@ export class Community extends EventEmitter {
 // @public (undocumented)
 export namespace Community {
     export function getDefault(repo?: Repo): Promise<Community>;
+}
+
+// @beta
+export class CommunityMessenger {
+    constructor(name: string, shards: number, key: EcdsaKey, localIdentifier: string, pubsub: IPubSub);
+    // (undocumented)
+    localIdentifier: string;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    publish(topic: string, payload: Uint8Array): Promise<unknown>;
+    // (undocumented)
+    subscribe(topic: string, cb: Function): Promise<unknown>;
 }
 
 // @public
