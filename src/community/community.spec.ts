@@ -15,7 +15,6 @@ import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTran
 import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import Tupelo from '../tupelo';
 import debug from 'debug';
-import { freshLocalTestCommunity } from './local';
 
 const log = debug("communityspec")
 
@@ -67,14 +66,14 @@ describe('Community', () => {
   }).timeout(10000)
 
   it('starts and stops', async () => {
-    let c = await freshLocalTestCommunity()
+    let c = await Community.freshLocalTestCommunity()
     c.stop()
   }).timeout(1000)
 
 
   // requires a running tupelo
   it('listens to tips', async () => {
-    const c = await freshLocalTestCommunity()
+    const c = await Community.freshLocalTestCommunity()
     const p = new Promise(async (resolve, rej) => {
       c.on('tip', (tip: CID) => {
         expect(tip).to.exist
@@ -86,7 +85,7 @@ describe('Community', () => {
   }).timeout(10000)
 
   it('gets a chaintree tip', async () => {
-    const c = await freshLocalTestCommunity()
+    const c = await Community.freshLocalTestCommunity()
     const p = new Promise(async (resolve, reject) => {
       const key = await EcdsaKey.generate()
       const tree = await ChainTree.newEmptyTree(c.blockservice, key)
@@ -107,7 +106,7 @@ describe('Community', () => {
 
   // requires a running tupelo
   it('gets a chaintree currentState', async () => {
-    const c = await freshLocalTestCommunity()
+    const c = await Community.freshLocalTestCommunity()
     const p = new Promise(async (resolve, reject) => {
       const node = c.node
       const key = await EcdsaKey.generate()
@@ -151,7 +150,7 @@ describe('Community', () => {
   }).timeout(10000)
 
   it('plays transactions', async () => {
-    const c = await freshLocalTestCommunity()
+    const c = await Community.freshLocalTestCommunity()
     const p = new Promise(async (resolve, reject) => {
       const trans = [setDataTransaction("/test", "oh really")]
 
@@ -170,7 +169,7 @@ describe('Community', () => {
 
   it('sends token and gets payload', async () => {
 
-    const c = await freshLocalTestCommunity()
+    const c = await Community.freshLocalTestCommunity()
     const p = new Promise(async (resolve, reject) => {
       const receiverKey = await EcdsaKey.generate()
       const receiverTree = await ChainTree.newEmptyTree(c.blockservice, receiverKey)

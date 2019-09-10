@@ -61,6 +61,13 @@ export const defaultNotaryGroup = tomlToNotaryGroup(testNetToml)
 
 let _defaultCommunity: Community|undefined
 
+/**
+ * 
+ * @internal
+ */
+export function _setDefault(c:Community) {
+    _defaultCommunity = c
+}
 
 /**
  * 

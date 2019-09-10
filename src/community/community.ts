@@ -8,10 +8,11 @@ import { ICallbackBitswap } from './wrappedbitswap'
 import { WrappedBlockService } from './wrappedblockservice'
 import Tupelo from '../tupelo';
 import { ChainTree } from '../chaintree';
-import { _getDefault } from './default';
+import { _getDefault, _setDefault } from './default';
 
 import debug from 'debug'
 import Repo from '../repo';
+import { _freshLocalTestCommunity } from './local';
 
 const debugLog = debug("community")
 
@@ -214,5 +215,24 @@ export namespace Community {
     */
     export async function getDefault(repo?: Repo) {
         return _getDefault(repo)
+    }
+
+    /**
+     * setDefault allows you to set a community you control so that when code calls Community.getDefault() it
+     * returns this community. This is useful in situations like local testing, where your test harness can
+     * point the code at a local community.
+     * @param community 
+     */
+    export async function setDefault(community:Community) {
+        return _setDefault(community);
+    }
+
+    /**
+     * freshLocalTestCommunity returns a new community that points at a locally running (usually through Docker)
+     * Tupelo, using default configs.
+     * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
+     */
+    export async function freshLocalTestCommunity(repo?:Repo) {
+        return _freshLocalTestCommunity(repo)
     }
 }

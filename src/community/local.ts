@@ -13,9 +13,9 @@ const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '../.
 
 /**
  * 
- * @public
+ * @internal
  */
-export const freshLocalTestCommunity = async (repo?:Repo): Promise<Community> => {
+export const _freshLocalTestCommunity = async (repo?:Repo): Promise<Community> => {
     return new Promise(async (resolve,reject)=> {
         if (repo == undefined) {
             repo = new Repo('test', {

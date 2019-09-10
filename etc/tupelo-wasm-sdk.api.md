@@ -111,6 +111,9 @@ export class EcdsaKey {
 // @public
 export const establishTokenTransaction: (name: string, maximum: number) => Transaction_2;
 
+// @public (undocumented)
+export const freshLocalTestCommunity: (repo?: Repo | undefined) => Promise<Community>;
+
 // @public
 export interface IBitSwap {
     // (undocumented)

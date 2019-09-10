@@ -16,7 +16,6 @@ import Repo from './repo';
 import debug from 'debug';
 import { Envelope } from 'tupelo-messages/community/community_pb';
 import { Any } from 'google-protobuf/google/protobuf/any_pb.js';
-import { freshLocalTestCommunity } from './community/local';
 
 // import {LocalCommunity} from 'local-tupelo';
 
@@ -117,7 +116,7 @@ describe('Tupelo', () => {
 
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
-    const c = await freshLocalTestCommunity()
+    const c = await Community.freshLocalTestCommunity()
 
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
