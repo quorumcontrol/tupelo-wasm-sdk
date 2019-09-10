@@ -6,6 +6,7 @@
 
 import CID from 'cids';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { Envelope } from 'tupelo-messages';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
@@ -49,6 +50,8 @@ export class Community extends EventEmitter {
     sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
     // (undocumented)
+    stop(): Promise<void>;
+    // (undocumented)
     subscribeToTips(): Promise<void>;
     // (undocumented)
     tip?: CID_2;
@@ -59,6 +62,19 @@ export class Community extends EventEmitter {
 // @public (undocumented)
 export namespace Community {
     export function getDefault(repo?: Repo): Promise<Community>;
+}
+
+// @beta
+export class CommunityMessenger {
+    constructor(name: string, shards: number, key: EcdsaKey, localIdentifier: string, pubsub: IPubSub);
+    // (undocumented)
+    localIdentifier: string;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    publish(topic: string, payload: Uint8Array): Promise<unknown>;
+    // (undocumented)
+    subscribe(topic: string, cb: Function): Promise<unknown>;
 }
 
 // @public
@@ -307,6 +323,10 @@ export namespace Tupelo {
     // 
     // (undocumented)
     export function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState>;
+    // (undocumented)
+    export function getSendableEnvelopeBytes(env: Envelope, key: EcdsaKey): Promise<Uint8Array>;
+    // (undocumented)
+    export function hashToShardNumber(topic: string, maxShards: number): Promise<number>;
     // (undocumented)
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)

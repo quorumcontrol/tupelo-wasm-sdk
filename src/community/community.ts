@@ -173,6 +173,11 @@ export class Community extends EventEmitter {
         return this._startPromise
     }
 
+    async stop() {
+        this.bitswap.stop(()=>{})
+        this.node.stop()
+    }
+
     async subscribeToTips() {
         let resolve: Function, reject: Function
         const p = new Promise((res, rej) => { resolve = res, reject = rej })

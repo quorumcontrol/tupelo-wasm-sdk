@@ -67,31 +67,35 @@ let _defaultCommunity: Community|undefined
  * @internal
  */
 export const _getDefault = async (repo?:Repo): Promise<Community> => {
-    if (repo == undefined) {
-        repo = new Repo("default")
-        await repo.init({})
-        await repo.open()
-    }
+    return new Promise(async (resolve,reject) => {
+        if (repo == undefined) {
+            repo = new Repo("default")
+            await repo.init({})
+            await repo.open()
+        }
+    
+        if (_defaultCommunity !== undefined) {
+            return _defaultCommunity.start()
+        }
+    
+        const node = await p2p.createNode({ bootstrapAddresses: defaultNotaryGroup.getBootstrapAddressesList() });
+        node.on('error', (err: Error) => {
+            console.error('p2p error: ', err)
+            reject(err)
+        })
 
-    if (_defaultCommunity !== undefined) {
-        return _defaultCommunity.start()
-    }
-
-    const node = await p2p.createNode({ bootstrapAddresses: defaultNotaryGroup.getBootstrapAddressesList() });
-    node.on('error', (err: Error) => {
-        console.error('p2p error: ', err)
+        const c = new Community(node, defaultNotaryGroup, repo.repo)
+        _defaultCommunity = c
+    
+        node.start(async () => {
+            log("node started");
+            resolve(c.start())
+        });
+    
+        // clear the defaultcommunity on a node stopage
+        node.once('stop', async ()=> {
+            _defaultCommunity = undefined
+        })
     })
-
-    node.start(() => {
-        log("node started");
-    });
-
-    // clear the defaultcommunity on a node stopage
-    node.once('stop', async ()=> {
-        _defaultCommunity = undefined
-    })
-
-    const c = new Community(node, defaultNotaryGroup, repo.repo)
-    _defaultCommunity = c
-    return c.start()
+    
 }

@@ -1,6 +1,6 @@
 {
   "name": "tupelo-wasm-sdk",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "a test interaction of tupelo wasm",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -42,7 +42,7 @@
     "pull-mplex": "^0.1.2",
     "pull-ws": "^3.3.2",
     "toml": "^3.0.0",
-    "tupelo-messages": "0.5.0-rc4",
+    "tupelo-messages": "0.5.0-rc6",
     "util": "^0.12.1"
   },
   "devDependencies": {

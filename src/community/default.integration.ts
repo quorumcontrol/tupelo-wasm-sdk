@@ -6,5 +6,6 @@ describe('default community', ()=> {
     it('works with no options', async () => {
         const c = await Community.getDefault()
         expect(c).to.exist
+        c.stop()
     })
 })
