@@ -61,7 +61,9 @@ export class Community extends EventEmitter {
 
 // @public (undocumented)
 export namespace Community {
+    export function freshLocalTestCommunity(repo?: Repo): Promise<Community>;
     export function getDefault(repo?: Repo): Promise<Community>;
+    export function setDefault(community: Community): Promise<void>;
 }
 
 // @beta

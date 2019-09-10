@@ -10,7 +10,6 @@ import tomlToNotaryGroup from '../notarygroup';
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 import fs from 'fs';
 import path from 'path';
-import { freshLocalTestCommunity } from './local';
 
 const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '../../wasmtupelo/configs/wasmdocker.toml')).toString())
 
@@ -37,8 +36,8 @@ describe("Community messaging", ()=> {
         let senderKey = await EcdsaKey.generate()
         let receiverKey = await EcdsaKey.generate()
 
-        const sender = await freshLocalTestCommunity()
-        const receiver = await freshLocalTestCommunity()
+        const sender = await Community.freshLocalTestCommunity()
+        const receiver = await Community.freshLocalTestCommunity()
 
         let senderM = new CommunityMessenger("integrationtest", 32,senderKey, "testclient", sender.node.pubsub)
         let receiverM = new CommunityMessenger("integrationtest", 32,receiverKey, "testclient", receiver.node.pubsub)
