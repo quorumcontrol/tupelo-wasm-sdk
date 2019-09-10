@@ -221,7 +221,8 @@ export namespace Community {
      * setDefault allows you to set a community you control so that when code calls Community.getDefault() it
      * returns this community. This is useful in situations like local testing, where your test harness can
      * point the code at a local community.
-     * @param community 
+     * @param community - the {@link Commmunity} to set as default 
+     * @public
      */
     export async function setDefault(community:Community) {
         return _setDefault(community);
@@ -231,6 +232,7 @@ export namespace Community {
      * freshLocalTestCommunity returns a new community that points at a locally running (usually through Docker)
      * Tupelo, using default configs.
      * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
+     * @public
      */
     export async function freshLocalTestCommunity(repo?:Repo) {
         return _freshLocalTestCommunity(repo)
