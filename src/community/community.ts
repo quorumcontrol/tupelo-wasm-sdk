@@ -221,7 +221,7 @@ export namespace Community {
      * setDefault allows you to set a community you control so that when code calls Community.getDefault() it
      * returns this community. This is useful in situations like local testing, where your test harness can
      * point the code at a local community.
-     * @param community - the {@link Commmunity} to set as default 
+     * @param community - the {@link Community} to set as default 
      * @public
      */
     export async function setDefault(community:Community) {
