@@ -68,9 +68,9 @@ export namespace Community {
 
 // @beta
 export class CommunityMessenger {
-    constructor(name: string, shards: number, key: EcdsaKey, localIdentifier: string, pubsub: IPubSub);
+    constructor(name: string, shards: number, key: EcdsaKey, localIdentifier: Uint8Array, pubsub: IPubSub);
     // (undocumented)
-    localIdentifier: string;
+    localIdentifier: Uint8Array;
     // (undocumented)
     name: string;
     // (undocumented)

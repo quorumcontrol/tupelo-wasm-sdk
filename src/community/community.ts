@@ -89,7 +89,7 @@ export class Community extends EventEmitter {
      * around getting the current state, and then casting the tip, etc.
      * @param did - The DID of the ChainTree
      */
-    async getTip(did: string) {
+    async getTip(did: string):Promise<CID> {
         const state = await this.getCurrentState(did)
         const sig = state.getSignature()
         if (sig == undefined) {
