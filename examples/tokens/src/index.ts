@@ -1,6 +1,7 @@
 import { Repo, Community, EcdsaKey, ChainTree, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction, receiveTokenTransactionFromPayload } from 'tupelo-wasm-sdk';
+import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { MemoryDatastore } from 'interface-datastore';
-import uuidv4 from 'uuid/v4'
+import uuidv4 from 'uuid/v4';
 
 // Using an in-memory repo here to avoid having a directory written to the filesystem.
 // getDefault() in the community package will build a default repo for you (on the FS) if you 
@@ -48,9 +49,15 @@ async function executeAsync() {
   const sendId = uuidv4()
   const payload = await community.sendTokenAndGetPayload(aliceTree, sendTokenTransaction(sendId, canonicalName, 1, (await bobTree.id()) as string))
 
+  // encode the payload as base64 to send to Bob (out of band from Tupelo)
+  const encodedPayload = Buffer.from(payload.serializeBinary()).toString('base64')
+
+  // in a real app you would now send Bob the string contents of `encodedPayload`
+  // the code below here is what Bob would run on that upon receipt
+
   console.log("receiving a token on bobs tree")
-  // payload would be sent out-of-band here in a real app
-  await community.playTransactions(bobTree, [receiveTokenTransactionFromPayload(payload)])
+  const bobsPayload = TokenPayload.deserializeBinary(Buffer.from(encodedPayload, 'base64'))
+  await community.playTransactions(bobTree, [receiveTokenTransactionFromPayload(bobsPayload)])
   // YAY! Bob now has one token!
 
   console.log("success!")
