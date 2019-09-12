@@ -39,6 +39,7 @@ export const _freshLocalTestCommunity = async (repo?:Repo): Promise<Community> =
         const c = new Community(node, notaryGroup, repo.repo)
 
         node.start(async () => {
+            log("node started")
             resolve(c.start())
         });
     })

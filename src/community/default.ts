@@ -74,17 +74,17 @@ export function _setDefault(c:Community) {
  * @internal
  */
 export const _getDefault = async (repo?:Repo): Promise<Community> => {
-    return new Promise(async (resolve,reject) => {
+    return new Promise(async (resolve,reject) => {    
+        if (_defaultCommunity !== undefined) {
+            resolve(_defaultCommunity.start())
+        }
+        
         if (repo == undefined) {
             repo = new Repo("default")
             await repo.init({})
             await repo.open()
         }
-    
-        if (_defaultCommunity !== undefined) {
-            return _defaultCommunity.start()
-        }
-    
+
         const node = await p2p.createNode({ bootstrapAddresses: defaultNotaryGroup.getBootstrapAddressesList() });
         node.on('error', (err: Error) => {
             console.error('p2p error: ', err)

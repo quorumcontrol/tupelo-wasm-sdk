@@ -145,6 +145,7 @@ export class Community extends EventEmitter {
             return this._startPromise
         }
         this._started = true
+        debugLog("start()")
 
         this.bitswap.start(() => {
             debugLog("bitswap started")
@@ -167,7 +168,7 @@ export class Community extends EventEmitter {
                 }
             })
         }
-
+        debugLog("started")
         this._startPromiseResolve(this)
         this.emit('start')
 
