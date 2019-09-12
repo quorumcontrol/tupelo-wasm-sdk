@@ -39,8 +39,8 @@ describe("Community messaging", ()=> {
         const sender = await Community.freshLocalTestCommunity()
         const receiver = await Community.freshLocalTestCommunity()
 
-        let senderM = new CommunityMessenger("integrationtest", 32,senderKey, "testclient", sender.node.pubsub)
-        let receiverM = new CommunityMessenger("integrationtest", 32,receiverKey, "testclient", receiver.node.pubsub)
+        let senderM = new CommunityMessenger("integrationtest", 32,senderKey, Buffer.from("a:name:thatdidntworkbefore", 'utf8'), sender.node.pubsub)
+        let receiverM = new CommunityMessenger("integrationtest", 32,receiverKey, Buffer.from("a:different:name", 'utf8'), receiver.node.pubsub)
 
         const topic = 'agreattopictolistento'
         await receiverM.subscribe(topic, (env:Envelope)=> {

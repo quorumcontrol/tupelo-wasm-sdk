@@ -17,12 +17,12 @@ const log = debug("community:messaging")
  */
 export class CommunityMessenger {
     name:string
-    localIdentifier:string
+    localIdentifier:Uint8Array
     private key:EcdsaKey
     private shards:number
     private pubsub:IPubSub
 
-    constructor(name:string, shards:number, key:EcdsaKey, localIdentifier:string, pubsub:IPubSub) {
+    constructor(name:string, shards:number, key:EcdsaKey, localIdentifier:Uint8Array, pubsub:IPubSub) {
         this.name = name
         this.shards = shards
         this.pubsub = pubsub
