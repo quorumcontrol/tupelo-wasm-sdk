@@ -43,6 +43,7 @@ const main = async () => {
 
     setTimeout(async ()=> {
       try {
+        await community.nextUpdate()
         const tip = await community.getTip(id)
         console.log("new tip: ", tip.toString())
         // Get trading card properties stored in ChainTree
@@ -52,11 +53,12 @@ const main = async () => {
         assert.strictEqual(condition, 'Mint condition');
       } catch(e) {
         reject(e)
+        return
       }
      
       console.log(`* Card successfully registered!`);
       resolve()
-    }, 1000)
+    }, 2000)
   });
 };
 
