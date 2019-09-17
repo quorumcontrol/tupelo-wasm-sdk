@@ -53,4 +53,35 @@ describe("Community messaging", ()=> {
 
         return p
     }).timeout(5000)
+
+    it('subscribes/unsubscribes', async()=> {
+      return new Promise(async (resolve,reject)=> {
+        let senderKey = await EcdsaKey.generate()
+        let receiverKey = await EcdsaKey.generate()
+
+        const sender = await Community.freshLocalTestCommunity()
+        const receiver = await Community.freshLocalTestCommunity()
+
+        let senderM = new CommunityMessenger("integrationtest", 32,senderKey, Buffer.from("a:name:thatdidntworkbefore", 'utf8'), sender.node.pubsub)
+        let receiverM = new CommunityMessenger("integrationtest", 32,receiverKey, Buffer.from("a:different:name", 'utf8'), receiver.node.pubsub)
+
+        const topic = 'agreattopictolistento'
+        let receiveCount = 0
+
+        let subFn = async (env:Envelope)=> {
+            reject(new Error("we should never receive this sub"))
+        }
+
+        await receiverM.subscribe(topic, subFn)
+        await receiverM.unsubscribe(topic, subFn)
+
+        setTimeout(async ()=> {
+            await senderM.publish(topic, Buffer.from("test"))
+            setTimeout(()=> {
+              resolve()
+            }, 200)
+        },500) // need to wait for the subscribe to reach the network
+      })
+    })
+
 })

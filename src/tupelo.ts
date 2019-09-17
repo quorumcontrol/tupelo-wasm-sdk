@@ -21,6 +21,7 @@ const logger = debug("tupelo")
 export interface IPubSub {
     publish(topic: string, data: Uint8Array, cb: Function): null
     subscribe(topic: string, onMsg: Function, cb: Function): null
+    unsubscribe(topic: string, onMsg: Function, cb: Function): null
 }
 
 interface IPlayTransactionOptions {
