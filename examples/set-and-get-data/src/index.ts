@@ -27,9 +27,12 @@ const main = async () => {
     const aliceKey = await EcdsaKey.generate();
     // Create a ChainTree representing a trading card, owned by Alice
     const tradingCard = await ChainTree.newEmptyTree(community.blockservice, aliceKey);
-  
+    const id = await tradingCard.id()
+    if (id === null) {
+      throw new Error('undefined id')
+    }
     console.log(
-      `* Setting properties of Alice's trading card: `, await tradingCard.id()
+      `* Setting properties of Alice's trading card: `, id
     );
     // Set the properties of the trading card
     await community.playTransactions(tradingCard, [
@@ -37,16 +40,20 @@ const main = async () => {
       setDataTransaction('item', '#48 - Frank Lampard'),
       setDataTransaction('condition', 'Mint condition'),
     ]);
+
     setTimeout(async ()=> {
-      const id = await tradingCard.id()
-      const tip = await community.getTip(id || "")
-      console.log("new tip: ", tip.toString())
-      // Get trading card properties stored in ChainTree
-      const { value: { series, item, condition, }, } = await tradingCard.resolve(['tree', 'data',]);
-      assert.strictEqual(series, 'Topps UCL Living Set Card');
-      assert.strictEqual(item, '#48 - Frank Lampard');
-      assert.strictEqual(condition, 'Mint condition');
-    
+      try {
+        const tip = await community.getTip(id)
+        console.log("new tip: ", tip.toString())
+        // Get trading card properties stored in ChainTree
+        const { value: { series, item, condition, }, } = await tradingCard.resolve(['tree', 'data',]);
+        assert.strictEqual(series, 'Topps UCL Living Set Card');
+        assert.strictEqual(item, '#48 - Frank Lampard');
+        assert.strictEqual(condition, 'Mint condition');
+      } catch(e) {
+        reject(e)
+      }
+     
       console.log(`* Card successfully registered!`);
       resolve()
     }, 1000)
