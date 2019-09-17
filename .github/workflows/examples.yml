@@ -10,12 +10,11 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - run: npm i -g ts-node
       - name: ownership transfer example
         run: |
           cd examples/ownership-transfer
           npm install
-          ts-node src
+          npm start
   set-get-data-example:
     runs-on: ubuntu-18.04
     steps:
@@ -23,12 +22,11 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - run: npm i -g ts-node
       - name: set-and-get-data example
         run: |
           cd examples/set-and-get-data
           npm install
-          ts-node src
+          npm start
   token-exmaples:
     runs-on: ubuntu-18.04
     steps:
@@ -36,9 +34,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - run: npm i -g ts-node  
       - name: set-and-get-data example
         run: |
           cd examples/tokens
           npm install
-          ts-node src
+          npm start
