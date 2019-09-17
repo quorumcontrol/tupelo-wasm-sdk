@@ -15,7 +15,7 @@ jobs:
         run: |
           cd examples/ownership-transfer
           npm install
-          ts-node run src
+          ts-node src
   set-get-data-example:
     runs-on: ubuntu-18.04
     steps:
@@ -28,7 +28,7 @@ jobs:
         run: |
           cd examples/set-and-get-data
           npm install
-          ts-node run src
+          ts-node src
   token-exmaples:
     runs-on: ubuntu-18.04
     steps:
@@ -41,4 +41,4 @@ jobs:
         run: |
           cd examples/tokens
           npm install
-          ts-node run src
+          ts-node src
