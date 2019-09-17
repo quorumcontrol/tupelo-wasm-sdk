@@ -76,7 +76,8 @@ export class CommunityMessenger {
     // (undocumented)
     publish(topic: string, payload: Uint8Array): Promise<unknown>;
     // (undocumented)
-    subscribe(topic: string, cb: Function): Promise<unknown>;
+    subscribe(topic: string, subscriber: Function): Promise<unknown>;
+    unsubscribe(topic: string, subscriber: Function): Promise<unknown>;
 }
 
 // @public
@@ -227,6 +228,8 @@ export interface IPubSub {
     publish(topic: string, data: Uint8Array, cb: Function): null;
     // (undocumented)
     subscribe(topic: string, onMsg: Function, cb: Function): null;
+    // (undocumented)
+    unsubscribe(topic: string, onMsg: Function, cb: Function): null;
 }
 
 // @public
