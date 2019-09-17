@@ -1,0 +1,35 @@
+name: Build WASM and Test
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - run: cd wasmtupelo && docker-compose up -d
+      - run: npm install
+      - run: git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
+      - name: setup github host keys
+        run: |
+          mkdir -p ~/.ssh && \
+          ssh-keyscan -t rsa github.com > github.pub && \
+          diff <(ssh-keygen -lf github.pub) <(echo "2048 SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8 github.com (RSA)") && \
+          cat github.pub >> ~/.ssh/known_hosts && \
+          rm -f github.pub
+      - name: build wasm and javascript
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/ssh
+          echo "$SSH_PRIVATE_KEY" > ~/ssh/id_rsa
+          chmod 600 ~/ssh/id_rsa
+          eval "$(ssh-agent -s)" > /dev/null 2>&1
+          ssh-add ~/ssh/id_rsa > /dev/null 2>&1
+          git submodule init
+          git submodule update
+          npm run build
+      - run: npm test
