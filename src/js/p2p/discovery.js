@@ -99,17 +99,18 @@ class RoutingDiscovery extends EventEmitter {
             if (err) {
                 if (!this.node.isStarted()) {
                     this.stop(()=> {
-                        console.error("self-stopping the discoverer, because the node is stopped")
+                        log.error("self-stopping the discoverer, because the node is stopped")
                     })
+                    return
                 }
                 if (err.message === "no providers found") {
                     return // we don't want to throw an error when we just haven't found the providers yet
                 }
                 if (err.message === 'Callback function "anonymous" timed out.') {
-                    console.error("timeout on findProviders")
+                    log.error("timeout on findProviders")
                     return // do nothing here either, don't want to blow up due to a timeout
                 }
-                console.error("throwing an error: ", err.message)
+                log.error("throwing an error: ", err.message)
                 throw err 
             }
         
