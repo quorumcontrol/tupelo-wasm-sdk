@@ -56,9 +56,10 @@ const main = async () => {
       } catch(e) {
         if (e === "not found") {
           tryCount++
-          console.log(new Date(), " retrying to find tip, not in community yet")
+          console.log(new Date(), " retrying find tip, not in community yet")
           if (tryCount > 10) {
             reject(e)
+            return
           }
           setTimeout(assertSaved, 1000)
           return
