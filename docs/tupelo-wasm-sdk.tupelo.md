@@ -20,6 +20,8 @@ export declare namespace Tupelo
 |  [ecdsaPubkeyToDid(pubKey)](./tupelo-wasm-sdk.tupelo.ecdsapubkeytodid.md) |  |
 |  [generateKey()](./tupelo-wasm-sdk.tupelo.generatekey.md) |  |
 |  [getCurrentState(opts)](./tupelo-wasm-sdk.tupelo.getcurrentstate.md) |  |
+|  [getSendableEnvelopeBytes(env, key)](./tupelo-wasm-sdk.tupelo.getsendableenvelopebytes.md) |  |
+|  [hashToShardNumber(topic, maxShards)](./tupelo-wasm-sdk.tupelo.hashtoshardnumber.md) |  |
 |  [keyFromPrivateBytes(bytes)](./tupelo-wasm-sdk.tupelo.keyfromprivatebytes.md) |  |
 |  [newEmptyTree(store, publicKey)](./tupelo-wasm-sdk.tupelo.newemptytree.md) |  |
 |  [passPhraseKey(phrase, salt)](./tupelo-wasm-sdk.tupelo.passphrasekey.md) |  |

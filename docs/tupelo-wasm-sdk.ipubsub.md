@@ -18,4 +18,5 @@ export interface IPubSub
 |  --- | --- |
 |  [publish(topic, data, cb)](./tupelo-wasm-sdk.ipubsub.publish.md) |  |
 |  [subscribe(topic, onMsg, cb)](./tupelo-wasm-sdk.ipubsub.subscribe.md) |  |
+|  [unsubscribe(topic, onMsg, cb)](./tupelo-wasm-sdk.ipubsub.unsubscribe.md) |  |
 

@@ -14,5 +14,7 @@ export declare namespace Community
 
 |  Function | Description |
 |  --- | --- |
+|  [freshLocalTestCommunity(repo)](./tupelo-wasm-sdk.community.freshlocaltestcommunity.md) | freshLocalTestCommunity returns a new community that points at a locally running (usually through Docker) Tupelo, using default configs. |
 |  [getDefault(repo)](./tupelo-wasm-sdk.community.getdefault.md) | getDefault returns the default Tupelo commuity. This is currently the Tupelo testnet. It creates a libp2p node and connects to the testnet, establishes the community connection. This method optionally takes a [Repo](./tupelo-wasm-sdk.repo.md)<!-- -->. If you do not pass in a Repo, then it will create a default repo. Details on the default can be found: |
+|  [setDefault(community)](./tupelo-wasm-sdk.community.setdefault.md) | setDefault allows you to set a community you control so that when code calls Community.getDefault() it returns this community. This is useful in situations like local testing, where your test harness can point the code at a local community. |
 

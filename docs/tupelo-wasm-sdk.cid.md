@@ -2,19 +2,12 @@
 
 [Home](./index.md) &gt; [tupelo-wasm-sdk](./tupelo-wasm-sdk.md) &gt; [CID](./tupelo-wasm-sdk.cid.md)
 
-## CID class
+## CID variable
 
-This is a helper class so that CID descriptions can be used in other repos.
+// \* This is a helper const so that CID types can be used in other repos. // \* //
 
 <b>Signature:</b>
 
 ```typescript
-export declare class CID extends OldCID 
+CID: typeof OldCId
 ```
-
-## Constructors
-
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(version, codec, multihash, multibaseName)](./tupelo-wasm-sdk.cid._constructor_.md) |  | Constructs a new instance of the <code>CID</code> class |
-

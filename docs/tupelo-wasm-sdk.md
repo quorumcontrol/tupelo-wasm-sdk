@@ -11,8 +11,8 @@ The Tupelo WASM SDK is designed to be used in both nodejs and the browser.
 |  Class | Description |
 |  --- | --- |
 |  [ChainTree](./tupelo-wasm-sdk.chaintree.md) | ChainTree is the main class used for interacting with the data of Tupelo. See [https://docs.quorumcontrol.com/docs/chaintree.html](https://docs.quorumcontrol.com/docs/chaintree.html) for a detailed description of what a ChainTree is. |
-|  [CID](./tupelo-wasm-sdk.cid.md) | This is a helper class so that CID descriptions can be used in other repos. |
 |  [Community](./tupelo-wasm-sdk.community.md) | Commmunity is a combination of a Tupelo NotaryGroup and the application 'Community' running. The remote p2p community app will also store blocks, and this is the default supported way that the current wasm-sdk works. |
+|  [CommunityMessenger](./tupelo-wasm-sdk.communitymessenger.md) | <b><i>(BETA)</i></b> CommunityMessenger handles the overlay pubsub community provides to make sure that nodes correctly relay messages within this community. Community listends to a number of libp2p topics (we call shards here) and internal community topics are broadcast on those libp2p topics so that libp2p will correctly relay those messages. |
 |  [Dag](./tupelo-wasm-sdk.dag.md) | Underlies a ChainTree, it represents a DAG of IPLD nodes and supports resolving accross multiple nodes. |
 |  [EcdsaKey](./tupelo-wasm-sdk.ecdsakey.md) | EcdsaKey defines the public/private key-pairs used to interact with Tupelo. It also supportes generating new keys either randomly or through a passphrase. |
 |  [Repo](./tupelo-wasm-sdk.repo.md) | Repo is a typescript wrapper around the IPFS Repo [https://github.com/ipfs/js-ipfs-repo](https://github.com/ipfs/js-ipfs-repo) |
@@ -55,6 +55,7 @@ The Tupelo WASM SDK is designed to be used in both nodejs and the browser.
 
 |  Variable | Description |
 |  --- | --- |
+|  [CID](./tupelo-wasm-sdk.cid.md) | // \* This is a helper const so that CID types can be used in other repos. // \* // |
 |  [defaultNotaryGroup](./tupelo-wasm-sdk.defaultnotarygroup.md) | The default (testnet) notary group for the Tupelo Network |
 |  [establishTokenTransaction](./tupelo-wasm-sdk.establishtokentransaction.md) | Returns a new establishTokenTransaction which is used to setup the monetary policy of a new token on a ChainTree |
 |  [mintTokenTransaction](./tupelo-wasm-sdk.minttokentransaction.md) |  |
