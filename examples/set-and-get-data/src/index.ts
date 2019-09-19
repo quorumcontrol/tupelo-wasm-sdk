@@ -41,7 +41,9 @@ const main = async () => {
       setDataTransaction('condition', 'Mint condition'),
     ]);
 
-    setTimeout(async ()=> {
+    let tryCount = 0
+
+    const assertSaved = async ()=> {
       try {
         await community.nextUpdate()
         const tip = await community.getTip(id)
@@ -52,13 +54,25 @@ const main = async () => {
         assert.strictEqual(item, '#48 - Frank Lampard');
         assert.strictEqual(condition, 'Mint condition');
       } catch(e) {
+        if (e === "not found") {
+          tryCount++
+          console.log(new Date(), " retrying to find tip, not in community yet")
+          if (tryCount > 10) {
+            reject(e)
+          }
+          setTimeout(assertSaved, 1000)
+          return
+        }
         reject(e)
+        
         return
       }
      
       console.log(`* Card successfully registered!`);
       resolve()
-    }, 2000)
+    }
+
+    setTimeout(assertSaved, 1000)
   });
 };
 
