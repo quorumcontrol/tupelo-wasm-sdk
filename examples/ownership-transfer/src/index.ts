@@ -33,7 +33,7 @@ const main = async () => {
   const bobAddress = await Tupelo.ecdsaPubkeyToAddress(bobKey.publicKey);
 
   console.log(
-    `* Transferring ownership of trading card from Alice to Bob...`
+    `* Transferring ownership of trading card from Alice to Bob...`, await tradingCard.id()
   );
   // Transfer ownership of trading card to Bob
   await community.playTransactions(tradingCard, [

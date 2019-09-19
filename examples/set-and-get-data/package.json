@@ -19,7 +19,7 @@
   "homepage": "https://github.com/quorumcontrol/tupelo-wasm-sdk#readme",
   "dependencies": {
     "@types/node": "^12.7.2",
-    "tupelo-wasm-sdk": "^0.0.6"
+    "tupelo-wasm-sdk": "^0.0.12"
   },
   "devDependencies": {
     "ts-node": "^8.3.0",

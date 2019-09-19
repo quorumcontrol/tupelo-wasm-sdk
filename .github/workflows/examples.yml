@@ -1,0 +1,41 @@
+name: Run each example
+
+on: [push]
+
+jobs:
+  ownerhsip-transfer:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: ownership transfer example
+        run: |
+          cd examples/ownership-transfer
+          npm install
+          npm start
+  set-get-data-example:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: set-and-get-data example
+        run: |
+          cd examples/set-and-get-data
+          npm install
+          npm start
+  token-exmaples:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: set-and-get-data example
+        run: |
+          cd examples/tokens
+          npm install
+          npm start

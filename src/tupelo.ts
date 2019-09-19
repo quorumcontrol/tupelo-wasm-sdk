@@ -3,12 +3,16 @@ declare const Go: any;
 import CID from 'cids';
 
 const go = require('./js/go')
-import { Transaction } from 'tupelo-messages'
+import { Transaction, Envelope } from 'tupelo-messages'
 import {TokenPayload} from 'tupelo-messages/transactions/transactions_pb'
 import {IBlockService, IBlock} from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
 import { CurrentState,Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
+import debug from 'debug'
+import { EcdsaKey } from './crypto';
+
+const logger = debug("tupelo")
 
 /**
  * The interface describing libp2p pubsub
@@ -17,6 +21,7 @@ import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 export interface IPubSub {
     publish(topic: string, data: Uint8Array, cb: Function): null
     subscribe(topic: string, onMsg: Function, cb: Function): null
+    unsubscribe(topic: string, onMsg: Function, cb: Function): null
 }
 
 interface IPlayTransactionOptions {
@@ -84,6 +89,12 @@ class UnderlyingWasm {
     tokenPayloadForTransaction(opts:IWASMTransactionPayloadOpts): Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
+    hashToShardNumber(topic:string,numberOfShards:number):number {
+        return 0 // replaced by wasm
+    }
+    getSendableEnvelopeBytes(envelopeBytes:Uint8Array,key:Uint8Array):Promise<Uint8Array>{
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    }
 }
 
 namespace TupeloWasm {
@@ -93,7 +104,7 @@ namespace TupeloWasm {
         if (_tupelowasm._populated) {
             return _tupelowasm;
         }
-
+        logger("go.run for first time");
         go.run("./main.wasm");
         await go.ready();
         go.populate(_tupelowasm, {
@@ -115,31 +126,37 @@ export namespace Tupelo {
 
     // generateKey returns a two element array of the bytes for [privateKey, publicKey]
     export async function generateKey(): Promise<Uint8Array[]> {
+        logger("generateKey")
         const tw = await TupeloWasm.get()
         return tw.generateKey()
     }
 
     export async function passPhraseKey(phrase:Uint8Array, salt:Uint8Array):Promise<Uint8Array[]> {
+        logger("passPhraseKey")
         const tw = await TupeloWasm.get()
         return tw.passPhraseKey(phrase,salt)
     }
 
     export async function keyFromPrivateBytes(bytes:Uint8Array):Promise<Uint8Array[]> {
+        logger("keyFromPrivateBytes")
         const tw = await TupeloWasm.get()
         return tw.keyFromPrivateBytes(bytes)
     }
 
     export async function ecdsaPubkeyToDid(pubKey:Uint8Array):Promise<string> {
+        logger("ecdsaPubkeyToDid")
         const tw = await TupeloWasm.get()
         return tw.ecdsaPubkeyToDid(pubKey)
     }
 
     export async function ecdsaPubkeyToAddress(pubKey:Uint8Array):Promise<string> {
+        logger("ecdsaPubkeyToAddress")
         const tw = await TupeloWasm.get()
         return tw.ecdsaPubkeyToAddress(pubKey)
     }
     
     export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState> {
+        logger("getCurrentState")
         const tw = await TupeloWasm.get()
         try {
             let stateBits = await tw.getCurrentState(opts)
@@ -152,11 +169,13 @@ export namespace Tupelo {
     // newEmptyTree creates a new ChainTree with the ID populateed in the IBlockService and
     // returns the CID to the tip
     export async function newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID> {
+        logger("newEmptyTree")
         const tw = await TupeloWasm.get()
         return tw.newEmptyTree(store, publicKey)
     }
 
     export async function tokenPayloadForTransaction(opts:ITransactionPayloadOpts):Promise<TokenPayload> {
+        logger("tokenPayloadForTransaction")
         const tw = await TupeloWasm.get()
         const respBits = await tw.tokenPayloadForTransaction({
             blockService: opts.blockService,
@@ -168,7 +187,24 @@ export namespace Tupelo {
         return TokenPayload.deserializeBinary(respBits)
     }
 
+    export async function hashToShardNumber(topic:string, maxShards:number):Promise<number> {
+        const tw = await TupeloWasm.get()
+        return tw.hashToShardNumber(topic,maxShards)
+    }
+
+    export async function getSendableEnvelopeBytes(env:Envelope, key:EcdsaKey):Promise<Uint8Array> {
+        if (key.privateKey === undefined) {
+            throw new Error("key needs to have a private key in order to sign the envelope")
+        }
+        const tw = await TupeloWasm.get()
+        const envBits = env.serializeBinary()
+        const keyBits = key.privateKey
+        logger("getSendableEnvelopeBytes to wasm")
+        return tw.getSendableEnvelopeBytes(envBits,keyBits)
+    }
+
     export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
+        logger("playTransactions")
         if (tree.key == undefined) {
             throw new Error("playing transactions on a tree requires the tree to have a private key, use tree.key = <ecdsaKey>")
         }

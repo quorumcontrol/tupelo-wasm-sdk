@@ -6,10 +6,11 @@
 
 import CID from 'cids';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { Envelope } from 'tupelo-messages';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
-import OldCID from 'cids';
+import OldCId from 'cids';
 import { Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
@@ -27,9 +28,7 @@ export class ChainTree extends Dag {
 }
 
 // @public
-export class CID extends OldCID {
-    constructor(version: string | number | Buffer | CID, codec?: string, multihash?: Buffer, multibaseName?: string);
-}
+export const CID: typeof OldCId;
 
 // @public
 export class Community extends EventEmitter {
@@ -51,6 +50,8 @@ export class Community extends EventEmitter {
     sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
     // (undocumented)
+    stop(): Promise<void>;
+    // (undocumented)
     subscribeToTips(): Promise<void>;
     // (undocumented)
     tip?: CID_2;
@@ -60,7 +61,23 @@ export class Community extends EventEmitter {
 
 // @public (undocumented)
 export namespace Community {
+    export function freshLocalTestCommunity(repo?: Repo): Promise<Community>;
     export function getDefault(repo?: Repo): Promise<Community>;
+    export function setDefault(community: Community): Promise<void>;
+}
+
+// @beta
+export class CommunityMessenger {
+    constructor(name: string, shards: number, key: EcdsaKey, localIdentifier: Uint8Array, pubsub: IPubSub);
+    // (undocumented)
+    localIdentifier: Uint8Array;
+    // (undocumented)
+    name: string;
+    // (undocumented)
+    publish(topic: string, payload: Uint8Array): Promise<unknown>;
+    // (undocumented)
+    subscribe(topic: string, subscriber: Function): Promise<unknown>;
+    unsubscribe(topic: string, subscriber: Function): Promise<unknown>;
 }
 
 // @public
@@ -211,6 +228,8 @@ export interface IPubSub {
     publish(topic: string, data: Uint8Array, cb: Function): null;
     // (undocumented)
     subscribe(topic: string, onMsg: Function, cb: Function): null;
+    // (undocumented)
+    unsubscribe(topic: string, onMsg: Function, cb: Function): null;
 }
 
 // @public
@@ -309,6 +328,10 @@ export namespace Tupelo {
     // 
     // (undocumented)
     export function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState>;
+    // (undocumented)
+    export function getSendableEnvelopeBytes(env: Envelope, key: EcdsaKey): Promise<Uint8Array>;
+    // (undocumented)
+    export function hashToShardNumber(topic: string, maxShards: number): Promise<number>;
     // (undocumented)
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)

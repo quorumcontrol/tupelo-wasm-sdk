@@ -8,10 +8,11 @@ import { ICallbackBitswap } from './wrappedbitswap'
 import { WrappedBlockService } from './wrappedblockservice'
 import Tupelo from '../tupelo';
 import { ChainTree } from '../chaintree';
-import { _getDefault } from './default';
+import { _getDefault, _setDefault } from './default';
 
 import debug from 'debug'
 import Repo from '../repo';
+import { _freshLocalTestCommunity } from './local';
 
 const debugLog = debug("community")
 
@@ -72,8 +73,9 @@ export class Community extends EventEmitter {
     */
     async getCurrentState(did: string) {
         await this.start()
+        await this.nextUpdate()
         if (this.tip == undefined) {
-            throw new Error("tip still undefined, even though community started")
+            throw new Error("tip still undefined, even though community started and update received")
         }
         return Tupelo.getCurrentState({
             did: did,
@@ -87,7 +89,7 @@ export class Community extends EventEmitter {
      * around getting the current state, and then casting the tip, etc.
      * @param did - The DID of the ChainTree
      */
-    async getTip(did: string) {
+    async getTip(did: string):Promise<CID> {
         const state = await this.getCurrentState(did)
         const sig = state.getSignature()
         if (sig == undefined) {
@@ -143,6 +145,7 @@ export class Community extends EventEmitter {
             return this._startPromise
         }
         this._started = true
+        debugLog("start()")
 
         this.bitswap.start(() => {
             debugLog("bitswap started")
@@ -165,13 +168,16 @@ export class Community extends EventEmitter {
                 }
             })
         }
-
-        this.once('tip', () => {
-            this._startPromiseResolve(this)
-            this.emit('start')
-        })
+        debugLog("started")
+        this._startPromiseResolve(this)
+        this.emit('start')
 
         return this._startPromise
+    }
+
+    async stop() {
+        this.bitswap.stop(()=>{})
+        this.node.stop()
     }
 
     async subscribeToTips() {
@@ -181,16 +187,18 @@ export class Community extends EventEmitter {
         this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg: IPubSubMessage) => {
             if (msg.data.length > 0) {
                 this.tip = new CID(Buffer.from(msg.data))
+                this.emit('tip', this.tip)
+                debugLog("tip received: cid: ", this.tip, " raw: ", msg.data)
             } else {
                 debugLog("received null tip")
             }
-            this.emit('tip', this.tip)
 
         }, (err: Error) => {
             if (err) {
                 reject(err)
                 return
             }
+            debugLog("subscribed to tips")
             resolve()
         })
     }
@@ -208,5 +216,26 @@ export namespace Community {
     */
     export async function getDefault(repo?: Repo) {
         return _getDefault(repo)
+    }
+
+    /**
+     * setDefault allows you to set a community you control so that when code calls Community.getDefault() it
+     * returns this community. This is useful in situations like local testing, where your test harness can
+     * point the code at a local community.
+     * @param community - the {@link Community} to set as default 
+     * @public
+     */
+    export async function setDefault(community:Community) {
+        return _setDefault(community);
+    }
+
+    /**
+     * freshLocalTestCommunity returns a new community that points at a locally running (usually through Docker)
+     * Tupelo, using default configs.
+     * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
+     * @public
+     */
+    export async function freshLocalTestCommunity(repo?:Repo) {
+        return _freshLocalTestCommunity(repo)
     }
 }

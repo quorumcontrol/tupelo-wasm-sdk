@@ -2,7 +2,19 @@
 
 V2 of the tupelo-js-sdk is a standalone SDK that works with wasm to talk directly to the Tupelo network and does not require a rpc server.
 
-Note: in the words of IPFS: this project is still in Alpha, lots of development is happening, API might change, beware of the Dragons 🐉..
+Note: in the words of IPFS: this project is still in Alpha, lots of development is happening, API might change, beware of the Dragons 🐉.
+
+See https://docs.quorumcontrol.com/ for an overview of Tupelo, the whitepaper, other SDKs, etc. For a high-level walkthrough see this video: https://youtu.be/4Oz03l9IQPc which uses the [Tupelo ChainTree Explorer](https://github.com/quorumcontrol/wasm-explorer) described below.
+
+## Examples
+We have a comprehensive collection of examples in the *examples/* directory, which should
+help you get up to speed quickly on various aspects of the SDK.
+
+## Tupelo ChainTree Explorer
+We have made a main demo app based on the SDK, the 
+[Tupelo ChainTree Explorer](https://github.com/quorumcontrol/wasm-explorer). This lets you explore
+ChainTrees in the Tupelo testnet, and should be a great reference for learning how to use
+the Tupelo Wasm SDK in depth!
 
 ## API
 See: [https://quorumcontrol.github.io/tupelo-wasm-sdk/docs/tupelo-wasm-sdk.html](https://quorumcontrol.github.io/tupelo-wasm-sdk/docs/tupelo-wasm-sdk.html)
@@ -50,20 +62,10 @@ const [remaining,value] = await tree.resolve(["tree", "data", "path"])
 // value = true
 ```
 
-## Examples
-We have a comprehensive collection of examples in the *examples/* directory, which should
-help you get up to speed quickly on various aspects of the SDK.
-
-## Tupelo ChainTree Explorer
-We have made a main demo app based on the SDK, the 
-[Tupelo ChainTree Explorer](https://github.com/quorumcontrol/wasm-explorer). This lets you explore
-ChainTrees in the Tupelo testnet, and should be a great reference for learning how to use
-the Tupelo Wasm SDK in depth!
-
 ## Path to Wasm
 
 By default the wasm is loaded from the tupelo.wasm included in the npm package of this repo (src/js/go/tupelo.wasm) for node and from `/tupelo.wasm` (from the root of the server) in the browser.
-This is customizable by setting Go.wasmPath equal to whever is better for your app.
+This is customizable by calling `Go.setWasmPath()` with wherever is better for your app.
 
 ## Building
 In order to build this project, you first of all need to get the Git submodules:

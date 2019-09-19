@@ -445,7 +445,11 @@ const log = require('debug')('gowasm');
         }
     }
 
-    global.Go.wasmPath = isNodeJS ? global.fs.readFileSync(require("path").join(__dirname, "tupelo.wasm")) : "/tupelo.wasm"
+    global.Go.wasmPath = isNodeJS ? require("path").join(__dirname, "tupelo.wasm") : "/tupelo.wasm"
+
+    global.Go.setWasmPath = (path) => {
+        global.Go.wasmPath = path;
+    }
 
     global.Go.readyPromise = new Promise((resolve) => {
         global.Go.readyResolver = resolve;
@@ -463,7 +467,8 @@ const runner = {
         let result
 
         if (isNodeJS) {
-            result = await WebAssembly.instantiate(Go.wasmPath, go.importObject)
+            const wasmBits = global.fs.readFileSync(Go.wasmPath)
+            result = await WebAssembly.instantiate(wasmBits, go.importObject)
         
             process.on("exit", (code) => { // Node.js exits if no event handler is pending
                 Go.exit();
@@ -476,6 +481,7 @@ const runner = {
         } else {
             log("is not nodejs")
             if (typeof WebAssembly.instantiateStreaming == 'function') {
+                console.log("wasm path: ", Go.wasmPath)
                 result = await WebAssembly.instantiateStreaming(fetch(Go.wasmPath), go.importObject)
             } else {
                 log('fetching wasm')
