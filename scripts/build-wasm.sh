@@ -5,6 +5,8 @@ set -x -e
 pushd $(dirname "$0")/../tupelo-go-sdk
 trap popd EXIT
 
+export GOPATH=`go env GOPATH`
+
 go mod download
 
 popd
