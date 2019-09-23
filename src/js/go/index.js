@@ -44,6 +44,10 @@ const log = require('debug')('gowasm');
     } else {
         log('browser running');
         global.Buffer = require('buffer').Buffer;
+        global.process = {
+            pid: 2,
+            title: window.navigator.userAgent
+        };
         let outputBuf = "";
         global.fs = {
             constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1 }, // unused
