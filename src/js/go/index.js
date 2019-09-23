@@ -15,7 +15,8 @@ const log = require('debug')('gowasm');
         throw new Error("cannot export Go (neither global, window nor self is defined)");
     }
 
-    var encoder,decoder;
+
+    var encoder, decoder;
 
     // Map web browser API and Node.js API to a single common API (preferring web standards over Node.js API).
     const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
@@ -249,7 +250,15 @@ const log = require('debug')('gowasm');
                         const id = this._nextCallbackTimeoutID;
                         this._nextCallbackTimeoutID++;
                         this._scheduledTimeouts.set(id, setTimeout(
-                            () => { this._resume(); },
+                            () => {
+                                this._resume();
+                                while (this._scheduledTimeouts.has(id)) {
+                                    // for some reason Go failed to register the timeout event, log and try again
+                                    // (temporary workaround for https://github.com/golang/go/issues/28975)
+                                    console.warn("scheduleTimeoutEvent: missed timeout event");
+                                    this._resume();
+                                }
+                            },
                             getInt64(sp + 8) + 1, // setTimeout has been seen to fire up to 1 millisecond early
                         ));
                         mem().setInt32(sp + 16, id, true);
@@ -363,6 +372,34 @@ const log = require('debug')('gowasm');
                         mem().setUint8(sp + 24, loadValue(sp + 8) instanceof loadValue(sp + 16));
                     },
 
+                    // func copyBytesToGo(dst []byte, src ref) (int, bool)
+                    "syscall/js.copyBytesToGo": (sp) => {
+                        const dst = loadSlice(sp + 8);
+                        const src = loadValue(sp + 32);
+                        if (!(src instanceof Uint8Array)) {
+                            mem().setUint8(sp + 48, 0);
+                            return;
+                        }
+                        const toCopy = src.subarray(0, dst.length);
+                        dst.set(toCopy);
+                        setInt64(sp + 40, toCopy.length);
+                        mem().setUint8(sp + 48, 1);
+                    },
+
+                    // func copyBytesToJS(dst ref, src []byte) (int, bool)
+                    "syscall/js.copyBytesToJS": (sp) => {
+                        const dst = loadValue(sp + 8);
+                        const src = loadSlice(sp + 16);
+                        if (!(dst instanceof Uint8Array)) {
+                            mem().setUint8(sp + 48, 0);
+                            return;
+                        }
+                        const toCopy = src.subarray(0, dst.length);
+                        dst.set(toCopy);
+                        setInt64(sp + 40, toCopy.length);
+                        mem().setUint8(sp + 48, 1);
+                    },
+
                     "debug": (value) => {
                         console.log(value);
                     },
@@ -379,11 +416,11 @@ const log = require('debug')('gowasm');
                 true,
                 false,
                 global,
-                this._inst.exports.mem,
                 this,
             ];
             this._refs = new Map();
             this.exited = false;
+
 
             const mem = new DataView(this._inst.exports.mem.buffer)
 
@@ -463,13 +500,13 @@ const runner = {
 
         const go = new Go();
         go.env = Object.assign({ TMPDIR: require("os").tmpdir() }, process.env);
-        // go.exit = process.exit;
+
         let result
 
         if (isNodeJS) {
             const wasmBits = global.fs.readFileSync(Go.wasmPath)
             result = await WebAssembly.instantiate(wasmBits, go.importObject)
-        
+
             process.on("exit", (code) => { // Node.js exits if no event handler is pending
                 Go.exit();
                 if (code === 0 && !go.exited) {
