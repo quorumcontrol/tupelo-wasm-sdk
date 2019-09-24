@@ -53,12 +53,22 @@ export class ChainTree extends Dag {
         this.store = opts.store
     }
 
+    /**
+     * resolveData is the mirror image of setData. It starts at the data section
+     * of a ChainTree. This allows you to ignore the "tree/data" part of a path (as is done
+     * in setData)
+     * @param path - the path (starting after /tree/data) you want to resolve
+     */
+    async resolveData(path:string) {
+        return this.resolve("/tree/data/" + path)
+    }
+
     /** 
      * Returns the DID of the ChainTree
      * @public
      */
     async id() {
-        const resolveResp = await this.resolve(["id"])
+        const resolveResp = await this.resolve("id")
         return resolveResp.value as string | null
     }
 }
