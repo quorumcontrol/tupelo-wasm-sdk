@@ -214,7 +214,7 @@ export namespace Community {
      * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
      * @public
     */
-    export async function getDefault(repo?: Repo) {
+    export function getDefault(repo?: Repo) {
         return _getDefault(repo)
     }
 
@@ -225,7 +225,7 @@ export namespace Community {
      * @param community - the {@link Community} to set as default 
      * @public
      */
-    export async function setDefault(community:Community) {
+    export function setDefault(community:Community) {
         return _setDefault(community);
     }
 
