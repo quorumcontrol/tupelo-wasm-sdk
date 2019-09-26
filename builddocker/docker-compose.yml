@@ -1,0 +1,9 @@
+version: "3"
+services:
+  builder:
+    build: .
+    volumes:
+      - ..:/app:delegated
+      - ./.tmp:/root/.cache:delegated
+      - ${GOPATH}/pkg/mod:/go/pkg/mod:delegated
+    command: /app/scripts/_docker-build.sh
