@@ -2,9 +2,10 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { EcdsaKey } from '../crypto'
-import ChainTree from './chaintree'
+import ChainTree, { setDataTransaction } from './chaintree'
 import Repo from '../repo';
 import { WrappedBlockService } from '../community/wrappedblockservice';
+import { Community } from '../community/community';
 
 const IpfsRepo:any = require('ipfs-repo');
 const IpfsBlockService:any = require('ipfs-block-service');
@@ -37,4 +38,19 @@ describe('ChainTree', ()=> {
         expect(id).to.not.be.null
         expect(id).to.include("did:tupelo:")
     }).timeout(2000)
+
+    it('resolves data', async ()=> {
+      const key = await EcdsaKey.generate()
+      const repo = await testRepo()
+      const c = await Community.freshLocalTestCommunity(repo)
+
+      const tree = await ChainTree.newEmptyTree(new WrappedBlockService(new IpfsBlockService(repo.repo)), key)
+      expect(tree).to.exist
+
+      await c.playTransactions(tree, [setDataTransaction("/path/to/somewhere", true)])
+      const resp = tree.resolveData("/path/to/somewhere")
+      resp.then(()=> {c.stop()})
+      expect((await resp).value).to.eql(true)
+    })
+
 })

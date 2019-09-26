@@ -101,22 +101,28 @@ export class Dag {
 
   /**
    * 
-   * @param path - an array of strings which form a path to the desired node/key in the DAG
+   * @param path - a path to the desired node/key in the DAG (eg /path/to/data). Array form (eg ['path', 'to', 'data']) is deprecated
    * @public
    */
-  async resolve(path: Array<string>):Promise<IResolveResponse> {
+  async resolve(path: Array<string>|string):Promise<IResolveResponse> {
     return this.resolveAt(this.tip, path)
   }
 
   /**
    * Similar to resolve, but allows you to start at a specific tip of a dag rather than the current tip.
    * @param tip - The tip of the dag to start at
-   * @param path - the path to find the value
+   * @param path - the path to find the value. Array form is deprecated, use string form (eg /path/to/data) instead
    * @public
    */
-  async resolveAt(tip: CID, path: Array<string>):Promise<IResolveResponse> {
-    const str_path  = path.join("/")
-    const resolved = this.dagStore.resolve(tip, str_path)
+  async resolveAt(tip: CID, path: Array<string>|string):Promise<IResolveResponse> {
+    let strPath:string
+    if (isArray(path)) {
+      console.warn('passing in arrays to resolve is deprecated, use the string form (eg /path/to/data) instead')
+      strPath  = path.join("/")
+    } else {
+      strPath = path
+    }
+    const resolved = this.dagStore.resolve(tip, strPath)
     let lastVal
     try {
       lastVal = await resolved.last()
@@ -127,19 +133,25 @@ export class Dag {
         throw err
       }
     }
-
     // nothing was resolvable, return full path as the remainder
     if (typeof lastVal === 'undefined') {
-      return {remainderPath: path, value: null}
+      console.log("nothing was resolvable")
+
+      return {remainderPath: strPath.split('/'), value: null}
     }
   
     // if remainderPath is not empty, then the value was not found and an
     // error was thrown on the second iteration above - use the remainderPath
     // from the first iteration, but return nil for the error
-    if (lastVal.remainderPath != "") {
-      return { remainderPath: lastVal.remainderPath.split("/"), value: null }
+    if (lastVal.remainderPath != '') {
+      return { remainderPath: lastVal.remainderPath.split('/'), value: null }
     }
 
     return { remainderPath: [], value: lastVal.value }
   }
+}
+
+
+function isArray(path: Array<string>|string): path is Array<string> {
+  return (path as Array<string>).join !== undefined;
 }
