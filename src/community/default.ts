@@ -59,26 +59,25 @@ DestKeyHex = "0x046d0293103d8975b174bbe5752a958b13c3f937ae67b24027b6cafb780b8d88
  */
 export const defaultNotaryGroup = tomlToNotaryGroup(testNetToml)
 
-let _defaultCommunity: Community|undefined
+let _defaultCommunity: Promise<Community>|undefined
 
 /**
  * 
  * @internal
  */
 export function _setDefault(c:Community) {
-    _defaultCommunity = c
+    _defaultCommunity = Promise.resolve(c)
 }
 
 /**
  * 
  * @internal
  */
-export const _getDefault = async (repo?:Repo): Promise<Community> => {
-    return new Promise(async (resolve,reject) => {    
-        if (_defaultCommunity !== undefined) {
-            resolve(_defaultCommunity.start())
-        }
-        
+export const _getDefault = (repo?:Repo): Promise<Community> => {
+    if (_defaultCommunity !== undefined) {
+        return _defaultCommunity
+    }
+    _defaultCommunity = new Promise(async (resolve,reject) => {    
         if (repo == undefined) {
             repo = new Repo("default")
             await repo.init({})
@@ -92,7 +91,6 @@ export const _getDefault = async (repo?:Repo): Promise<Community> => {
         })
 
         const c = new Community(node, defaultNotaryGroup, repo.repo)
-        _defaultCommunity = c
     
         node.start(async () => {
             log("node started");
@@ -104,5 +102,5 @@ export const _getDefault = async (repo?:Repo): Promise<Community> => {
             _defaultCommunity = undefined
         })
     })
-    
+    return _defaultCommunity
 }
