@@ -23,6 +23,7 @@ export class ChainTree extends Dag {
     // (undocumented)
     key?: EcdsaKey;
     static newEmptyTree: (store: IBlockService, key: EcdsaKey) => Promise<ChainTree>;
+    resolveData(path: string): Promise<import("./dag/dag").IResolveResponse>;
     // (undocumented)
     store: IBlockService;
 }
@@ -63,7 +64,7 @@ export class Community extends EventEmitter {
 export namespace Community {
     export function freshLocalTestCommunity(repo?: Repo): Promise<Community>;
     export function getDefault(repo?: Repo): Promise<Community>;
-    export function setDefault(community: Community): Promise<void>;
+    export function setDefault(community: Community): void;
 }
 
 // @beta
@@ -87,8 +88,8 @@ export class Dag {
     dagStore: IDagStore;
     get(cid: CID_2): Promise<Object>;
     // (undocumented)
-    resolve(path: Array<string>): Promise<IResolveResponse>;
-    resolveAt(tip: CID_2, path: Array<string>): Promise<IResolveResponse>;
+    resolve(path: Array<string> | string): Promise<IResolveResponse>;
+    resolveAt(tip: CID_2, path: Array<string> | string): Promise<IResolveResponse>;
     // (undocumented)
     tip: CID_2;
 }
