@@ -31,4 +31,5 @@ export declare class ChainTree extends Dag
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
 |  [id()](./tupelo-wasm-sdk.chaintree.id.md) |  | Returns the DID of the ChainTree |
+|  [resolveData(path)](./tupelo-wasm-sdk.chaintree.resolvedata.md) |  | resolveData is the mirror image of setData. It starts at the data section of a ChainTree. This allows you to ignore the "tree/data" part of a path (as is done in setData) |
 

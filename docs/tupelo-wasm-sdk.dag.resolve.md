@@ -7,14 +7,14 @@
 <b>Signature:</b>
 
 ```typescript
-resolve(path: Array<string>): Promise<IResolveResponse>;
+resolve(path: Array<string> | string): Promise<IResolveResponse>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  path | <code>Array&lt;string&gt;</code> | an array of strings which form a path to the desired node/key in the DAG |
+|  path | <code>Array&lt;string&gt; &#124; string</code> | a path to the desired node/key in the DAG (eg /path/to/data). Array form (eg \['path', 'to', 'data'\]) is deprecated |
 
 <b>Returns:</b>
 

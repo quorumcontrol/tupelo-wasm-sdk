@@ -9,7 +9,7 @@ Similar to resolve, but allows you to start at a specific tip of a dag rather th
 <b>Signature:</b>
 
 ```typescript
-resolveAt(tip: CID, path: Array<string>): Promise<IResolveResponse>;
+resolveAt(tip: CID, path: Array<string> | string): Promise<IResolveResponse>;
 ```
 
 ## Parameters
@@ -17,7 +17,7 @@ resolveAt(tip: CID, path: Array<string>): Promise<IResolveResponse>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  tip | <code>CID</code> | The tip of the dag to start at |
-|  path | <code>Array&lt;string&gt;</code> | the path to find the value |
+|  path | <code>Array&lt;string&gt; &#124; string</code> | the path to find the value. Array form is deprecated, use string form (eg /path/to/data) instead |
 
 <b>Returns:</b>
 

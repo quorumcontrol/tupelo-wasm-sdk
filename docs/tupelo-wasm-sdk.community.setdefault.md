@@ -9,7 +9,7 @@ setDefault allows you to set a community you control so that when code calls Com
 <b>Signature:</b>
 
 ```typescript
-function setDefault(community: Community): Promise<void>;
+function setDefault(community: Community): void;
 ```
 
 ## Parameters
@@ -20,5 +20,5 @@ function setDefault(community: Community): Promise<void>;
 
 <b>Returns:</b>
 
-`Promise<void>`
+`void`
 
