@@ -45,7 +45,8 @@ class TupeloP2P extends libp2p {
           Bootstrap,
           routingDiscoverer.stub()
         ],
-        dht: KadDHT
+        dht: KadDHT,
+        pubsub: require('libp2p-floodsub')
       },
       config: {
         peerDiscovery: {
@@ -61,8 +62,11 @@ class TupeloP2P extends libp2p {
             enabled: false,
           },
         },
-        EXPERIMENTAL: {
-          pubsub: true
+        pubsub: {
+          enabled: true,
+          emitSelf: true,
+          signMessages: true,
+          strictSigning: false,
         }
       }
     }
