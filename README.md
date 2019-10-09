@@ -49,14 +49,14 @@ const sdk = require('tupelo-wasm-sdk')
 // setup a connection to the default community and Tupelo TestNet
 const community = await sdk.Community.getDefault() 
 
-const tip = await community.getTip("did:tupelo:0xD1a9826f3A06d393368C9949535De802A35cD6b2")
+const tip = await community.getTip("did:tupelo:0x5bD5b0Ad2d9e73a07E410f32F5C865B231cce62F")
 
-const tree = new ChainTree({
+const tree = new sdk.ChainTree({
    store: community.blockservice,
    tip: tip,
 })
 
-const [remaining,value] = await tree.resolve(["tree", "data", "path"])
+const {remaining,value} = await tree.resolve("tree/data/path")
 
 // remaining = []
 // value = true
