@@ -35,45 +35,59 @@ const main = async () => {
       `* Setting properties of Alice's trading card: `, id
     );
     // Set the properties of the trading card
-    await community.playTransactions(tradingCard, [
-      setDataTransaction('series', 'Topps UCL Living Set Card'),
-      setDataTransaction('item', '#48 - Frank Lampard'),
-      setDataTransaction('condition', 'Mint condition'),
-    ]);
 
-    let tryCount = 0
 
-    const assertSaved = async ()=> {
-      try {
-        await community.nextUpdate()
-        const tip = await community.getTip(id)
-        console.log("new tip: ", tip.toString())
-        // Get trading card properties stored in ChainTree
-        const { value: { series, item, condition, }, } = await tradingCard.resolve(['tree', 'data',]);
-        assert.strictEqual(series, 'Topps UCL Living Set Card');
-        assert.strictEqual(item, '#48 - Frank Lampard');
-        assert.strictEqual(condition, 'Mint condition');
-      } catch(e) {
-        if (e === "not found") {
-          tryCount++
-          console.log(new Date(), " retrying find tip, not in community yet")
-          if (tryCount > 10) {
-            reject(e)
-            return
-          }
-          setTimeout(assertSaved, 1000)
-          return
-        }
-        reject(e)
-        
-        return
+    const setStart = Date.now()
+    let promises = []
+    for (let i = 0; i< 100; i++) {
+      promises.push(community.playTransactions(tradingCard, [
+        setDataTransaction('series', 'Topps UCL Living Set Card'),
+        setDataTransaction('item', '#48 - Frank Lampard'),
+        setDataTransaction('condition', 'Mint condition'),
+      ]));
+      if (promises.length >= 10) {
+        const start = Date.now()
+        await Promise.all(promises)
+        console.log("tx speed (10 txs): ", (Date.now() - start))
+        promises = []
       }
+    }
+    console.log("100 transactions in: ", (Date.now() - setStart))
+   
+
+    // let tryCount = 0
+
+    // const assertSaved = async ()=> {
+    //   try {
+    //     await community.nextUpdate()
+    //     const tip = await community.getTip(id)
+    //     console.log("new tip: ", tip.toString())
+    //     // Get trading card properties stored in ChainTree
+    //     const { value: { series, item, condition, }, } = await tradingCard.resolve(['tree', 'data',]);
+    //     assert.strictEqual(series, 'Topps UCL Living Set Card');
+    //     assert.strictEqual(item, '#48 - Frank Lampard');
+    //     assert.strictEqual(condition, 'Mint condition');
+    //   } catch(e) {
+    //     if (e === "not found") {
+    //       tryCount++
+    //       console.log(new Date(), " retrying find tip, not in community yet")
+    //       if (tryCount > 10) {
+    //         reject(e)
+    //         return
+    //       }
+    //       setTimeout(assertSaved, 1000)
+    //       return
+    //     }
+    //     reject(e)
+        
+    //     return
+    //   }
      
       console.log(`* Card successfully registered!`);
       resolve()
-    }
+    // }
 
-    setTimeout(assertSaved, 1000)
+    // setTimeout(assertSaved, 1000)
   });
 };
 
