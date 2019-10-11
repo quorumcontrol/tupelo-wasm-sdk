@@ -95,6 +95,9 @@ class UnderlyingWasm {
     getSendableEnvelopeBytes(envelopeBytes:Uint8Array,key:Uint8Array):Promise<Uint8Array>{
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
+    verifyCurrentState(notaryGroupBytes:Uint8Array,currStateBytes:Uint8Array):Promise<boolean>{
+        return new Promise<boolean>((res, rej) => { }) // replaced by wasm
+    }
 }
 
 namespace TupeloWasm {
@@ -201,6 +204,11 @@ export namespace Tupelo {
         const keyBits = key.privateKey
         logger("getSendableEnvelopeBytes to wasm")
         return tw.getSendableEnvelopeBytes(envBits,keyBits)
+    }
+
+    export async function verifyCurrentState(notaryGroup: NotaryGroup, state: CurrentState):Promise<boolean> {
+        const tw = await TupeloWasm.get()
+        return tw.verifyCurrentState(notaryGroup.serializeBinary(), state.serializeBinary())
     }
 
     export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {

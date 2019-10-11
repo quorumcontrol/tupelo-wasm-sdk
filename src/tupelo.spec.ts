@@ -136,7 +136,7 @@ describe('Tupelo', () => {
     Tupelo.playTransactions(c.node.pubsub, c.group, tree, [trans]).then(
       async (success: CurrentState) => {
         expect(success).to.be.an.instanceOf(CurrentState)
-        const resolved = await tree.resolve("tree/data/hi".split("/"))
+        const resolved = await tree.resolve("tree/data/hi")
         expect(resolved.value).to.equal("hihi")
         resolve(true)
       },
@@ -168,6 +168,32 @@ describe('Tupelo', () => {
     expect(reconstitituted.getFrom_asB64()).to.equal(env.getFrom_asB64())
 
     expect(Buffer.from(reconstitituted.getTopicsList_asU8()[0]).toString()).to.equal(topic)
+  })
+
+  it('verifies a returned current state', async ()=> {
+    const c = await Community.freshLocalTestCommunity()
+
+    const p = new Promise(async (resolve)=> {
+      const k = await EcdsaKey.generate()
+      const tree = await ChainTree.newEmptyTree(c.blockservice, k)
+      const resp = await c.playTransactions(tree, [setDataTransaction("hi", "hi")])
+      let verified = await Tupelo.verifyCurrentState(c.group, resp)
+      expect(verified).to.be.true
+
+      let sig = resp.getSignature()
+      if (sig === undefined) {
+        throw new Error("missing signature")
+      }
+      // now make it intentionally bad
+      sig.setSignersList([0,0,1])
+      resp.setSignature(sig)
+      verified = await Tupelo.verifyCurrentState(c.group, resp)
+      expect(verified).to.be.false
+
+      resolve()
+    })
+    p.then(()=> {c.stop()})
+    return p
   })
 
 })
