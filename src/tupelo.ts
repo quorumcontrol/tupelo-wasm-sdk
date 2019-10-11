@@ -206,6 +206,13 @@ export namespace Tupelo {
         return tw.getSendableEnvelopeBytes(envBits,keyBits)
     }
 
+    /**
+     * verifyCurrentState takes a notary group and a currentstate and makes sure it meets the requirements
+     * for being a valid signed currentState (2/3 of signers, valid signature, etc)
+     * @param notaryGroup - the protobuf version of the notary group config
+     * @param state - the CurrentState (often returned by a playTransactions)
+     * @public
+     */
     export async function verifyCurrentState(notaryGroup: NotaryGroup, state: CurrentState):Promise<boolean> {
         const tw = await TupeloWasm.get()
         return tw.verifyCurrentState(notaryGroup.serializeBinary(), state.serializeBinary())
