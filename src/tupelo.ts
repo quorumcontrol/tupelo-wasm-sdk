@@ -95,6 +95,9 @@ class UnderlyingWasm {
     getSendableEnvelopeBytes(envelopeBytes:Uint8Array,key:Uint8Array):Promise<Uint8Array>{
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
+    verifyCurrentState(notaryGroupBytes:Uint8Array,currStateBytes:Uint8Array):Promise<boolean>{
+        return new Promise<boolean>((res, rej) => { }) // replaced by wasm
+    }
 }
 
 namespace TupeloWasm {
@@ -201,6 +204,18 @@ export namespace Tupelo {
         const keyBits = key.privateKey
         logger("getSendableEnvelopeBytes to wasm")
         return tw.getSendableEnvelopeBytes(envBits,keyBits)
+    }
+
+    /**
+     * verifyCurrentState takes a notary group and a currentstate and makes sure it meets the requirements
+     * for being a valid signed currentState (2/3 of signers, valid signature, etc)
+     * @param notaryGroup - the protobuf version of the notary group config
+     * @param state - the CurrentState (often returned by a playTransactions)
+     * @public
+     */
+    export async function verifyCurrentState(notaryGroup: NotaryGroup, state: CurrentState):Promise<boolean> {
+        const tw = await TupeloWasm.get()
+        return tw.verifyCurrentState(notaryGroup.serializeBinary(), state.serializeBinary())
     }
 
     export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
