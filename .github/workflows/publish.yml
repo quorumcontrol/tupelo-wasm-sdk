@@ -12,6 +12,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
+      - name: version check
+        run: scripts/ci-release-ver-check.sh
       - run: cd wasmtupelo && docker-compose up -d
       - run: npm install
       - name: git setup
