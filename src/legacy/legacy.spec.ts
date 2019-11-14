@@ -7,6 +7,7 @@ import { TupeloClient } from './legacy'
 import { tomlToNotaryGroup } from '../notarygroup';
 import { IDataStore } from '../chaintree/datastore';
 import { setDataTransaction } from '../chaintree';
+import { GetTipResponse } from 'tupelo-messages';
 
 const MemoryDatastore: IDataStore = require('interface-datastore').MemoryDatastore;
 
@@ -94,11 +95,29 @@ describe('legacy TupeloClient', () => {
         const playResp = await client.playTransactions(treeResp.getChainId(), key.getKeyAddr(), trans)
         expect(playResp.getTip()).to.have.length(59)
 
-        if (client.community == undefined) {
-            throw new Error("Client has no community")
+        let tryCount = 0;
+        const getTipWhenAvailable = async ():Promise<GetTipResponse> => {
+            try {
+              if (client.community == undefined) {
+                  throw new Error("Client has no community")
+              }
+        
+              await client.community.nextUpdate()
+              const tip = await client.getTip(treeResp.getChainId())
+              return tip
+            } catch(e) {
+              if (e === "not found") {
+                  tryCount++;
+                  if (tryCount > 100) {
+                    throw new Error("tried to get state over 100 times")
+                  }
+                  return await getTipWhenAvailable();
+              }            
+              throw e
+            }
         }
-        await client.community.nextUpdate()
-        const tipResp = await client.getTip(treeResp.getChainId())
+
+        const tipResp = await getTipWhenAvailable()
         expect(tipResp.getTip()).to.equal(playResp.getTip())
         await client.close()
 
