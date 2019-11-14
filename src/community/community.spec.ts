@@ -15,6 +15,7 @@ import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTran
 import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import Tupelo from '../tupelo';
 import debug from 'debug';
+import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
 
 const log = debug("communityspec")
 
@@ -133,8 +134,27 @@ describe('Community', () => {
       if (id == undefined) {
         throw new Error("undefined")
       }
-      await c.nextUpdate()
-      const communityCurrent = await c.getCurrentState(id)
+      
+      let tryCount = 0;
+      const getStateWhenAvailable = async ():Promise<CurrentState> => {
+          try {
+            await c.nextUpdate()
+            const communityCurrent = await c.getCurrentState(id)
+            return communityCurrent
+          } catch(e) {
+            if (e === "not found") {
+                tryCount++;
+                if (tryCount > 100) {
+                  throw new Error("tried to get state over 100 times")
+                }
+                return await getStateWhenAvailable();
+            }            
+            throw e
+          }
+      }
+      
+      const communityCurrent = await getStateWhenAvailable()
+
       let communityCurrentSig = communityCurrent.getSignature()
       if (transCurrentSig !== undefined && communityCurrentSig !== undefined) {
         expect(communityCurrentSig.getNewTip_asB64()).to.equal(transCurrentSig.getNewTip_asB64())
