@@ -345,7 +345,6 @@ export namespace Tupelo {
     // 
     // (undocumented)
     export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
-    // (undocumented)
     export function verifyCurrentState(notaryGroup: NotaryGroup, state: CurrentState): Promise<boolean>;
 }
 
