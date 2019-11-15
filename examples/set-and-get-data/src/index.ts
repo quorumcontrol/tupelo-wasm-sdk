@@ -22,7 +22,10 @@ const main = async () => {
   return new Promise(async (resolve,reject)=> {
     const repo = await getRepo();
     const community = await Community.getDefault(repo);
-  
+
+    Array.from({ length: 2 }).forEach(async (x, i) => {
+    console.log('starting loop')
+    
     // Create a key pair representing Alice
     const aliceKey = await EcdsaKey.generate();
     // Create a ChainTree representing a trading card, owned by Alice
@@ -75,6 +78,9 @@ const main = async () => {
 
     setTimeout(assertSaved, 1000)
   });
+
+  });
+
 };
 
 main()
