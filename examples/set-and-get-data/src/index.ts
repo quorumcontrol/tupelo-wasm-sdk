@@ -19,11 +19,16 @@ const getRepo = async () => {
 };
 
 const main = async () => {
-  return new Promise(async (resolve,reject)=> {
+  return new Promise(async (resolveOuter,rejectOuter)=> {
     const repo = await getRepo();
     const community = await Community.getDefault(repo);
 
-    Array.from({ length: 2 }).forEach(async (x, i) => {
+    // ensure wasm is loaded up first
+    await EcdsaKey.generate();
+
+    Promise.all(Array.from({ length: 5 }).map(async (x, i) => {
+    return new Promise(async (resolve,reject)=> {
+
     console.log('starting loop')
     
     // Create a key pair representing Alice
@@ -79,6 +84,13 @@ const main = async () => {
     setTimeout(assertSaved, 1000)
   });
 
+  })).then(() => {
+    console.log("all resolved")
+    resolveOuter();
+  }).catch((e) => {
+    console.log("all catch " + e)
+    rejectOuter();
+  });
   });
 
 };
