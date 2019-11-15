@@ -56,12 +56,6 @@ interface ITransactionPayloadOpts {
 }
 
 class UnderlyingWasm {
-    _populated: boolean;
-
-    constructor() {
-        this._populated = false;
-    }
-
     generateKey(): Promise<Uint8Array[]> {
         return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
     }
@@ -101,20 +95,26 @@ class UnderlyingWasm {
 }
 
 namespace TupeloWasm {
-    const _tupelowasm = new UnderlyingWasm();
+    let _tupelowasm: Promise<UnderlyingWasm>|undefined;
 
-    export async function get() {
-        if (_tupelowasm._populated) {
+    export const get = (): Promise<UnderlyingWasm> => {
+        if (_tupelowasm !== undefined) {
             return _tupelowasm;
         }
-        logger("go.run for first time");
-        go.run("./main.wasm");
-        await go.ready();
-        go.populate(_tupelowasm, {
-            "cids": CID,
-            "ipfs-block": require('ipfs-block'),
+
+        _tupelowasm = new Promise(async (resolve, reject) => {
+            const wasm = new UnderlyingWasm;
+            logger("go.run for first time");
+            go.run("./main.wasm");
+            await go.ready();
+            go.populate(wasm, {
+                "cids": CID,
+                "ipfs-block": require('ipfs-block'),
+            });
+
+            resolve(wasm);
         });
-        _tupelowasm._populated = true;
+
         return _tupelowasm;
     }
 }
