@@ -17,7 +17,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - name: version check
         run: scripts/ci-release-ver-check.sh
-      - run: cd wasmtupelo && docker-compose up -d
       - run: npm install
       - name: git setup
         run: scripts/ci-gitsetup.sh
@@ -25,7 +24,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: scripts/ci-build.sh
-      - run: npm test
+      - run: npm run test-suite
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}

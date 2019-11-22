@@ -82,9 +82,15 @@ $ npm run build
 ```
 
 ## Running the tests
+To run the full test suite, simlpy run `npm run test-suite`.
 
-In order for the tests to run, you need to have a tupelo network running. In the directory [./wasmtupelo](./wasmtupelo) there is a docker-compose which will enable the tests.
+In development, you may want to run a long lived tupelo network and run tests adhoc.
 
-``$ cd wasmtupelo && docker-compose up``
+To do this, first run:
+`docker-compose run -d tupelo`
 
-Then `npm test` should be green.
+Tests can now be run many times against that same network with:
+`docker-compose run tester`
+
+Once finished, make sure to cleanup your local tupelo network:
+`docker-compose down --remove-orphans -v`
