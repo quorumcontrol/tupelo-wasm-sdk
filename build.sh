@@ -2,7 +2,7 @@
 
 set -x -e
 
-tsc
+npx tsc
 npm run build:wasm
 cp -r src/js lib/
-api-extractor run --local
+npx api-extractor run --local
