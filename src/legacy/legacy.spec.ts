@@ -1,24 +1,20 @@
 import { expect } from 'chai';
 import 'mocha';
-import fs from 'fs';
-import path from 'path';
 
 import { TupeloClient } from './legacy'
-import { tomlToNotaryGroup } from '../notarygroup';
 import { IDataStore } from '../chaintree/datastore';
 import { setDataTransaction } from '../chaintree';
 import { GetTipResponse } from 'tupelo-messages';
+import { testNotaryGroup } from '../constants.spec'
 
 const MemoryDatastore: IDataStore = require('interface-datastore').MemoryDatastore;
 
 describe('legacy TupeloClient', () => {
     const createClient = async () => {
-        const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
-
         const client = new TupeloClient({
             keystore: MemoryDatastore,
             blockstore: MemoryDatastore,
-            notaryGroup: notaryGroup,
+            notaryGroup: testNotaryGroup,
         })
 
         await client.start()

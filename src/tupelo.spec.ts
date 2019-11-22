@@ -1,21 +1,19 @@
 import { expect } from 'chai';
 import 'mocha';
-import fs from 'fs';
 
 import './extendedglobal';
 import { p2p } from './node';
 import { Tupelo } from './tupelo';
-import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { EcdsaKey } from './crypto';
 import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction } from './chaintree/chaintree';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
-import { tomlToNotaryGroup } from './notarygroup';
-import path from 'path';
 import { Community } from './community/community';
 import Repo from './repo';
 import debug from 'debug';
 import { Envelope } from 'tupelo-messages/community/community_pb';
 import { Any } from 'google-protobuf/google/protobuf/any_pb.js';
+
+import { testNotaryGroup } from './constants.spec'
 
 // import {LocalCommunity} from 'local-tupelo';
 
@@ -53,14 +51,12 @@ describe('Tupelo', () => {
   })
 
   it('gets token payload', async () => {
-    const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '..', 'wasmtupelo/configs/wasmdocker.toml')).toString())
-
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
 
     const repo = await testRepo()
 
-    var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
+    var node = await p2p.createNode({ bootstrapAddresses: testNotaryGroup.getBootstrapAddressesList() });
     expect(node).to.exist;
     p.then(() => {
       node.stop()
@@ -73,7 +69,7 @@ describe('Tupelo', () => {
 
     node.start(() => { })
 
-    const c = new Community(node, notaryGroup, repo.repo)
+    const c = new Community(node, testNotaryGroup, repo.repo)
     await c.start()
 
 
