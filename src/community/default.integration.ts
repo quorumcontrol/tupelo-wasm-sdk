@@ -9,13 +9,13 @@ describe('default community', ()=> {
         c.stop()
     })
     it('works with a local community', async ()=> {
-        let c = await Community.freshLocalTestCommunity()
+        let c = await Community.getDefault()
         c = await c.start()
         expect(c).to.exist
         c.stop()
     })
     it('allows setting the default', async ()=> {
-        let c = await Community.freshLocalTestCommunity()
+        let c = await Community.getDefault()
         Community.setDefault(c)
         let defaultC = await Community.getDefault()
         expect(defaultC).to.equal(c)

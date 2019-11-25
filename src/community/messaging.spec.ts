@@ -14,8 +14,8 @@ describe("Community messaging", ()=> {
         let senderKey = await EcdsaKey.generate()
         let receiverKey = await EcdsaKey.generate()
 
-        const sender = await Community.freshLocalTestCommunity()
-        const receiver = await Community.freshLocalTestCommunity()
+        const sender = await Community.getDefault()
+        const receiver = await Community.getDefault()
 
         let senderM = new CommunityMessenger("tupelolocal", 32,senderKey, Buffer.from("a:name:thatdidntworkbefore", 'utf8'), sender.node.pubsub)
         let receiverM = new CommunityMessenger("tupelolocal", 32,receiverKey, Buffer.from("a:different:name", 'utf8'), receiver.node.pubsub)
@@ -37,8 +37,8 @@ describe("Community messaging", ()=> {
         let senderKey = await EcdsaKey.generate()
         let receiverKey = await EcdsaKey.generate()
 
-        const sender = await Community.freshLocalTestCommunity()
-        const receiver = await Community.freshLocalTestCommunity()
+        const sender = await Community.getDefault()
+        const receiver = await Community.getDefault()
 
         let senderM = new CommunityMessenger("tupelolocal", 32,senderKey, Buffer.from("a:name:thatdidntworkbefore", 'utf8'), sender.node.pubsub)
         let receiverM = new CommunityMessenger("tupelolocal", 32,receiverKey, Buffer.from("a:different:name", 'utf8'), receiver.node.pubsub)

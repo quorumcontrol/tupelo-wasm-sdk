@@ -12,7 +12,6 @@ import { _getDefault, _setDefault } from './default';
 
 import debug from 'debug'
 import Repo from '../repo';
-import { _freshLocalTestCommunity } from './local';
 import tomlToNotaryGroup from '../notarygroup';
 
 const debugLog = debug("community")
@@ -260,15 +259,5 @@ export namespace Community {
                 rej(e)
             }
         })
-    }
-
-    /**
-     * freshLocalTestCommunity returns a new community that points at a locally running (usually through Docker)
-     * Tupelo, using default configs.
-     * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
-     * @public
-     */
-    export async function freshLocalTestCommunity(repo?:Repo) {
-        return _freshLocalTestCommunity(repo)
     }
 }
