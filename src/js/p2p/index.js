@@ -33,7 +33,7 @@ class TupeloP2P extends libp2p {
       modules: {
         transport: [
           WS,
-          // TCP,
+          TCP,
         ],
         streamMuxer: [
           Multiplex
@@ -113,6 +113,7 @@ module.exports.CreateNode = async function(options) {
       // to dial it, the browser *can't* listen to an address.
       peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/ws')
       peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/wss')
+      peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0')
     }
     options.peerInfo = peerInfo;
     const node = new TupeloP2P(options);
