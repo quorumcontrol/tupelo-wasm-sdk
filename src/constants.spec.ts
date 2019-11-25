@@ -10,4 +10,6 @@ if (fs.existsSync("/tupelo-local/config/notarygroup.toml")) {
   tomlFile = path.join(__dirname, '../notarygroup.toml')
 }
 
-export const testNotaryGroup = tomlToNotaryGroup(fs.readFileSync(tomlFile).toString())
+export const testNotaryGroupTOML = fs.readFileSync(tomlFile).toString()
+
+export const testNotaryGroup = tomlToNotaryGroup(testNotaryGroupTOML)

@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import { IP2PNode, IPubSubMessage } from '../node';
+import { IP2PNode, IPubSubMessage, p2p } from '../node';
 import { NotaryGroup } from 'tupelo-messages';
 import { Transaction } from 'tupelo-messages/transactions/transactions_pb'
 import CID from 'cids';
@@ -13,6 +13,7 @@ import { _getDefault, _setDefault } from './default';
 import debug from 'debug'
 import Repo from '../repo';
 import { _freshLocalTestCommunity } from './local';
+import tomlToNotaryGroup from '../notarygroup';
 
 const debugLog = debug("community")
 
@@ -227,6 +228,38 @@ export namespace Community {
      */
     export function setDefault(community:Community) {
         return _setDefault(community);
+    }
+
+    /**
+     * fromNotaryGroupToml creates a community from a notary grou TOML string with no boiler plate around
+     * creating a new libp2p node and only optionally requires a repo (a new repo will be created if one isn't passed in)
+     * @param tomlString - the TOML for the notary group
+     * @param repo - (optional) the repo to use for this notary group. Will default to an ondisk repo named after the notary group
+     */
+    export function fromNotaryGroupToml(tomlString: string, repo?:Repo):Promise<Community> {
+        return new Promise(async (res,rej)=> {
+            const ng = tomlToNotaryGroup(tomlString)
+            try {
+                const node = await p2p.createNode({ bootstrapAddresses: ng.getBootstrapAddressesList() });
+                node.start(async ()=>{
+                    if (repo == undefined) {
+                        repo = new Repo(ng.getId())
+                        try {
+                            await repo.init({})
+                            await repo.open()
+                        } catch(e) {
+                            rej(e)
+                        }
+                    }
+                    const c = new Community(node, ng, repo.repo)
+                    res(c.start())
+                })
+                
+            } catch(e) {
+                debugLog("error creating community: ", e)
+                rej(e)
+            }
+        })
     }
 
     /**

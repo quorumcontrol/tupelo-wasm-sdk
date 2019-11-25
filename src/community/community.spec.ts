@@ -14,7 +14,8 @@ import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transa
 import Tupelo from '../tupelo';
 import debug from 'debug';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
-import { testNotaryGroup } from '../constants.spec'
+import { testNotaryGroup, testNotaryGroupTOML } from '../constants.spec'
+import { defaultNotaryGroup } from './default';
 
 const log = debug("communityspec")
 
@@ -220,5 +221,24 @@ describe('Community', () => {
     p.then(() => { c.stop() })
     return p
   }).timeout(10000)
+
+  it('can create a community from a toml config', async ()=> {
+    const repo = new Repo('test', {
+      lock: 'memory',
+      storageBackends: {
+        root: MemoryDatastore,
+        blocks: MemoryDatastore,
+        keys: MemoryDatastore,
+        datastore: MemoryDatastore
+      }
+    })
+    await repo.init({})
+    await repo.open()
+
+    const c = await Community.fromNotaryGroupToml(testNotaryGroupTOML, repo)
+    expect(c.group.getId()).to.equal('tupelolocal')
+
+    c.stop()
+  })
 
 })
