@@ -6,8 +6,6 @@ import fs from 'fs';
 import '../extendedglobal';
 import { p2p } from '../node';
 import { Community } from './community';
-import { tomlToNotaryGroup } from '../notarygroup';
-import path from 'path';
 import CID from 'cids';
 import Repo from '../repo'
 import { EcdsaKey } from '../crypto';
@@ -16,6 +14,7 @@ import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transa
 import Tupelo from '../tupelo';
 import debug from 'debug';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { testNotaryGroup } from '../constants.spec'
 
 const log = debug("communityspec")
 
@@ -23,7 +22,6 @@ const dagCBOR = require('ipld-dag-cbor');
 const Block = require('ipfs-block');
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
-const notaryGroup = tomlToNotaryGroup(fs.readFileSync(path.join(__dirname, '../../wasmtupelo/configs/wasmdocker.toml')).toString())
 
 describe('Community', () => {
 
@@ -44,9 +42,9 @@ describe('Community', () => {
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
 
-    var node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
+    var node = await p2p.createNode({ bootstrapAddresses: testNotaryGroup.getBootstrapAddressesList() });
 
-    const c = new Community(node, notaryGroup, repo.repo)
+    const c = new Community(node, testNotaryGroup, repo.repo)
 
     node.once('peer:connect', async () => {
       log("peer connected");
@@ -125,7 +123,7 @@ describe('Community', () => {
       trans.setSetDataPayload(payload)
 
 
-      let transCurrent = await Tupelo.playTransactions(node.pubsub, notaryGroup, tree, [trans])
+      let transCurrent = await Tupelo.playTransactions(node.pubsub, testNotaryGroup, tree, [trans])
       let transCurrentSig = transCurrent.getSignature()
       log('transaction complete')
 
