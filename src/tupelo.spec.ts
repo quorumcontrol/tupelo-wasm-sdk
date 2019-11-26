@@ -13,8 +13,6 @@ import debug from 'debug';
 import { Envelope } from 'tupelo-messages/community/community_pb';
 import { Any } from 'google-protobuf/google/protobuf/any_pb.js';
 
-import { testNotaryGroup } from './constants.spec'
-
 // import {LocalCommunity} from 'local-tupelo';
 
 const debugLog = debug("tupelospec")
@@ -53,25 +51,7 @@ describe('Tupelo', () => {
   it('gets token payload', async () => {
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
-
-    const repo = await testRepo()
-
-    var node = await p2p.createNode({ bootstrapAddresses: testNotaryGroup.getBootstrapAddressesList() });
-    expect(node).to.exist;
-    p.then(() => {
-      node.stop()
-    })
-
-    node.on('error', (err: any) => {
-      reject(err)
-      console.error('error')
-    })
-
-    node.start(() => { })
-
-    const c = new Community(node, testNotaryGroup, repo.repo)
-    await c.start()
-
+    const c = await Community.getDefault()
 
     const receiverKey = await EcdsaKey.generate()
     const receiverTree = await ChainTree.newEmptyTree(c.blockservice, receiverKey)
@@ -112,7 +92,7 @@ describe('Tupelo', () => {
 
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
-    const c = await Community.freshLocalTestCommunity()
+    const c = await Community.getDefault()
 
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
@@ -167,7 +147,7 @@ describe('Tupelo', () => {
   })
 
   it('verifies a returned current state', async ()=> {
-    const c = await Community.freshLocalTestCommunity()
+    const c = await Community.getDefault()
 
     const p = new Promise(async (resolve)=> {
       const k = await EcdsaKey.generate()
