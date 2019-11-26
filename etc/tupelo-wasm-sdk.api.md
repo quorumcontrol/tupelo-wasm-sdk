@@ -63,6 +63,7 @@ export class Community extends EventEmitter {
 // @public (undocumented)
 export namespace Community {
     export function freshLocalTestCommunity(repo?: Repo): Promise<Community>;
+    export function fromNotaryGroupToml(tomlString: string, repo?: Repo): Promise<Community>;
     export function getDefault(repo?: Repo): Promise<Community>;
     export function setDefault(community: Community): void;
 }
@@ -192,7 +193,7 @@ export interface IDagStore {
     // (undocumented)
     get(cid: CID_2): Promise<Object>;
     // Warning: (ae-forgotten-export) The symbol "IExtendedDagStoreIterator" needs to be exported by the entry point index.d.ts
-    // 
+    //
     // (undocumented)
     resolve(cid: CID_2, path: string): IExtendedDagStoreIterator;
 }
@@ -286,7 +287,7 @@ export class Repo {
     // (undocumented)
     open(): Promise<any>;
     // Warning: (ae-forgotten-export) The symbol "IKey" needs to be exported by the entry point index.d.ts
-    // 
+    //
     // (undocumented)
     put(key: IKey, val: Uint8Array): Promise<any>;
     // (undocumented)
@@ -300,7 +301,7 @@ export interface RepoOpts {
     // (undocumented)
     lock: string;
     // Warning: (ae-forgotten-export) The symbol "IStorageBackendOpts" needs to be exported by the entry point index.d.ts
-    // 
+    //
     // (undocumented)
     storageBackends: IStorageBackendOpts;
 }
@@ -326,7 +327,7 @@ export namespace Tupelo {
     // (undocumented)
     export function generateKey(): Promise<Uint8Array[]>;
     // Warning: (ae-forgotten-export) The symbol "IGetCurrentStateOptions" needs to be exported by the entry point index.d.ts
-    // 
+    //
     // (undocumented)
     export function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState>;
     // (undocumented)
@@ -342,7 +343,7 @@ export namespace Tupelo {
     // (undocumented)
     export function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState>;
     // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
-    // 
+    //
     // (undocumented)
     export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
     export function verifyCurrentState(notaryGroup: NotaryGroup, state: CurrentState): Promise<boolean>;
