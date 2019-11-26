@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import fs from 'fs';
+import path from 'path';
 
 import '../extendedglobal';
 import { p2p } from '../node';
@@ -14,8 +15,7 @@ import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transa
 import Tupelo from '../tupelo';
 import debug from 'debug';
 import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
-import { testNotaryGroup, testNotaryGroupTOML } from '../constants.spec'
-import { defaultNotaryGroup } from './default';
+import { tomlToNotaryGroup } from '../notarygroup';
 
 const log = debug("communityspec")
 
@@ -43,6 +43,8 @@ describe('Community', () => {
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
 
+    const testNotaryGroup = (await Community.getDefault()).group
+
     var node = await p2p.createNode({ bootstrapAddresses: testNotaryGroup.getBootstrapAddressesList() });
 
     const c = new Community(node, testNotaryGroup, repo.repo)
@@ -65,27 +67,20 @@ describe('Community', () => {
     return p
   }).timeout(10000)
 
-  it('starts and stops', async () => {
-    let c = await Community.freshLocalTestCommunity()
-    c.stop()
-  }).timeout(1000)
-
-
   // requires a running tupelo
   it('listens to tips', async () => {
-    const c = await Community.freshLocalTestCommunity()
+    const c = await Community.getDefault()
     const p = new Promise(async (resolve, rej) => {
       c.on('tip', (tip: CID) => {
         expect(tip).to.exist
         resolve(tip)
       })
     })
-    p.then(() => { c.stop() })
     return p
   }).timeout(10000)
 
   it('gets a chaintree tip', async () => {
-    const c = await Community.freshLocalTestCommunity()
+    const c = await Community.getDefault()
     const p = new Promise(async (resolve, reject) => {
       const key = await EcdsaKey.generate()
       const tree = await ChainTree.newEmptyTree(c.blockservice, key)
@@ -100,13 +95,12 @@ describe('Community', () => {
       expect(respTip.toString()).to.equal(tree.tip.toString())
       resolve()
     })
-    p.then(() => { c.stop() })
     return p
   }).timeout(10000)
 
   // requires a running tupelo
   it('gets a chaintree currentState', async () => {
-    const c = await Community.freshLocalTestCommunity()
+    const c = await Community.getDefault()
     const p = new Promise(async (resolve, reject) => {
       const node = c.node
       const key = await EcdsaKey.generate()
@@ -124,7 +118,7 @@ describe('Community', () => {
       trans.setSetDataPayload(payload)
 
 
-      let transCurrent = await Tupelo.playTransactions(node.pubsub, testNotaryGroup, tree, [trans])
+      let transCurrent = await Tupelo.playTransactions(node.pubsub, c.group, tree, [trans])
       let transCurrentSig = transCurrent.getSignature()
       log('transaction complete')
 
@@ -163,13 +157,12 @@ describe('Community', () => {
       reject("undefined signatures")
       return
     })
-    p.then(() => { c.stop() })
     return p
 
   }).timeout(10000)
 
   it('plays transactions', async () => {
-    const c = await Community.freshLocalTestCommunity()
+    const c = await Community.getDefault()
     const p = new Promise(async (resolve, reject) => {
       const trans = [setDataTransaction("/test", "oh really")]
 
@@ -182,13 +175,12 @@ describe('Community', () => {
         reject(err)
       })
     })
-    p.then(() => { c.stop() })
     return p
   })
 
   it('sends token and gets payload', async () => {
 
-    const c = await Community.freshLocalTestCommunity()
+    const c = await Community.getDefault()
     const p = new Promise(async (resolve, reject) => {
       const receiverKey = await EcdsaKey.generate()
       const receiverTree = await ChainTree.newEmptyTree(c.blockservice, receiverKey)
@@ -218,7 +210,6 @@ describe('Community', () => {
         reject(err)
       })
     })
-    p.then(() => { c.stop() })
     return p
   }).timeout(10000)
 
@@ -235,10 +226,8 @@ describe('Community', () => {
     await repo.init({})
     await repo.open()
 
-    const c = await Community.fromNotaryGroupToml(testNotaryGroupTOML, repo)
+    const c = await Community.fromNotaryGroupToml(fs.readFileSync(path.join(__dirname, '../test/notarygroup.toml')).toString(), repo)
     expect(c.group.getId()).to.equal('tupelolocal')
-
-    c.stop()
   })
 
 })

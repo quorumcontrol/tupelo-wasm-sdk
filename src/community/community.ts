@@ -12,7 +12,6 @@ import { _getDefault, _setDefault } from './default';
 
 import debug from 'debug'
 import Repo from '../repo';
-import { _freshLocalTestCommunity } from './local';
 import tomlToNotaryGroup from '../notarygroup';
 
 const debugLog = debug("community")
@@ -241,34 +240,24 @@ export namespace Community {
             const ng = tomlToNotaryGroup(tomlString)
             try {
                 const node = await p2p.createNode({ bootstrapAddresses: ng.getBootstrapAddressesList() });
-                node.start(async ()=>{
-                    if (repo == undefined) {
-                        repo = new Repo(ng.getId())
-                        try {
-                            await repo.init({})
-                            await repo.open()
-                        } catch(e) {
-                            rej(e)
-                        }
+                if (repo == undefined) {
+                    repo = new Repo(ng.getId())
+                    try {
+                        await repo.init({})
+                        await repo.open()
+                    } catch(e) {
+                        rej(e)
                     }
-                    const c = new Community(node, ng, repo.repo)
-                    res(c.start())
+                }
+                const c = new Community(node, ng, repo.repo)
+
+                node.start(async ()=>{
+                    res(await c.start())
                 })
-                
             } catch(e) {
                 debugLog("error creating community: ", e)
                 rej(e)
             }
         })
-    }
-
-    /**
-     * freshLocalTestCommunity returns a new community that points at a locally running (usually through Docker)
-     * Tupelo, using default configs.
-     * @param repo - (optional) - a {@link Repo} object (wrapper around an IPFS repo).
-     * @public
-     */
-    export async function freshLocalTestCommunity(repo?:Repo) {
-        return _freshLocalTestCommunity(repo)
     }
 }

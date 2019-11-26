@@ -6,20 +6,17 @@ describe('default community', ()=> {
     it('works with no options', async () => {
         const c = await Community.getDefault()
         expect(c).to.exist
-        c.stop()
     })
     it('works with a local community', async ()=> {
-        let c = await Community.freshLocalTestCommunity()
+        let c = await Community.getDefault()
         c = await c.start()
         expect(c).to.exist
-        c.stop()
     })
     it('allows setting the default', async ()=> {
-        let c = await Community.freshLocalTestCommunity()
+        let c = await Community.getDefault()
         Community.setDefault(c)
         let defaultC = await Community.getDefault()
         expect(defaultC).to.equal(c)
-        c.stop()
     })
     it('always gives you the same community', async ()=> {
         let cp1 = Community.getDefault()
