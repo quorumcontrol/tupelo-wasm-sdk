@@ -47,7 +47,7 @@
     "pull-mplex": "^0.1.2",
     "pull-ws": "^3.3.2",
     "toml": "^3.0.0",
-    "tupelo-messages": "0.5.0-rc6",
+    "tupelo-messages": "2.0.2",
     "util": "^0.12.1"
   },
   "devDependencies": {

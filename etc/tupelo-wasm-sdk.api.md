@@ -5,16 +5,15 @@
 ```ts
 
 import CID from 'cids';
-import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
 import { Envelope } from 'tupelo-messages';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
 import OldCId from 'cids';
-import { Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
+import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
 
 // @public
 export class ChainTree extends Dag {
@@ -39,14 +38,14 @@ export class Community extends EventEmitter {
     bitswap: ICallbackBitswap;
     // (undocumented)
     blockservice: IBlockService;
-    getCurrentState(did: string): Promise<import("tupelo-messages/signatures/signatures_pb").CurrentState>;
+    getCurrentState(did: string): Promise<import("tupelo-messages/signatures/signatures_pb").TreeState>;
     getTip(did: string): Promise<CID_2>;
     // (undocumented)
     group: NotaryGroup_2;
     nextUpdate(): Promise<unknown>;
     // (undocumented)
     node: IP2PNode;
-    playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/signatures/signatures_pb").CurrentState>;
+    playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/signatures/signatures_pb").TreeState>;
     // (undocumented)
     sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
@@ -274,7 +273,7 @@ export namespace p2p {
 }
 
 // @public (undocumented)
-export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, signature: Signature, leaves: Uint8Array[]) => Transaction_2;
+export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, treeState: TreeState, leaves: Uint8Array[]) => Transaction_2;
 
 // @public
 export const receiveTokenTransactionFromPayload: (payload: TokenPayload) => Transaction_2;
@@ -336,7 +335,7 @@ export namespace Tupelo {
     // Warning: (ae-forgotten-export) The symbol "IGetCurrentStateOptions" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    export function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState>;
+    export function getCurrentState(opts: IGetCurrentStateOptions): Promise<TreeState>;
     // (undocumented)
     export function getSendableEnvelopeBytes(env: Envelope, key: EcdsaKey): Promise<Uint8Array>;
     // (undocumented)
@@ -348,12 +347,12 @@ export namespace Tupelo {
     // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
-    export function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState>;
+    export function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<TreeState>;
     // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
-    export function verifyCurrentState(notaryGroup: NotaryGroup, state: CurrentState): Promise<boolean>;
+    export function verifyCurrentState(notaryGroup: NotaryGroup, state: TreeState): Promise<boolean>;
 }
 
 // @public

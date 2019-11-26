@@ -7,7 +7,7 @@ import { Transaction, Envelope } from 'tupelo-messages'
 import {TokenPayload} from 'tupelo-messages/transactions/transactions_pb'
 import {IBlockService, IBlock} from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
-import { CurrentState,Signature } from 'tupelo-messages/signatures/signatures_pb';
+import { TreeState, Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import debug from 'debug'
 import { EcdsaKey } from './crypto';
@@ -44,7 +44,7 @@ interface IWASMTransactionPayloadOpts {
     tip: CID
     tokenName: string
     sendId: string
-    jsSendTxSig: Uint8Array
+    jsSendTxState: Uint8Array
 }
 
 interface ITransactionPayloadOpts {
@@ -52,7 +52,7 @@ interface ITransactionPayloadOpts {
     tip: CID
     tokenName: string
     sendId: string
-    signature: Signature
+    treeState: TreeState
 }
 
 class UnderlyingWasm {
@@ -158,12 +158,12 @@ export namespace Tupelo {
         return tw.ecdsaPubkeyToAddress(pubKey)
     }
     
-    export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<CurrentState> {
+    export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<TreeState> {
         logger("getCurrentState")
         const tw = await TupeloWasm.get()
         try {
             let stateBits = await tw.getCurrentState(opts)
-            return CurrentState.deserializeBinary(stateBits)
+            return TreeState.deserializeBinary(stateBits)
         } catch(err) {
             throw err
         }
@@ -185,7 +185,7 @@ export namespace Tupelo {
             tip: opts.tip,
             tokenName: opts.tokenName,
             sendId: opts.sendId,
-            jsSendTxSig: opts.signature.serializeBinary(),  
+            jsSendTxState: opts.treeState.serializeBinary(),
         })
         return TokenPayload.deserializeBinary(respBits)
     }
@@ -213,12 +213,12 @@ export namespace Tupelo {
      * @param state - the CurrentState (often returned by a playTransactions)
      * @public
      */
-    export async function verifyCurrentState(notaryGroup: NotaryGroup, state: CurrentState):Promise<boolean> {
+    export async function verifyCurrentState(notaryGroup: NotaryGroup, state: TreeState):Promise<boolean> {
         const tw = await TupeloWasm.get()
         return tw.verifyCurrentState(notaryGroup.serializeBinary(), state.serializeBinary())
     }
 
-    export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<CurrentState> {
+    export async function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<TreeState> {
         logger("playTransactions")
         if (tree.key == undefined) {
             throw new Error("playing transactions on a tree requires the tree to have a private key, use tree.key = <ecdsaKey>")
@@ -246,13 +246,8 @@ export namespace Tupelo {
             transactions: transBits,
         })
 
-        const currState = CurrentState.deserializeBinary(resp)
-        const sig = currState.getSignature()
-        if (sig == undefined) {
-            throw new Error("empty signature received from CurrState")
-        }
-
-        tree.tip = new CID(Buffer.from(sig.getNewTip_asU8()))
+        const currState = TreeState.deserializeBinary(resp)
+        tree.tip = new CID(Buffer.from(currState.getNewTip_asU8()))
         return currState
     }
 }

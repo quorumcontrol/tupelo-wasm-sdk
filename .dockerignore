@@ -1,0 +1,10 @@
+.DS_Store
+.git
+.gitattributes
+.gitmodules
+.npmignore
+.tmp
+/docs
+node_modules
+/examples
+/temp
