@@ -19,7 +19,7 @@ function hexToBuffer(hex: string): Buffer {
 }
 
 // stack overflow ftw
-function toCamel(o: any) {
+export function toCamel(o: any) {
   let newO: any, origKey: string, newKey: string, value: any
   if (o instanceof Array) {
     return o.map(function (value) {
@@ -54,7 +54,7 @@ export function tomlToNotaryGroup(tomlString: string): NotaryGroup {
   return configToNotaryGroup(toCamel(config))
 }
 
-function configToNotaryGroup(obj: INotaryGroupCreator): NotaryGroup {
+export function configToNotaryGroup(obj: INotaryGroupCreator): NotaryGroup {
   const ng = new NotaryGroup()
   ng.setId(obj.id)
   ng.setBootstrapAddressesList(obj.bootstrapAddresses)

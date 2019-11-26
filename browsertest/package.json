@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "parcel index.html",
-    "build": "parcel build index.html"
+    "dev": "parcel tupelo.wasm index.html",
+    "build": "parcel build tupelo.wasm index.html"
   },
   "keywords": [],
   "author": "",

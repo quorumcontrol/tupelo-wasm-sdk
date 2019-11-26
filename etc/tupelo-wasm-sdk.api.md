@@ -81,6 +81,11 @@ export class CommunityMessenger {
     unsubscribe(topic: string, subscriber: Function): Promise<unknown>;
 }
 
+// Warning: (ae-forgotten-export) The symbol "INotaryGroupCreator" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export function configToNotaryGroup(obj: INotaryGroupCreator): NotaryGroup;
+
 // @public
 export class Dag {
     constructor(tip: CID_2, store: IBlockService);
@@ -313,6 +318,9 @@ export const setDataTransaction: (path: string, value: any) => Transaction_2;
 
 // @public
 export const setOwnershipTransaction: (newOwnerKeys: string[]) => Transaction_2;
+
+// @public (undocumented)
+export function toCamel(o: any): any;
 
 // @public
 export function tomlToNotaryGroup(tomlString: string): NotaryGroup;
