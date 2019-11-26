@@ -240,20 +240,20 @@ export namespace Community {
             const ng = tomlToNotaryGroup(tomlString)
             try {
                 const node = await p2p.createNode({ bootstrapAddresses: ng.getBootstrapAddressesList() });
-                node.start(async ()=>{
-                    if (repo == undefined) {
-                        repo = new Repo(ng.getId())
-                        try {
-                            await repo.init({})
-                            await repo.open()
-                        } catch(e) {
-                            rej(e)
-                        }
+                if (repo == undefined) {
+                    repo = new Repo(ng.getId())
+                    try {
+                        await repo.init({})
+                        await repo.open()
+                    } catch(e) {
+                        rej(e)
                     }
-                    const c = new Community(node, ng, repo.repo)
-                    res(c.start())
+                }
+                const c = new Community(node, ng, repo.repo)
+
+                node.start(async ()=>{
+                    res(await c.start())
                 })
-                
             } catch(e) {
                 debugLog("error creating community: ", e)
                 rej(e)

@@ -49,7 +49,6 @@ describe('ChainTree', ()=> {
 
       await c.playTransactions(tree, [setDataTransaction("/path/to/somewhere", true)])
       const resp = tree.resolveData("/path/to/somewhere")
-      resp.then(()=> {c.stop()})
       expect((await resp).value).to.eql(true)
     })
 

@@ -96,7 +96,6 @@ describe('Tupelo', () => {
 
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
-    p.then(() => { c.stop() })
 
     c.node.on('error', (err: any) => {
       reject(err)
@@ -168,7 +167,6 @@ describe('Tupelo', () => {
 
       resolve()
     })
-    p.then(()=> {c.stop()})
     return p
   })
 

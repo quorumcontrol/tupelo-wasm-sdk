@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import fs from 'fs';
+import path from 'path';
 
 import '../extendedglobal';
 import { p2p } from '../node';
@@ -66,12 +67,6 @@ describe('Community', () => {
     return p
   }).timeout(10000)
 
-  it('starts and stops', async () => {
-    let c = await Community.getDefault()
-    c.stop()
-  }).timeout(1000)
-
-
   // requires a running tupelo
   it('listens to tips', async () => {
     const c = await Community.getDefault()
@@ -81,7 +76,6 @@ describe('Community', () => {
         resolve(tip)
       })
     })
-    p.then(() => { c.stop() })
     return p
   }).timeout(10000)
 
@@ -101,7 +95,6 @@ describe('Community', () => {
       expect(respTip.toString()).to.equal(tree.tip.toString())
       resolve()
     })
-    p.then(() => { c.stop() })
     return p
   }).timeout(10000)
 
@@ -164,7 +157,6 @@ describe('Community', () => {
       reject("undefined signatures")
       return
     })
-    p.then(() => { c.stop() })
     return p
 
   }).timeout(10000)
@@ -183,7 +175,6 @@ describe('Community', () => {
         reject(err)
       })
     })
-    p.then(() => { c.stop() })
     return p
   })
 
@@ -219,7 +210,6 @@ describe('Community', () => {
         reject(err)
       })
     })
-    p.then(() => { c.stop() })
     return p
   }).timeout(10000)
 
@@ -236,10 +226,8 @@ describe('Community', () => {
     await repo.init({})
     await repo.open()
 
-    const c = await Community.fromNotaryGroupToml(fs.readFileSync('../test/notarygroup.toml').toString(), repo)
+    const c = await Community.fromNotaryGroupToml(fs.readFileSync(path.join(__dirname, '../test/notarygroup.toml')).toString(), repo)
     expect(c.group.getId()).to.equal('tupelolocal')
-
-    c.stop()
   })
 
 })
