@@ -2,7 +2,7 @@ import { Dag, IBlockService } from './dag/dag'
 import CID from 'cids'
 import { EcdsaKey } from '../crypto'
 import { Tupelo } from '../tupelo';
-import { Signature } from 'tupelo-messages/signatures/signatures_pb';
+import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
 import { SetDataPayload, Transaction, SetOwnershipPayload, TokenMonetaryPolicy, EstablishTokenPayload, MintTokenPayload, SendTokenPayload, ReceiveTokenPayload, TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 
 const dagCBOR = require('ipld-dag-cbor');
@@ -188,11 +188,11 @@ export const sendTokenTransaction = (sendId: string, name: string, amount: numbe
     return txn;
 };
 
-const receiveTokenPayload = (sendId: string, tip: Uint8Array, signature: Signature, leaves: Uint8Array[]) => {
+const receiveTokenPayload = (sendId: string, tip: Uint8Array, treeState: TreeState, leaves: Uint8Array[]) => {
     var payload = new ReceiveTokenPayload();
     payload.setSendTokenTransactionId(sendId);
     payload.setTip(tip);
-    payload.setSignature(signature);
+    payload.setTreeState(treeState);
     payload.setLeavesList(leaves);
 
     return payload;
@@ -201,8 +201,8 @@ const receiveTokenPayload = (sendId: string, tip: Uint8Array, signature: Signatu
 /** 
  * @public
  */
-export const receiveTokenTransaction = (sendId: string, tip: Uint8Array, signature: Signature, leaves: Uint8Array[]) => {
-    var payload = receiveTokenPayload(sendId, tip, signature, leaves);
+export const receiveTokenTransaction = (sendId: string, tip: Uint8Array, treeState: TreeState, leaves: Uint8Array[]) => {
+    var payload = receiveTokenPayload(sendId, tip, treeState, leaves);
 
     var txn = new Transaction();
     txn.setType(Transaction.Type.RECEIVETOKEN);
@@ -222,9 +222,9 @@ export const receiveTokenTransactionFromPayload = (payload:TokenPayload) => {
     var txn = new Transaction();
     txn.setType(Transaction.Type.RECEIVETOKEN);
     const tip = new CID(payload.getTip())
-    const sig = payload.getSignature()
-    if (sig === undefined) {
-        throw new Error("signature must be defined")
+    const state = payload.getTreeState()
+    if (state === undefined) {
+        throw new Error("treeState must be defined")
     }
     const leaves = payload.getLeavesList_asU8()
     if (leaves === undefined) {
@@ -233,7 +233,7 @@ export const receiveTokenTransactionFromPayload = (payload:TokenPayload) => {
     txn.setReceiveTokenPayload(receiveTokenPayload(
         payload.getTransactionId(),
         tip.buffer,
-        sig,
+        state,
         leaves,
     ));
     return txn

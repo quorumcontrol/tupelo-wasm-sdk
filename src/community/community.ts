@@ -91,11 +91,7 @@ export class Community extends EventEmitter {
      */
     async getTip(did: string):Promise<CID> {
         const state = await this.getCurrentState(did)
-        const sig = state.getSignature()
-        if (sig == undefined) {
-            throw new Error("undefined signature")
-        }
-        return new CID(Buffer.from(sig.getNewTip_asU8()))
+        return new CID(Buffer.from(state.getNewTip_asU8()))
     }
 
     async sendTokenAndGetPayload(tree: ChainTree, tx: Transaction) {
@@ -105,16 +101,12 @@ export class Community extends EventEmitter {
         }
 
         const resp = await this.playTransactions(tree, [tx])
-        const sig = resp.getSignature()
-        if (sig === undefined) {
-            throw new Error('received undefined signature')
-        }
         return Tupelo.tokenPayloadForTransaction({
             blockService: this.blockservice,
             tip: tree.tip,
             tokenName: sendTokenPayload.getName(),
             sendId: sendTokenPayload.getId(),
-            signature: sig,
+            treeState: resp,
         })
     }
 

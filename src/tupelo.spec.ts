@@ -6,7 +6,7 @@ import { p2p } from './node';
 import { Tupelo } from './tupelo';
 import { EcdsaKey } from './crypto';
 import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction } from './chaintree/chaintree';
-import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
 import { Community } from './community/community';
 import Repo from './repo';
 import debug from 'debug';
@@ -72,14 +72,10 @@ describe('Tupelo', () => {
 
     const sendId = "anewsendid"
     let resp = await c.playTransactions(senderTree, [sendTokenTransaction(sendId, tokenName, 5, receiverId)])
-    const sig = resp.getSignature()
-    if (sig == undefined) {
-      throw new Error("undefined signature")
-    }
     Tupelo.tokenPayloadForTransaction({
       blockService: c.blockservice,
       tip: senderTree.tip,
-      signature: sig,
+      treeState: resp,
       tokenName: senderid + ":" + tokenName,
       sendId: sendId,
     }).then((payload) => {
@@ -109,8 +105,8 @@ describe('Tupelo', () => {
     const trans = setDataTransaction("/hi", "hihi")
 
     Tupelo.playTransactions(c.node.pubsub, c.group, tree, [trans]).then(
-      async (success: CurrentState) => {
-        expect(success).to.be.an.instanceOf(CurrentState)
+      async (success: TreeState) => {
+        expect(success).to.be.an.instanceOf(TreeState)
         const resolved = await tree.resolve("tree/data/hi")
         expect(resolved.value).to.equal("hihi")
         resolve(true)

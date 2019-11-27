@@ -14,7 +14,7 @@ import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTran
 import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
 import Tupelo from '../tupelo';
 import debug from 'debug';
-import { CurrentState } from 'tupelo-messages/signatures/signatures_pb';
+import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
 import { tomlToNotaryGroup } from '../notarygroup';
 
 const log = debug("communityspec")
@@ -137,7 +137,6 @@ describe('Community', () => {
 
 
       let transCurrent = await Tupelo.playTransactions(node.pubsub, c.group, tree, [trans])
-      let transCurrentSig = transCurrent.getSignature()
       log('transaction complete')
 
       log("getting current state of transaction")
@@ -147,7 +146,7 @@ describe('Community', () => {
       }
       
       let tryCount = 0;
-      const getStateWhenAvailable = async ():Promise<CurrentState> => {
+      const getStateWhenAvailable = async ():Promise<TreeState> => {
           try {
             await c.nextUpdate()
             const communityCurrent = await c.getCurrentState(id)
@@ -165,10 +164,8 @@ describe('Community', () => {
       }
       
       const communityCurrent = await getStateWhenAvailable()
-
-      let communityCurrentSig = communityCurrent.getSignature()
-      if (transCurrentSig !== undefined && communityCurrentSig !== undefined) {
-        expect(communityCurrentSig.getNewTip_asB64()).to.equal(transCurrentSig.getNewTip_asB64())
+      if (transCurrent !== undefined && communityCurrent !== undefined) {
+        expect(communityCurrent.getNewTip_asB64()).to.equal(transCurrent.getNewTip_asB64())
         resolve()
         return
       }
