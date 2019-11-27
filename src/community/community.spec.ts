@@ -89,9 +89,27 @@ describe('Community', () => {
         throw new Error("error getting id")
       }
       await c.playTransactions(tree, [setDataTransaction("/somewhere/cool", "foo")])
-      await c.nextUpdate()
 
-      const respTip = await c.getTip(id)
+      const recursiveGetTip = ():Promise<CID> => {
+        return new Promise(async (res,rej)=> {
+          await c.nextUpdate()
+          let respTip:CID
+          try {
+            respTip = await c.getTip(id)
+            res(respTip)
+            return
+          } catch(e) {
+            if (e == 'not found') {
+              const tip = await recursiveGetTip()
+              res(tip)
+              return
+            }
+            rej(e)
+          }
+        })
+      }
+
+      const respTip = await recursiveGetTip()
       expect(respTip.toString()).to.equal(tree.tip.toString())
       resolve()
     })
