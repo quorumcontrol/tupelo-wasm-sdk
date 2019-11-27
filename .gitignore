@@ -1,4 +1,4 @@
-tupelo.wasm
+src/js/go/tupelo.wasm
 node_modules
 lib // ignore the generated code
 .tmp
