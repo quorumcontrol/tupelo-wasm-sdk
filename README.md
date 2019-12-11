@@ -1,5 +1,7 @@
 # Tupelo Wasm SDK
 
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+
 V2 of the tupelo-js-sdk is a standalone SDK that works with wasm to talk directly to the Tupelo network and does not require a rpc server.
 
 Note: in the words of IPFS: this project is still in Alpha, lots of development is happening, API might change, beware of the Dragons 🐉.
