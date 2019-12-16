@@ -6,7 +6,7 @@ import { p2p } from './node';
 import { Tupelo } from './tupelo';
 import { EcdsaKey } from './crypto';
 import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction } from './chaintree/chaintree';
-import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
+import { TreeState, Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { Community } from './community/community';
 import Repo from './repo';
 import debug from 'debug';
@@ -166,16 +166,44 @@ describe('Tupelo', () => {
     return p
   })
 
-  it('signs and verifies messages', async ()=> {
-    const key = await EcdsaKey.generate()
-    const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
+  describe('signing and verifying messages', ()=> {
+    let key:EcdsaKey
+    let sig:Signature
+    let message:Uint8Array
+    before(async ()=> {
+      key = await EcdsaKey.generate()  
+      message = Buffer.from("test message")
+      sig = await Tupelo.signMessage(key, message)
+    })
 
-    const message = Buffer.from("test message")
+    it('returns verified when everything is good', async ()=> {
+      const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
+      const verified = await Tupelo.verifyMessage(addr, message, sig)
+      expect(verified).to.be.true
+    })
 
-    const sig = await Tupelo.signMessage(key, message)
+    it('returns invalid when using a different addr', async ()=> {
+      const addr = "notthecorrectaddr"
+      try {
+        const verified = await Tupelo.verifyMessage(addr, message, sig)
+        expect(verified).to.be.false
+      } catch(e) {
+        expect(e).to.include("unsigned by address")
+      }
+    })
 
-    const verified = await Tupelo.verifyMessage(addr, message, sig)
-    expect(verified).to.be.true
+    it('returns invalid when using a different message', async ()=> {
+      const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
+      try {
+        const verified = await Tupelo.verifyMessage(addr, Buffer.from('a different message'), sig)
+        expect(verified).to.be.false
+      } catch(e) {
+        // you need to know the message to recover the correct key, so this looks like the same error
+        // as passing in a different address even though we just changed the message
+        expect(e).to.include("unsigned by address")
+      }
+    })
+
   })
 
 })

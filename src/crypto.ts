@@ -1,4 +1,5 @@
 import {Tupelo} from './tupelo'
+import { Signature } from 'tupelo-messages/signatures/signatures_pb'
 
 /**
  * EcdsaKey defines the public/private key-pairs used to interact with Tupelo.
@@ -37,7 +38,46 @@ export class EcdsaKey {
         this.privateKey = privateKeyBits
     }
 
-    async keyAddr() {
+    /**
+     * Returns the address of the public key (ethereum address format)
+     * @public
+     */
+    async address() {
+        return Tupelo.ecdsaPubkeyToAddress(this.publicKey)
+    }
+
+    /**
+     * Returns the DID generated from the public key address
+     * @public
+     */
+    async toDid() {
         return Tupelo.ecdsaPubkeyToDid(this.publicKey)
+    }
+
+    /**
+     * Signs an arbitrary byte message and returns a Signature object
+     * @param msg - the message to sign
+     * @public
+     */
+    async signMessage(msg:Uint8Array) {
+        return Tupelo.signMessage(this, msg)
+    }
+
+    /**
+     * Given a signature, make sure that it is valid for this key
+     * @param msg - the message to sign
+     * @param sig - the signature to verify
+     * @public
+     */
+    async verifyMessage(msg:Uint8Array, sig:Signature) {
+        return Tupelo.verifyMessage((await this.address()), msg, sig)
+    }
+
+    /**
+     * deprecated use address() or toDid()
+     * @deprecated
+     */
+    async keyAddr() {
+        return this.toDid()
     }
 }
