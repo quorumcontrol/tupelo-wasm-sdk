@@ -166,4 +166,16 @@ describe('Tupelo', () => {
     return p
   })
 
+  it('signs and verifies messages', async ()=> {
+    const key = await EcdsaKey.generate()
+    const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
+
+    const message = Buffer.from("test message")
+
+    const sig = await Tupelo.signMessage(key, message)
+
+    const verified = await Tupelo.verifyMessage(addr, message, sig)
+    expect(verified).to.be.true
+  })
+
 })
