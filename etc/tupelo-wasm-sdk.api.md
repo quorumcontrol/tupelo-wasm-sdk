@@ -10,6 +10,7 @@ import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
 import OldCId from 'cids';
+import { Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
@@ -104,16 +105,20 @@ export const defaultNotaryGroup: import("tupelo-messages").NotaryGroup;
 // @public
 export class EcdsaKey {
     constructor(publicKeyBits: Uint8Array, privateKeyBits?: Uint8Array);
+    address(): Promise<string>;
     // (undocumented)
     static fromBytes: (bytes: Uint8Array) => Promise<EcdsaKey>;
     static generate: () => Promise<EcdsaKey>;
-    // (undocumented)
+    // @deprecated
     keyAddr(): Promise<string>;
     static passPhraseKey: (phrase: Uint8Array, salt: Uint8Array) => Promise<EcdsaKey>;
     // (undocumented)
     privateKey?: Uint8Array;
     // (undocumented)
     publicKey: Uint8Array;
+    signMessage(msg: Uint8Array): Promise<Signature>;
+    toDid(): Promise<string>;
+    verifyMessage(msg: Uint8Array, sig: Signature): Promise<boolean>;
 }
 
 // @public
@@ -348,11 +353,13 @@ export namespace Tupelo {
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
     export function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<TreeState>;
+    export function signMessage(key: EcdsaKey, message: Uint8Array): Promise<Signature>;
     // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
     export function verifyCurrentState(notaryGroup: NotaryGroup, state: TreeState): Promise<boolean>;
+    export function verifyMessage(address: string, message: Uint8Array, signature: Signature): Promise<boolean>;
 }
 
 // @public

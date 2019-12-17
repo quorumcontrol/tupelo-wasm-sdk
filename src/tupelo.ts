@@ -183,6 +183,12 @@ export namespace Tupelo {
         return tw.newEmptyTree(store, publicKey)
     }
 
+    /**
+     * signMessage allows an EcdsaKey to sign an arbitrary message
+     * @param key - the EcdsaKey to sign the message (must have a privateKey)
+     * @param message - the message to sign (arbitrary Uint8Arry/Buffer of bytes)
+     * @public
+     */
     export async function signMessage(key:EcdsaKey, message:Uint8Array):Promise<Signature> {
         if (key.privateKey === undefined) {
             throw new Error("key must contain a privat key to sign messages")
@@ -196,6 +202,13 @@ export namespace Tupelo {
         }
     }
 
+    /**
+     * verifyMessage is the recipricol of {@link signMessage}, it verifies that a signature is valid.
+     * @param address - the string address to verify against ( see {@link ecdsaPubkeyToAddress} )
+     * @param message - the message to verify ( see {@link signMessage} )
+     * @param signature - the {@link Signature} object to verify
+     * @public
+     */
     export async function verifyMessage(address:string, message:Uint8Array, signature:Signature):Promise<boolean> {
         const tw = await TupeloWasm.get()
         try {
