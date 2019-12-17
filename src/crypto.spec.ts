@@ -23,4 +23,25 @@ describe('EcdsaKeys', ()=> {
             expect(key.privateKey).to.have.length(32)
         }
     })
+
+    it('signs and verifies messages', async ()=> {
+        const key = await EcdsaKey.generate()    
+        const message = Buffer.from("test message")
+    
+        const sig = await key.signMessage(message)
+    
+        let verified = await key.verifyMessage(message, sig)
+        expect(verified).to.be.true
+
+        const badMessage = Buffer.from("invalid")
+        try {
+            verified = await key.verifyMessage(badMessage, sig)
+            expect(verified).to.be.false
+        } catch(e) {
+            expect(e).to.not.be.null
+        }
+    
+
+      })
+
 })

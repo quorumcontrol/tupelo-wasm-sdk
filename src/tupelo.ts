@@ -92,6 +92,12 @@ class UnderlyingWasm {
     verifyCurrentState(notaryGroupBytes:Uint8Array,currStateBytes:Uint8Array):Promise<boolean>{
         return new Promise<boolean>((res, rej) => { }) // replaced by wasm
     }
+    signMessage(privateKey:Uint8Array, message:Uint8Array):Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    }
+    verifyMessage(addr:string, message:Uint8Array, sigBits:Uint8Array):Promise<boolean> {
+        return new Promise<boolean>((res, rej) => { }) // replaced by wasm
+    }
 }
 
 namespace TupeloWasm {
@@ -175,6 +181,41 @@ export namespace Tupelo {
         logger("newEmptyTree")
         const tw = await TupeloWasm.get()
         return tw.newEmptyTree(store, publicKey)
+    }
+
+    /**
+     * signMessage allows an EcdsaKey to sign an arbitrary message
+     * @param key - the EcdsaKey to sign the message (must have a privateKey)
+     * @param message - the message to sign (arbitrary Uint8Arry/Buffer of bytes)
+     * @public
+     */
+    export async function signMessage(key:EcdsaKey, message:Uint8Array):Promise<Signature> {
+        if (key.privateKey === undefined) {
+            throw new Error("key must contain a privat key to sign messages")
+        }
+        const tw = await TupeloWasm.get()
+        try {
+            const sigBits = await tw.signMessage(key.privateKey, message)
+            return Signature.deserializeBinary(sigBits)
+        } catch(e) {
+            throw e
+        }
+    }
+
+    /**
+     * verifyMessage is the recipricol of {@link signMessage}, it verifies that a signature is valid.
+     * @param address - the string address to verify against ( see {@link ecdsaPubkeyToAddress} )
+     * @param message - the message to verify ( see {@link signMessage} )
+     * @param signature - the {@link Signature} object to verify
+     * @public
+     */
+    export async function verifyMessage(address:string, message:Uint8Array, signature:Signature):Promise<boolean> {
+        const tw = await TupeloWasm.get()
+        try {
+            return await tw.verifyMessage(address, message, signature.serializeBinary())
+        } catch(e) {
+            throw e
+        }
     }
 
     export async function tokenPayloadForTransaction(opts:ITransactionPayloadOpts):Promise<TokenPayload> {
