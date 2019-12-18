@@ -16,3 +16,6 @@ build-docs.sh
 build.sh
 scripts
 builddocker
+browsertest
+Dockerfile
+.github
