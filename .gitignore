@@ -7,3 +7,5 @@ dist/
 lib/
 temp/
 .cache
+examples/**/default
+examples/**/.*
