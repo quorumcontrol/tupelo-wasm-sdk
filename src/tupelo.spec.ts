@@ -3,7 +3,7 @@ import 'mocha';
 
 import './extendedglobal';
 import { p2p } from './node';
-import { Tupelo } from './tupelo';
+import { Tupelo, IProof } from './tupelo';
 import { EcdsaKey } from './crypto';
 import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction } from './chaintree/chaintree';
 import { TreeState, Signature } from 'tupelo-messages/signatures/signatures_pb';
@@ -75,7 +75,7 @@ describe('Tupelo', () => {
     Tupelo.tokenPayloadForTransaction({
       blockService: c.blockservice,
       tip: senderTree.tip,
-      treeState: resp,
+      proof: resp,
       tokenName: senderid + ":" + tokenName,
       sendId: sendId,
     }).then((payload) => {
@@ -86,9 +86,15 @@ describe('Tupelo', () => {
     return p
   }).timeout(10000)
 
+  it('starts a client', async ()=> {
+    const c = await Community.getDefault()
+    await Tupelo.startClient(c.node.pubsub, c.group, c.blockservice)
+  })
+
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
     const c = await Community.getDefault()
+    await Tupelo.startClient(c.node.pubsub, c.group, c.blockservice)
 
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
@@ -104,9 +110,8 @@ describe('Tupelo', () => {
     debugLog("created empty tree")
     const trans = setDataTransaction("/hi", "hihi")
 
-    Tupelo.playTransactions(c.node.pubsub, c.group, tree, [trans]).then(
-      async (success: TreeState) => {
-        expect(success).to.be.an.instanceOf(TreeState)
+    Tupelo.playTransactions(tree, [trans]).then(
+      async (success: IProof) => {
         const resolved = await tree.resolve("tree/data/hi")
         expect(resolved.value).to.equal("hihi")
         resolve(true)
@@ -120,7 +125,7 @@ describe('Tupelo', () => {
         resolve(true)
       })
     return p
-  }).timeout(10000)
+  }).timeout(30000)
 
   it('gets envelope bits', async () => {
     const key = await EcdsaKey.generate()
@@ -141,30 +146,30 @@ describe('Tupelo', () => {
     expect(Buffer.from(reconstitituted.getTopicsList_asU8()[0]).toString()).to.equal(topic)
   })
 
-  it('verifies a returned current state', async ()=> {
-    const c = await Community.getDefault()
+  // it('verifies a returned current state', async ()=> {
+  //   const c = await Community.getDefault()
 
-    const p = new Promise(async (resolve)=> {
-      const k = await EcdsaKey.generate()
-      const tree = await ChainTree.newEmptyTree(c.blockservice, k)
-      const resp = await c.playTransactions(tree, [setDataTransaction("hi", "hi")])
-      let verified = await Tupelo.verifyCurrentState(c.group, resp)
-      expect(verified).to.be.true
+  //   const p = new Promise(async (resolve)=> {
+  //     const k = await EcdsaKey.generate()
+  //     const tree = await ChainTree.newEmptyTree(c.blockservice, k)
+  //     const resp = await c.playTransactions(tree, [setDataTransaction("hi", "hi")])
+  //     let verified = await Tupelo.verifyCurrentState(c.group, resp)
+  //     expect(verified).to.be.true
 
-      let sig = resp.getSignature()
-      if (sig === undefined) {
-        throw new Error("missing signature")
-      }
-      // now make it intentionally bad
-      sig.setSignersList([0,0,1])
-      resp.setSignature(sig)
-      verified = await Tupelo.verifyCurrentState(c.group, resp)
-      expect(verified).to.be.false
+  //     let sig = resp.getSignature()
+  //     if (sig === undefined) {
+  //       throw new Error("missing signature")
+  //     }
+  //     // now make it intentionally bad
+  //     sig.setSignersList([0,0,1])
+  //     resp.setSignature(sig)
+  //     verified = await Tupelo.verifyCurrentState(c.group, resp)
+  //     expect(verified).to.be.false
 
-      resolve()
-    })
-    return p
-  })
+  //     resolve()
+  //   })
+  //   return p
+  // })
 
   describe('signing and verifying messages', ()=> {
     let key:EcdsaKey

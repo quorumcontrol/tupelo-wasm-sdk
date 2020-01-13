@@ -106,7 +106,7 @@ export class Community extends EventEmitter {
             tip: tree.tip,
             tokenName: sendTokenPayload.getName(),
             sendId: sendTokenPayload.getId(),
-            treeState: resp,
+            proof: resp,
         })
     }
 
@@ -115,7 +115,7 @@ export class Community extends EventEmitter {
      * easier when using a fully community client
     */
     async playTransactions(tree: ChainTree, transactions: Transaction[]) {
-        return Tupelo.playTransactions(this.node.pubsub, this.group, tree, transactions)
+        return Tupelo.playTransactions(tree, transactions)
     }
 
     /** next update is a helper function

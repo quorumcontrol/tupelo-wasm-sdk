@@ -1,9 +1,10 @@
 id = "tupelolocal"
 BootstrapAddresses = [
-    "/ip4/172.16.247.10/tcp/34001/ipfs/16Uiu2HAm3TGSEKEjagcCojSJeaT5rypaeJMKejijvYSnAjviWwV5",
+    # "/ip4/172.16.247.10/tcp/34001/ipfs/16Uiu2HAm3TGSEKEjagcCojSJeaT5rypaeJMKejijvYSnAjviWwV5",
     "/ip4/127.0.0.1/tcp/34001/ipfs/16Uiu2HAm3TGSEKEjagcCojSJeaT5rypaeJMKejijvYSnAjviWwV5",
-    "/ip4/172.16.247.11/tcp/50000/ws/ipfs/16Uiu2HAm4hjC7zZTSN5KAp187vn52bZMsC8VaVdtrci7HD4aZcU7",
-    "/ip4/127.0.0.1/tcp/50000/ws/ipfs/16Uiu2HAm4hjC7zZTSN5KAp187vn52bZMsC8VaVdtrci7HD4aZcU7",
+    # "/ip4/172.16.247.11/tcp/50000/ws/ipfs/16Uiu2HAm4hjC7zZTSN5KAp187vn52bZMsC8VaVdtrci7HD4aZcU7",
+    # "/ip4/127.0.0.1/tcp/50000/ws/ipfs/16Uiu2HAm4hjC7zZTSN5KAp187vn52bZMsC8VaVdtrci7HD4aZcU7",
+    "/ip4/127.0.0.1/tcp/50000/ws/ipfs/16Uiu2HAmKhC8rdvoMnSmpxK2otEtNcs9dkp6WwJUugERzWPwPmVy"
 ]
 [[signers]]
 VerKeyHex = "0x15796b266a7d6b7c6b29c5bf97ad376fe8457e4d56bb0612ec8703c65ca7b6bb5dca004d55f5238d7764cd100c9e9cac3c5abce902bae8a5f9c29de716a145595b071b1b7038a48b4f6f88e7664b38c02062f64b3ceb499e4cbb82361457dcd731f5b48901871e7fd56a9c91ab3e06d3f7cb27288962686d9a05e02c1482f01f"
