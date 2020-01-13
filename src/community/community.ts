@@ -160,6 +160,9 @@ export class Community extends EventEmitter {
                 }
             })
         }
+
+        await Tupelo.startClient(this.node.pubsub, this.group, this.blockservice)
+
         debugLog("started")
         this._startPromiseResolve(this)
         this.emit('start')
