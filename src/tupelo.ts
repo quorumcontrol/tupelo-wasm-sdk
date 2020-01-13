@@ -38,12 +38,6 @@ interface IClientOptions {
     blockService: IBlockService,
 }
 
-interface IGetCurrentStateOptions {
-    blockService: IBlockService,
-    tip: CID,
-    did: string,
-}
-
 interface IWASMTransactionPayloadOpts {
     blockService: IBlockService
     tip: CID
@@ -80,7 +74,7 @@ class UnderlyingWasm {
     ecdsaPubkeyToAddress(pubKey: Uint8Array): Promise<string> {
         return new Promise<string>((res, rej) => { }) // replaced by wasm
     }
-    getCurrentState(opts: IGetCurrentStateOptions): Promise<Uint8Array> {
+    getTip(did:string): Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
     newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID> {
@@ -176,12 +170,12 @@ export namespace Tupelo {
         return tw.ecdsaPubkeyToAddress(pubKey)
     }
 
-    export async function getCurrentState(opts: IGetCurrentStateOptions): Promise<TreeState> {
+    export async function getTip(did:string): Promise<IProof> {
         logger("getCurrentState")
         const tw = await TupeloWasm.get()
         try {
-            let stateBits = await tw.getCurrentState(opts)
-            return TreeState.deserializeBinary(stateBits)
+            let stateBits = await tw.getTip(did)
+            return dagCBOR.util.deserialize(stateBits)
         } catch (err) {
             throw err
         }

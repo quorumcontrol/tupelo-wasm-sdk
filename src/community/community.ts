@@ -66,23 +66,19 @@ export class Community extends EventEmitter {
     }
 
 
-    /**
-     * getCurrentState returns the current state (signatures)
-     * for a given ChainTree (its DID)
-     * @public
-    */
-    async getCurrentState(did: string) {
-        await this.start()
-        await this.nextUpdate()
-        if (this.tip == undefined) {
-            throw new Error("tip still undefined, even though community started and update received")
-        }
-        return Tupelo.getCurrentState({
-            did: did,
-            blockService: this.blockservice,
-            tip: this.tip,
-        })
-    }
+    // /**
+    //  * getCurrentState returns the current state (signatures)
+    //  * for a given ChainTree (its DID)
+    //  * @public
+    // */
+    // async getCurrentState(did: string) {
+    //     await this.start()
+    //     await this.nextUpdate()
+    //     if (this.tip == undefined) {
+    //         throw new Error("tip still undefined, even though community started and update received")
+    //     }
+    //     return Tupelo.getTip(did)
+    // }
 
     /**
      * returns the TIP as a CID of the ChainTree. This is more of a convenience function 
@@ -90,8 +86,8 @@ export class Community extends EventEmitter {
      * @param did - The DID of the ChainTree
      */
     async getTip(did: string):Promise<CID> {
-        const state = await this.getCurrentState(did)
-        return new CID(Buffer.from(state.getNewTip_asU8()))
+        const state = await Tupelo.getTip(did)
+        return state.tip
     }
 
     async sendTokenAndGetPayload(tree: ChainTree, tx: Transaction) {
@@ -115,18 +111,22 @@ export class Community extends EventEmitter {
      * easier when using a fully community client
     */
     async playTransactions(tree: ChainTree, transactions: Transaction[]) {
-        return Tupelo.playTransactions(tree, transactions)
+        return await Tupelo.playTransactions(tree, transactions)
     }
 
     /** next update is a helper function
      * which lets you do an await until the next tip
      * update of the community
+     * @deprecated
     */
     async nextUpdate() {
-        let resolve: Function
-        const p = new Promise((res, _rej) => { resolve = res })
-        this.once('tip', () => { resolve() })
-        return p
+        //TODO: deprecated
+        // let resolve: Function
+        // const p = new Promise((res, _rej) => { resolve = res })
+        // this.once('tip', () => { resolve() })
+        return new Promise((res)=> {
+            setTimeout(res, 1000) //TODO: this is silly, no need for this function anymore
+        })
     }
 
     /**
@@ -143,23 +143,23 @@ export class Community extends EventEmitter {
             debugLog("bitswap started")
         })
 
-        if (this.node.isStarted()) {
-            try {
-                await this.subscribeToTips()
-            } catch (err) {
-                this._started = false
-                this._startPromiseReject(err)
-            }
-        } else {
-            this.node.once('start', async () => {
-                try {
-                    await this.subscribeToTips()
-                } catch (err) {
-                    this._started = false
-                    this._startPromiseReject(err)
-                }
-            })
-        }
+        // if (this.node.isStarted()) {
+        //     try {
+        //         await this.subscribeToTips()
+        //     } catch (err) {
+        //         this._started = false
+        //         this._startPromiseReject(err)
+        //     }
+        // } else {
+        //     this.node.once('start', async () => {
+        //         try {
+        //             await this.subscribeToTips()
+        //         } catch (err) {
+        //             this._started = false
+        //             this._startPromiseReject(err)
+        //         }
+        //     })
+        // }
 
         await Tupelo.startClient(this.node.pubsub, this.group, this.blockservice)
 
@@ -175,28 +175,28 @@ export class Community extends EventEmitter {
         this.node.stop()
     }
 
-    async subscribeToTips() {
-        let resolve: Function, reject: Function
-        const p = new Promise((res, rej) => { resolve = res, reject = rej })
+    // async subscribeToTips() {
+    //     let resolve: Function, reject: Function
+    //     const p = new Promise((res, rej) => { resolve = res, reject = rej })
 
-        this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg: IPubSubMessage) => {
-            if (msg.data.length > 0) {
-                this.tip = new CID(Buffer.from(msg.data))
-                this.emit('tip', this.tip)
-                debugLog("tip received: cid: ", this.tip, " raw: ", msg.data)
-            } else {
-                debugLog("received null tip")
-            }
+    //     this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg: IPubSubMessage) => {
+    //         if (msg.data.length > 0) {
+    //             this.tip = new CID(Buffer.from(msg.data))
+    //             this.emit('tip', this.tip)
+    //             debugLog("tip received: cid: ", this.tip, " raw: ", msg.data)
+    //         } else {
+    //             debugLog("received null tip")
+    //         }
 
-        }, (err: Error) => {
-            if (err) {
-                reject(err)
-                return
-            }
-            debugLog("subscribed to tips")
-            resolve()
-        })
-    }
+    //     }, (err: Error) => {
+    //         if (err) {
+    //             reject(err)
+    //             return
+    //         }
+    //         debugLog("subscribed to tips")
+    //         resolve()
+    //     })
+    // }
 
 }
 

@@ -41,15 +41,14 @@ describe('ChainTree', ()=> {
 
     it('resolves data', async ()=> {
       const key = await EcdsaKey.generate()
-      const repo = await testRepo()
-      const c = await Community.getDefault(repo)
+      const c = await Community.getDefault()
 
-      const tree = await ChainTree.newEmptyTree(new WrappedBlockService(new IpfsBlockService(repo.repo)), key)
+      const tree = await ChainTree.newEmptyTree(c.blockservice, key)
       expect(tree).to.exist
 
       await c.playTransactions(tree, [setDataTransaction("/path/to/somewhere", true)])
       const resp = tree.resolveData("/path/to/somewhere")
       expect((await resp).value).to.eql(true)
-    })
+    }).timeout(30000)
 
 })
