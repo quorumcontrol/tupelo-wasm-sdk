@@ -48,7 +48,7 @@ describe('Tupelo', () => {
     expect(addr).to.have.lengthOf(42)
   })
 
-  it('gets token payload', async () => {
+  it.skip('gets token payload', async () => {
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
     const c = await Community.getDefault()
@@ -86,15 +86,9 @@ describe('Tupelo', () => {
     return p
   }).timeout(10000)
 
-  it('starts a client', async ()=> {
-    const c = await Community.getDefault()
-    await Tupelo.startClient(c.node.pubsub, c.group, c.blockservice)
-  })
-
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
     const c = await Community.getDefault()
-    await Tupelo.startClient(c.node.pubsub, c.group, c.blockservice)
 
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
