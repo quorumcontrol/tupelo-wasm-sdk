@@ -48,7 +48,8 @@
     "pull-ws": "^3.3.2",
     "toml": "^3.0.0",
     "tupelo-messages": "^2.1.1",
-    "util": "^0.12.1"
+    "util": "^0.12.1",
+    "multicodec": "1.0.0"
   },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.6.0",
