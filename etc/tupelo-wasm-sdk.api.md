@@ -39,21 +39,19 @@ export class Community extends EventEmitter {
     bitswap: ICallbackBitswap;
     // (undocumented)
     blockservice: IBlockService;
-    getCurrentState(did: string): Promise<import("tupelo-messages/signatures/signatures_pb").TreeState>;
     getTip(did: string): Promise<CID_2>;
     // (undocumented)
     group: NotaryGroup_2;
+    // @deprecated
     nextUpdate(): Promise<unknown>;
     // (undocumented)
     node: IP2PNode;
-    playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/signatures/signatures_pb").TreeState>;
+    playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("../tupelo").IProof>;
     // (undocumented)
     sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
     // (undocumented)
     stop(): Promise<void>;
-    // (undocumented)
-    subscribeToTips(): Promise<void>;
     // (undocumented)
     tip?: CID_2;
     // (undocumented)
@@ -232,6 +230,12 @@ export interface IP2PNode {
     stop(): null;
 }
 
+// @public (undocumented)
+export interface IProof {
+    // (undocumented)
+    tip: CID_2;
+}
+
 // @public
 export interface IPubSub {
     // (undocumented)
@@ -337,12 +341,10 @@ export namespace Tupelo {
     export function ecdsaPubkeyToDid(pubKey: Uint8Array): Promise<string>;
     // (undocumented)
     export function generateKey(): Promise<Uint8Array[]>;
-    // Warning: (ae-forgotten-export) The symbol "IGetCurrentStateOptions" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    export function getCurrentState(opts: IGetCurrentStateOptions): Promise<TreeState>;
     // (undocumented)
     export function getSendableEnvelopeBytes(env: Envelope, key: EcdsaKey): Promise<Uint8Array>;
+    // (undocumented)
+    export function getTip(did: string): Promise<IProof>;
     // (undocumented)
     export function hashToShardNumber(topic: string, maxShards: number): Promise<number>;
     // (undocumented)
@@ -352,8 +354,10 @@ export namespace Tupelo {
     // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
-    export function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<TreeState>;
+    export function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<IProof>;
     export function signMessage(key: EcdsaKey, message: Uint8Array): Promise<Signature>;
+    // (undocumented)
+    export function startClient(pubsub: IPubSub, group: NotaryGroup, store: IBlockService): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
