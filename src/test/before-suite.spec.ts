@@ -10,6 +10,7 @@ const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 let beforePromise: Promise<boolean>
 
 Mocha.suiteSetup(()=> {
+  console.log("suiteSetup")
   if (beforePromise !== undefined) {
     return beforePromise;
   }
@@ -34,9 +35,10 @@ Mocha.suiteSetup(()=> {
 
     const tomlFile = path.join(__dirname, '../../localtupelo/configs/localdocker.toml')
     tomlConfig = fs.readFileSync(tomlFile).toString()
-
+    console.log("setting up community")
     const testCommunity = await Community.fromNotaryGroupToml(tomlConfig, repo)
     Community.setDefault(testCommunity)
+    console.log("suiteSetup done")
     res(true)
   })
   return beforePromise
