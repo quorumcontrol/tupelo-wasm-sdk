@@ -18,8 +18,8 @@
   },
   "homepage": "https://github.com/quorumcontrol/tupelo-wasm-sdk#readme",
   "dependencies": {
-    "tupelo-wasm-sdk": "latest",
-    "multicodec": "1.0.0"
+    "multicodec": "^0.5.6",
+    "tupelo-wasm-sdk": "latest"
   },
   "devDependencies": {
     "ts-node": "^8.3.0",

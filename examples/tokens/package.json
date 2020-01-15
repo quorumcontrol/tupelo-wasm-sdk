@@ -9,10 +9,10 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
+    "multicodec": "^0.5.6",
     "ts-node": "^8.3.0",
     "tupelo-wasm-sdk": "latest",
     "typescript": "^3.5.3",
-    "uuid": "^3.3.2",
-    "multicodec": "1.0.0"
+    "uuid": "^3.3.2"
   }
 }
