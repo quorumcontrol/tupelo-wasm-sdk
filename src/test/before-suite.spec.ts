@@ -9,6 +9,8 @@ const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 let beforePromise:Promise<boolean>
 
 before(() => {
+  this.timeout(20000)
+
   if (beforePromise !== undefined) {
     return beforePromise;
   }  
