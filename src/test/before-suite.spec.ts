@@ -31,7 +31,7 @@ before(() => {
       if (fs.existsSync("/tupelo-local/config/notarygroup.toml")) {
         tomlFile = '/tupelo-local/config/notarygroup.toml'
       } else {
-        tomlFile = path.join(__dirname, 'notarygroup.toml')
+        tomlFile = path.join(__dirname, '../../localtupelo/configs/localdocker.toml')
       }
   
       tomlConfig = fs.readFileSync(tomlFile).toString()

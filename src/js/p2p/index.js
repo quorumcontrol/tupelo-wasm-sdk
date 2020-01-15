@@ -28,7 +28,7 @@ class TupeloP2P extends libp2p {
         blackListAttempts: 5, // back off 5 times
         maxParallelDials: 100,
         maxColdCalls: 25,
-        dialTimeout: 20e3
+        dialTimeout: 2000,
       },
       modules: {
         transport: [
@@ -52,6 +52,7 @@ class TupeloP2P extends libp2p {
         peerDiscovery: {
           autoDial: true,
           bootstrap: {
+            interval: 5000,
             enabled: true,
           }
         },
@@ -73,6 +74,12 @@ class TupeloP2P extends libp2p {
 
     super(mergeOptions(defaults, _options))
     routingDiscoverer.node = this;
+    this.on('error', (err) => {
+      log("node error: ", err)
+    })
+    this.on('peer:discovery', (peer) => {
+      log("discovered addresses: ", peer.multiaddrs.toArray().map((ma)=> {return ma.toOptions()}))
+    })
     this.once('peer:connect', () => {
       log("first peer:connect")
       routingDiscoverer.start(() => {
@@ -81,7 +88,7 @@ class TupeloP2P extends libp2p {
     })
     this.once('stop', ()=> {
       routingDiscoverer.stop(()=> {
-        log("routing stopped");
+        log("routing stopped", this.peerID);
       })
     })
    
@@ -92,6 +99,7 @@ class TupeloP2P extends libp2p {
 module.exports.TupeloP2P = TupeloP2P
 
 module.exports.CreateNode = async function(options) {
+  log("CreateNode: ", options)
   if (!options) {
     options = {};
   }

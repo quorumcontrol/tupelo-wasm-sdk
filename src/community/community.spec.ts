@@ -250,7 +250,7 @@ describe('Community', () => {
     await repo.init({})
     await repo.open()
 
-    const c = await Community.fromNotaryGroupToml(fs.readFileSync(path.join(__dirname, '../test/notarygroup.toml')).toString(), repo)
+    const c = await Community.fromNotaryGroupToml(fs.readFileSync(path.join(__dirname, '../../localtupelo/configs/localdocker.toml')).toString(), repo)
     expect(c.group.getId()).to.equal('tupelolocal')
   })
 
