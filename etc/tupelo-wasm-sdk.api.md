@@ -355,6 +355,8 @@ export namespace Tupelo {
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
     export function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<IProof>;
+    // (undocumented)
+    export function setLogLevel(name: string, level: string): Promise<void>;
     export function signMessage(key: EcdsaKey, message: Uint8Array): Promise<Signature>;
     // (undocumented)
     export function startClient(pubsub: IPubSub, group: NotaryGroup, store: IBlockService): Promise<void>;
