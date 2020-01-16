@@ -104,6 +104,9 @@ class UnderlyingWasm {
     verifyMessage(addr: string, message: Uint8Array, sigBits: Uint8Array): Promise<boolean> {
         return new Promise<boolean>((res, rej) => { }) // replaced by wasm
     }
+    setLogLevel(name:string, level:string):void {
+        return // replaced by wasm
+    }
 }
 
 namespace TupeloWasm {
@@ -300,6 +303,11 @@ export namespace Tupelo {
         const proof = dagCBOR.util.deserialize(resp)
         tree.tip = proof.tip
         return proof
+    }
+
+    export async function setLogLevel(name:string, level:string): Promise<void> {
+        const tw = await TupeloWasm.get()
+        return tw.setLogLevel(name, level)
     }
 }
 
