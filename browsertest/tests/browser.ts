@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { Community, EcdsaKey, p2p, Repo, configToNotaryGroup, toCamel, setDataTransaction, ChainTree } from 'tupelo-wasm-sdk'
 
-import notaryGroupConfig from '../../src/test/notarygroup.toml' // parcel does this magic for us
+import notaryGroupConfig from '../../localtupelo/configs/localdocker.toml' // parcel does this magic for us
 
 declare const Go: any;
 
