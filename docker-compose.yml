@@ -10,6 +10,7 @@ services:
         ipv4_address: 172.16.238.10
     ports:
       - "34001:34001"
+      - "50000:50000"
       
   node0:
     depends_on: 
@@ -23,7 +24,7 @@ services:
       default:
         ipv4_address: 172.16.238.11  
     ports:
-      - "50000:50000"  
+      - "50001:50001"  
 
   node1:
     depends_on: 

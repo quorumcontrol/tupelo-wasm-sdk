@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { Community, EcdsaKey, p2p, Repo, configToNotaryGroup, toCamel, setDataTransaction, ChainTree } from 'tupelo-wasm-sdk'
+import { Community, EcdsaKey, p2p, Repo, configToNotaryGroup, toCamel, setDataTransaction, ChainTree, Tupelo } from 'tupelo-wasm-sdk'
 
 import notaryGroupConfig from '../../localtupelo/configs/localdocker.toml' // parcel does this magic for us
 
@@ -15,13 +15,12 @@ describe("browser", () => {
                 const config = toCamel(toCamel(notaryGroupConfig))
                 let newBoostrap:string[] = []
                 config.bootstrapAddresses.forEach((addr:string) => {
-                    if (addr.includes("127.0.0.1")) {
+                    if (addr.includes("127.0.0.1") && addr.includes("/ws/")) {
                         newBoostrap.push(addr)
                     }
                 })
 
                 config.bootstrapAddresses = newBoostrap
-                console.log("configuring browser notary group with: ", config)
                 const ng = configToNotaryGroup(config)  
                 const node = await p2p.createNode({ bootstrapAddresses: ng.getBootstrapAddressesList() });
                 const repo = new Repo(ng.getId())
@@ -35,6 +34,7 @@ describe("browser", () => {
 
                 node.start(async () => {
                     await c.start()
+                    console.log("community start")
                     Community.setDefault(c)
                     res()
                 })
@@ -55,8 +55,10 @@ describe("browser", () => {
             const trans = [setDataTransaction("/test", "oh really")]
             const key = await EcdsaKey.generate()
             const tree = await ChainTree.newEmptyTree(c.blockservice, key)
+            console.log("playing transactions")
+            await Tupelo.setLogLevel("*", "debug")
             c.playTransactions(tree, trans).then((resp) => {
-                expect(resp.getSignature).to.exist
+                expect(resp.tip).to.exist
                 resolve()
             }, (err) => {
                 console.error("error playing transactions")
@@ -64,7 +66,7 @@ describe("browser", () => {
             })
         })
         return p
-    }).timeout(5000)
+    }).timeout(20000)
 
     it('can resolve trees', async ()=> {
 
@@ -74,9 +76,8 @@ describe("browser", () => {
             const key = await EcdsaKey.generate()
             const tree = await ChainTree.newEmptyTree(c.blockservice, key)
             c.playTransactions(tree, trans).then(async (resp) => {
-                expect(resp.getSignature).to.exist
+                expect(resp.tip).to.exist
                 const id = await tree.id()
-                await c.nextUpdate()
 
                 const respTip = await c.getTip(id)
                 expect(respTip.toString()).to.equal(tree.tip.toString())
@@ -92,6 +93,6 @@ describe("browser", () => {
             })
         })
         return p
-    })
+    }).timeout(20000)
 
 })
