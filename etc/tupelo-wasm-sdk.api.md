@@ -36,7 +36,7 @@ export class Community extends EventEmitter {
     // Warning: (ae-forgotten-export) The symbol "IRepo" needs to be exported by the entry point index.d.ts
     constructor(node: IP2PNode, group: NotaryGroup_2, repo: IRepo);
     // (undocumented)
-    bitswap: ICallbackBitswap;
+    bitswap: any;
     // (undocumented)
     blockservice: IBlockService;
     getTip(did: string): Promise<CID_2>;
@@ -159,32 +159,6 @@ export interface IBlockService {
 }
 
 // @public
-export interface ICallbackBitswap {
-    // (undocumented)
-    get(cid: CID_2, cb: Function): void;
-    // (undocumented)
-    getMany(cids: CID_2[], callback: Function): void;
-    // (undocumented)
-    getWantlist(): any;
-    // (undocumented)
-    ledgerForPeer(peerId: any): Object;
-    // (undocumented)
-    peers(): any;
-    // (undocumented)
-    put(block: IBlock, cb: Function): void;
-    // (undocumented)
-    putMany(blocks: IBlock[], callback: Function): void;
-    // (undocumented)
-    start(cb: Function): void;
-    // (undocumented)
-    stat(): any;
-    // (undocumented)
-    stop(cb: Function): void;
-    // (undocumented)
-    wantlistForPeer(peerID: any): any;
-}
-
-// @public
 export interface IChainTreeInitializer {
     // (undocumented)
     key?: EcdsaKey;
@@ -291,17 +265,17 @@ export const receiveTokenTransactionFromPayload: (payload: TokenPayload) => Tran
 export class Repo {
     constructor(name: string, opts?: RepoOpts);
     // (undocumented)
-    close(): Promise<any>;
+    close(): any;
     // (undocumented)
-    get(key: IKey): Promise<any>;
+    get(key: IKey): any;
     // (undocumented)
-    init(opts: any): Promise<any>;
+    init(opts: any): any;
     // (undocumented)
-    open(): Promise<any>;
+    open(): any;
     // Warning: (ae-forgotten-export) The symbol "IKey" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    put(key: IKey, val: Uint8Array): Promise<any>;
+    put(key: IKey, val: Uint8Array): any;
     // (undocumented)
     query(query: IQuery): any;
     // (undocumented)
@@ -366,35 +340,6 @@ export namespace Tupelo {
     export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
     export function verifyCurrentState(notaryGroup: NotaryGroup, state: TreeState): Promise<boolean>;
     export function verifyMessage(address: string, message: Uint8Array, signature: Signature): Promise<boolean>;
-}
-
-// @public
-export class WrappedBitswap {
-    constructor(bitswap: ICallbackBitswap);
-    // (undocumented)
-    delete(cid: CID_2): Promise<unknown>;
-    // (undocumented)
-    get(cid: CID_2): Promise<IBlock>;
-    // (undocumented)
-    getMany(cids: CID_2[]): Promise<unknown>;
-    // (undocumented)
-    getWantlist(): any;
-    // (undocumented)
-    ledgerForPeer(peerID: any): Object;
-    // (undocumented)
-    peers(): any;
-    // (undocumented)
-    put(block: IBlock): Promise<any>;
-    // (undocumented)
-    putMany(blocks: IBlock[]): Promise<unknown>;
-    // (undocumented)
-    start(): () => Promise<unknown>;
-    // (undocumented)
-    stat(): any;
-    // (undocumented)
-    stop(): () => Promise<unknown>;
-    // (undocumented)
-    wantlistForPeer(peerID: any): any;
 }
 
 // @public

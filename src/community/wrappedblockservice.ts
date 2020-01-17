@@ -3,9 +3,9 @@ import CID from 'cids'
 import util from 'util'
 
 interface ICallbackBlockService {
-    put(block:IBlock, cb:Function):void
-    get(cid:CID, cb:Function):void
-    delete(cid:CID, cb:Function):void
+    put(block:IBlock):Promise<any>
+    get(cid:CID):Promise<IBlock>
+    delete(cid:CID):Promise<any>
     setExchange(bitswap:IBitSwap):void
     unsetExchange():void
     hasExchange():boolean
@@ -24,15 +24,15 @@ export class WrappedBlockService implements IBlockService {
     }
 
     put(block:IBlock):Promise<any> {
-        return util.promisify(this.blockservice.put.bind(this.blockservice))(block)
+        return this.blockservice.put(block)
     }
     
     get(cid:CID):Promise<IBlock> {
-        return util.promisify(this.blockservice.get.bind(this.blockservice))(cid) as Promise<IBlock>
+        return this.blockservice.get(cid)
     }
 
     delete(cid:CID):Promise<any> {
-        return util.promisify(this.blockservice.delete.bind(this.blockservice))(cid)
+        return this.blockservice.delete(cid)
     }
 
     setExchange(bitswap:IBitSwap) {

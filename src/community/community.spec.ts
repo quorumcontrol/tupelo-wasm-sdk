@@ -11,11 +11,7 @@ import CID from 'cids';
 import Repo from '../repo'
 import { EcdsaKey } from '../crypto';
 import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction, receiveTokenTransactionFromPayload } from '../chaintree/chaintree';
-import { Transaction, SetDataPayload } from 'tupelo-messages/transactions/transactions_pb';
-import Tupelo from '../tupelo';
 import debug from 'debug';
-import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
-import { tomlToNotaryGroup } from '../notarygroup';
 
 const log = debug("communityspec")
 
@@ -28,7 +24,7 @@ describe('Community', () => {
 
   it('works with a repo', async () => {
 
-    const repo = new Repo('test', {
+    const repo = new Repo('community-test', {
       lock: 'memory',
       storageBackends: {
         root: MemoryDatastore,
@@ -88,9 +84,7 @@ describe('Community', () => {
       if (id == null) {
         throw new Error("error getting id")
       }
-      console.log("playing transaction")
       await c.playTransactions(tree, [setDataTransaction("/hi", "hihi")])
-      console.log("after play transactions")
 
       const recursiveGetTip = ():Promise<CID> => {
         return new Promise(async (res,rej)=> {
@@ -102,7 +96,6 @@ describe('Community', () => {
             return
           } catch(e) {
             if (e == 'not found') {
-              console.log('not found')
               const tip = await recursiveGetTip()
               res(tip)
               return
@@ -238,7 +231,7 @@ describe('Community', () => {
   }).timeout(10000)
 
   it('can create a community from a toml config', async ()=> {
-    const repo = new Repo('test', {
+    const repo = new Repo('community-test-toml-config', {
       lock: 'memory',
       storageBackends: {
         root: MemoryDatastore,
@@ -252,6 +245,7 @@ describe('Community', () => {
 
     const c = await Community.fromNotaryGroupToml(fs.readFileSync(path.join(__dirname, '../../localtupelo/configs/localdocker.toml')).toString(), repo)
     expect(c.group.getId()).to.equal('tupelolocal')
+    repo.close()
   })
 
 })
