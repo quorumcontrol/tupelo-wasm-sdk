@@ -13,7 +13,7 @@ const MemoryDatastore:any = require('interface-datastore').MemoryDatastore;
 
 
 const testRepo = async () => {
-    const repo = new Repo('test', {
+    const repo = new Repo('chaintree-test', {
       lock: 'memory',
       storageBackends: {
         root: MemoryDatastore,

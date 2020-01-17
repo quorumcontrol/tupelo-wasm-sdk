@@ -135,8 +135,6 @@ export class Dag {
     }
     // nothing was resolvable, return full path as the remainder
     if (typeof lastVal === 'undefined') {
-      console.log("nothing was resolvable")
-
       return {remainderPath: strPath.split('/'), value: null}
     }
   

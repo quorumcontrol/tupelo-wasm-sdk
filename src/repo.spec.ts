@@ -8,7 +8,7 @@ const Key = require("interface-datastore").Key
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
 const testRepo = async () => {
-  const repo = new Repo('test', {
+  const repo = new Repo('repo-test', {
     lock: 'memory',
     storageBackends: {
       root: MemoryDatastore,

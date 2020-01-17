@@ -4,7 +4,6 @@ import { NotaryGroup } from 'tupelo-messages';
 import { Transaction } from 'tupelo-messages/transactions/transactions_pb'
 import CID from 'cids';
 import { IBlockService } from '../chaintree/dag/dag'
-import { ICallbackBitswap } from './wrappedbitswap'
 import { WrappedBlockService } from './wrappedblockservice'
 import Tupelo from '../tupelo';
 import { ChainTree } from '../chaintree';
@@ -39,7 +38,7 @@ export class Community extends EventEmitter {
     group: NotaryGroup
     tip?: CID
     private repo: IRepo
-    bitswap: ICallbackBitswap
+    bitswap: any
     blockservice: IBlockService
 
     private _started: boolean
@@ -235,6 +234,7 @@ export namespace Community {
             const ng = tomlToNotaryGroup(tomlString)
             try {
                 const node = await p2p.createNode({ bootstrapAddresses: ng.getBootstrapAddressesList() });
+
                 if (repo == undefined) {
                     repo = new Repo(ng.getId())
                     try {
@@ -244,8 +244,8 @@ export namespace Community {
                         rej(e)
                     }
                 }
-                const c = new Community(node, ng, repo.repo)
 
+                const c = new Community(node, ng, repo.repo)
                 node.start(async ()=>{
                     res(await c.start())
                 })

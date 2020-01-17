@@ -56,7 +56,6 @@ const log = require('debug')('gowasm');
                 outputBuf += decoder.decode(buf);
                 const nl = outputBuf.lastIndexOf("\n");
                 if (nl != -1) {
-                    console.log(outputBuf.substr(0, nl));
                     outputBuf = outputBuf.substr(nl + 1);
                 }
                 return buf.length;

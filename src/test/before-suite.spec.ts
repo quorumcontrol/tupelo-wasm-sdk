@@ -4,17 +4,21 @@ import fs from 'fs';
 import path from 'path';
 import { Community } from '../community';
 import Repo from '../repo';
+import debug from 'debug'
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
+
+var log = debug("beforesuite")
 
 // we only want to set the default *once* and not every time, so use a promise
 let beforePromise: Promise<boolean>
 
 Mocha.suiteSetup(()=> {
-  console.log("suiteSetup")
+  log("suiteSetup")
   if (beforePromise !== undefined) {
     return beforePromise;
   }
   beforePromise = new Promise(async (res, rej) => {
+    log("setting up default community")
     const repo = new Repo('test', {
       lock: 'memory',
       storageBackends: {
@@ -35,10 +39,11 @@ Mocha.suiteSetup(()=> {
 
     const tomlFile = path.join(__dirname, '../../localtupelo/configs/localdocker.toml')
     tomlConfig = fs.readFileSync(tomlFile).toString()
-    console.log("setting up community")
+    log("setting up community")
+
     const testCommunity = await Community.fromNotaryGroupToml(tomlConfig, repo)
     Community.setDefault(testCommunity)
-    console.log("suiteSetup done")
+    log("suiteSetup done")
     res(true)
   })
   return beforePromise

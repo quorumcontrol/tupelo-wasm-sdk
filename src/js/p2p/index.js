@@ -103,30 +103,25 @@ module.exports.CreateNode = async function(options) {
   if (!options) {
     options = {};
   }
-  let resolve, reject;
-  const p = new Promise((res,rej) => {
-      resolve = res;
-      reject = rej;
-  });
-  crypto.generateKeyPair('secp256k1', async (err, key) => {
-    if (err) {
+  return new Promise(async (resolve,reject) => {
+    try {
+      const key = await crypto.generateKeyPair('secp256k1')
+      const peerID = await util.promisify(PeerId.createFromPrivKey)(key.bytes)
+      const peerInfo = new PeerInfo(peerID);
+      if (isNodeJS) {
+        // nodejs requires that you listen to the address to be able
+        // to dial it, the browser *can't* listen to an address.
+        peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/ws')
+        peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/wss')
+        peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0')
+      }
+      options.peerInfo = peerInfo;
+      const node = new TupeloP2P(options);
+      log("peerIdStr ", peerID.toB58String());
+      resolve(node);
+    } catch(err) {
       console.error("error generating key pair ", err);
       reject(err);
     }
-
-    const peerID = await util.promisify(PeerId.createFromPrivKey)(key.bytes)
-    const peerInfo = new PeerInfo(peerID);
-    if (isNodeJS) {
-      // nodejs requires that you listen to the address to be able
-      // to dial it, the browser *can't* listen to an address.
-      peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/ws')
-      peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/wss')
-      peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0')
-    }
-    options.peerInfo = peerInfo;
-    const node = new TupeloP2P(options);
-    log("peerIdStr ", peerID.toB58String());
-    resolve(node);
-  })
-  return p;
+  });
 }

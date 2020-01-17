@@ -45,24 +45,24 @@ export class Repo {
         this.repo = new IpfsRepo(name, opts)
     }
 
-    async init(opts:any) {
-        return util.promisify(this.repo.init.bind(this.repo))(opts)
+    init(opts:any) {
+        return this.repo.init(opts)
     }
 
-    async open() {
-        return util.promisify(this.repo.open.bind(this.repo))()
+    open() {
+        return this.repo.open()
     }
 
-    async close() {
-        return util.promisify(this.repo.close.bind(this.repo))()
+    close() {
+        return this.repo.close()
     }
 
-    async put(key:IKey, val:Uint8Array) {
-        return util.promisify(this.repo.datastore.put.bind(this.repo.datastore))(key,val)
+    put(key:IKey, val:Uint8Array) {
+        return this.repo.datastore.put(key,val)
     }
 
-    async get(key:IKey) {
-        return util.promisify(this.repo.datastore.get.bind(this.repo.datastore))(key)
+    get(key:IKey) {
+        return this.repo.datastore.get(key)
     }
 
     query(query:IQuery) {

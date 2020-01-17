@@ -13,7 +13,7 @@ const multicodec = require('multicodec')
 
 
 const testRepo = async () => {
-    const repo = new Repo('test', {
+    const repo = new Repo('dag-test', {
       lock: 'memory',
       storageBackends: {
         root: MemoryDatastore,
