@@ -55,7 +55,7 @@ interface ITransactionPayloadOpts {
 }
 
 export interface IProof {
-    tip: CID
+    tip: Uint8Array
 }
 
 class UnderlyingWasm {
@@ -301,7 +301,7 @@ export namespace Tupelo {
         })
 
         const proof = dagCBOR.util.deserialize(resp)
-        tree.tip = proof.tip
+        tree.tip = new CID(Buffer.from(proof.tip))
         return proof
     }
 

@@ -65,20 +65,6 @@ export namespace Community {
     export function setDefault(community: Community): void;
 }
 
-// @beta
-export class CommunityMessenger {
-    constructor(name: string, shards: number, key: EcdsaKey, localIdentifier: Uint8Array, pubsub: IPubSub);
-    // (undocumented)
-    localIdentifier: Uint8Array;
-    // (undocumented)
-    name: string;
-    // (undocumented)
-    publish(topic: string, payload: Uint8Array): Promise<unknown>;
-    // (undocumented)
-    subscribe(topic: string, subscriber: Function): Promise<unknown>;
-    unsubscribe(topic: string, subscriber: Function): Promise<unknown>;
-}
-
 // Warning: (ae-forgotten-export) The symbol "INotaryGroupCreator" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -207,7 +193,7 @@ export interface IP2PNode {
 // @public (undocumented)
 export interface IProof {
     // (undocumented)
-    tip: CID_2;
+    tip: Uint8Array;
 }
 
 // @public

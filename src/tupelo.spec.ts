@@ -121,25 +121,6 @@ describe('Tupelo', () => {
     return p
   }).timeout(30000)
 
-  it('gets envelope bits', async () => {
-    const key = await EcdsaKey.generate()
-
-    const topic = "alongertopicworks"
-
-    const env = new Envelope()
-    env.setFrom("from")
-    env.setPayload(Buffer.from("test"))
-    env.setTopicsList([Buffer.from(topic)])
-
-    const bits = await Tupelo.getSendableEnvelopeBytes(env, key)
-
-    const any = Any.deserializeBinary(bits)
-    const reconstitituted = Envelope.deserializeBinary(any.getValue_asU8())
-    expect(reconstitituted.getFrom_asB64()).to.equal(env.getFrom_asB64())
-
-    expect(Buffer.from(reconstitituted.getTopicsList_asU8()[0]).toString()).to.equal(topic)
-  })
-
   // it('verifies a returned current state', async ()=> {
   //   const c = await Community.getDefault()
 

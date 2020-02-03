@@ -1,7 +1,7 @@
 version: "3"
 services:
   bootstrap:
-    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-g4-token-proofs}
     command: ["bootstrap-node", "--config", "/configs/bootstrap/config.toml", "-L", "${TUPELO_LOG_LEVEL:-info}"]
     volumes:
       - ./localtupelo/configs:/configs      
@@ -15,7 +15,7 @@ services:
   node0:
     depends_on: 
       - bootstrap
-    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-g4-token-proofs}
     volumes:
       - ./localtupelo/configs:/configs      
     command: ["node", "--config", "/configs/node0/config.toml",
@@ -29,7 +29,7 @@ services:
   node1:
     depends_on: 
       - bootstrap
-    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-g4-token-proofs}
     volumes:
       - ./localtupelo/configs:/configs      
     command: ["node", "--config", "/configs/node1/config.toml",
@@ -38,7 +38,7 @@ services:
   node2:
     depends_on: 
       - bootstrap
-    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-g4-token-proofs}
     volumes:
       - ./localtupelo/configs:/configs      
     command: ["node", "--config", "/configs/node2/config.toml",

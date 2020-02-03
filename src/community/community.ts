@@ -86,7 +86,7 @@ export class Community extends EventEmitter {
      */
     async getTip(did: string):Promise<CID> {
         const state = await Tupelo.getTip(did)
-        return state.tip
+        return new CID(Buffer.from(state.tip))
     }
 
     async sendTokenAndGetPayload(tree: ChainTree, tx: Transaction) {
