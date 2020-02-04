@@ -10,11 +10,10 @@ import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
 import OldCId from 'cids';
-import { Signature } from 'tupelo-messages/signatures/signatures_pb';
+import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
-import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
 
 // @public
 export class ChainTree extends Dag {
@@ -46,7 +45,7 @@ export class Community extends EventEmitter {
     nextUpdate(): Promise<unknown>;
     // (undocumented)
     node: IP2PNode;
-    playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("../tupelo").IProof>;
+    playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/gossip/gossip_pb").Proof>;
     // (undocumented)
     sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
@@ -100,9 +99,7 @@ export class EcdsaKey {
     privateKey?: Uint8Array;
     // (undocumented)
     publicKey: Uint8Array;
-    signMessage(msg: Uint8Array): Promise<Signature>;
     toDid(): Promise<string>;
-    verifyMessage(msg: Uint8Array, sig: Signature): Promise<boolean>;
 }
 
 // @public
@@ -190,12 +187,6 @@ export interface IP2PNode {
     stop(): null;
 }
 
-// @public (undocumented)
-export interface IProof {
-    // (undocumented)
-    tip: Uint8Array;
-}
-
 // @public
 export interface IPubSub {
     // (undocumented)
@@ -242,7 +233,7 @@ export namespace p2p {
 }
 
 // @public (undocumented)
-export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, treeState: TreeState, leaves: Uint8Array[]) => Transaction_2;
+export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, proof: Proof, leaves: Uint8Array[]) => Transaction_2;
 
 // @public
 export const receiveTokenTransactionFromPayload: (payload: TokenPayload) => Transaction_2;
@@ -304,7 +295,7 @@ export namespace Tupelo {
     // (undocumented)
     export function getSendableEnvelopeBytes(env: Envelope, key: EcdsaKey): Promise<Uint8Array>;
     // (undocumented)
-    export function getTip(did: string): Promise<IProof>;
+    export function getTip(did: string): Promise<Proof>;
     // (undocumented)
     export function hashToShardNumber(topic: string, maxShards: number): Promise<number>;
     // (undocumented)
@@ -314,18 +305,14 @@ export namespace Tupelo {
     // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
-    export function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<IProof>;
+    export function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<Proof>;
     // (undocumented)
     export function setLogLevel(name: string, level: string): Promise<void>;
-    export function signMessage(key: EcdsaKey, message: Uint8Array): Promise<Signature>;
     // (undocumented)
     export function startClient(pubsub: IPubSub, group: NotaryGroup, store: IBlockService): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
     export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
-    export function verifyCurrentState(notaryGroup: NotaryGroup, state: TreeState): Promise<boolean>;
-    export function verifyMessage(address: string, message: Uint8Array, signature: Signature): Promise<boolean>;
+    export function verifyProof(proof: Proof): Promise<boolean>;
 }
 
 // @public

@@ -86,7 +86,7 @@ export class Community extends EventEmitter {
      */
     async getTip(did: string):Promise<CID> {
         const state = await Tupelo.getTip(did)
-        return new CID(Buffer.from(state.tip))
+        return new CID(Buffer.from(state.getTip_asU8()))
     }
 
     async sendTokenAndGetPayload(tree: ChainTree, tx: Transaction) {
@@ -95,13 +95,13 @@ export class Community extends EventEmitter {
             throw new Error("must use a send token transaction here")
         }
 
-        const resp = await this.playTransactions(tree, [tx])
+        const proof = await this.playTransactions(tree, [tx])
         return Tupelo.tokenPayloadForTransaction({
             blockService: this.blockservice,
             tip: tree.tip,
             tokenName: sendTokenPayload.getName(),
             sendId: sendTokenPayload.getId(),
-            proof: resp,
+            proof: proof,
         })
     }
 
@@ -110,6 +110,7 @@ export class Community extends EventEmitter {
      * easier when using a fully community client
     */
     async playTransactions(tree: ChainTree, transactions: Transaction[]) {
+        console.log("play transactions: ", transactions[0].toObject())
         return await Tupelo.playTransactions(tree, transactions)
     }
 

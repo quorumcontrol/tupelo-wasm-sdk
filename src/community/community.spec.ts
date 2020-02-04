@@ -12,6 +12,7 @@ import Repo from '../repo'
 import { EcdsaKey } from '../crypto';
 import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction, receiveTokenTransactionFromPayload } from '../chaintree/chaintree';
 import debug from 'debug';
+import Tupelo from '../tupelo';
 
 const log = debug("communityspec")
 
@@ -186,7 +187,7 @@ describe('Community', () => {
       const key = await EcdsaKey.generate()
       const tree = await ChainTree.newEmptyTree(c.blockservice, key)
       c.playTransactions(tree, trans).then((proof) => {
-        expect(proof.tip).to.exist
+        expect(proof.getTip_asU8()).to.exist
         resolve()
       }, (err) => {
         reject(err)
@@ -195,7 +196,7 @@ describe('Community', () => {
     return p
   }).timeout(20000)
 
-  it.skip('sends token and gets payload', async () => {
+  it('sends token and gets payload', async () => {
 
     const c = await Community.getDefault()
     const p = new Promise(async (resolve, reject) => {
@@ -218,6 +219,14 @@ describe('Community', () => {
 
       const sendId = "anewsendid"
       const payload = await c.sendTokenAndGetPayload(senderTree, sendTokenTransaction(sendId, senderid + ":" + tokenName, 5, receiverId))
+      // console.log("send payload: ", payload.toObject())
+      const proof = payload.getProof()
+      if (proof == undefined) {
+        throw new Error("undefined proof")
+      }
+      const isValid = await Tupelo.verifyProof(proof)
+      expect(isValid).to.be.true
+      console.log("valid proof: ", isValid)
 
       // now lets use that payload to do a receive
       c.playTransactions(receiverTree, [receiveTokenTransactionFromPayload(payload)]).then((resp) => {

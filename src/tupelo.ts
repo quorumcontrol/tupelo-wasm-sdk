@@ -5,9 +5,10 @@ import CID from 'cids';
 const go = require('./js/go')
 import { Transaction, Envelope } from 'tupelo-messages'
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb'
-import { IBlockService, IBlock } from './chaintree/dag/dag'
+import { IBlockService } from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
-import { TreeState, Signature } from 'tupelo-messages/signatures/signatures_pb';
+import { Proof } from 'tupelo-messages/gossip/gossip_pb';
+import { Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import debug from 'debug'
 import { EcdsaKey } from './crypto';
@@ -43,7 +44,7 @@ interface IWASMTransactionPayloadOpts {
     tip: CID
     tokenName: string
     sendId: string
-    jsSendTxState: Uint8Array
+    jsSendTxProof: Uint8Array
 }
 
 interface ITransactionPayloadOpts {
@@ -51,11 +52,7 @@ interface ITransactionPayloadOpts {
     tip: CID
     tokenName: string
     sendId: string
-    proof: IProof
-}
-
-export interface IProof {
-    tip: Uint8Array
+    proof: Proof
 }
 
 class UnderlyingWasm {
@@ -95,15 +92,15 @@ class UnderlyingWasm {
     getSendableEnvelopeBytes(envelopeBytes: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
-    verifyCurrentState(notaryGroupBytes: Uint8Array, currStateBytes: Uint8Array): Promise<boolean> {
+    verifyProof(proofBytes: Uint8Array): Promise<boolean> {
         return new Promise<boolean>((res, rej) => { }) // replaced by wasm
     }
-    signMessage(privateKey: Uint8Array, message: Uint8Array): Promise<Uint8Array> {
-        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
-    }
-    verifyMessage(addr: string, message: Uint8Array, sigBits: Uint8Array): Promise<boolean> {
-        return new Promise<boolean>((res, rej) => { }) // replaced by wasm
-    }
+    // signMessage(privateKey: Uint8Array, message: Uint8Array): Promise<Uint8Array> {
+    //     return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    // }
+    // verifyMessage(addr: string, message: Uint8Array, sigBits: Uint8Array): Promise<boolean> {
+    //     return new Promise<boolean>((res, rej) => { }) // replaced by wasm
+    // }
     setLogLevel(name:string, level:string):void {
         return // replaced by wasm
     }
@@ -173,12 +170,12 @@ export namespace Tupelo {
         return tw.ecdsaPubkeyToAddress(pubKey)
     }
 
-    export async function getTip(did:string): Promise<IProof> {
+    export async function getTip(did:string): Promise<Proof> {
         logger("getCurrentState")
         const tw = await TupeloWasm.get()
         try {
             let stateBits = await tw.getTip(did)
-            return dagCBOR.util.deserialize(stateBits)
+            return Proof.deserializeBinary(stateBits)
         } catch (err) {
             throw err
         }
@@ -198,18 +195,18 @@ export namespace Tupelo {
      * @param message - the message to sign (arbitrary Uint8Arry/Buffer of bytes)
      * @public
      */
-    export async function signMessage(key: EcdsaKey, message: Uint8Array): Promise<Signature> {
-        if (key.privateKey === undefined) {
-            throw new Error("key must contain a privat key to sign messages")
-        }
-        const tw = await TupeloWasm.get()
-        try {
-            const sigBits = await tw.signMessage(key.privateKey, message)
-            return Signature.deserializeBinary(sigBits)
-        } catch (e) {
-            throw e
-        }
-    }
+    // export async function signMessage(key: EcdsaKey, message: Uint8Array): Promise<Signature> {
+    //     if (key.privateKey === undefined) {
+    //         throw new Error("key must contain a privat key to sign messages")
+    //     }
+    //     const tw = await TupeloWasm.get()
+    //     try {
+    //         const sigBits = await tw.signMessage(key.privateKey, message)
+    //         return Signature.deserializeBinary(sigBits)
+    //     } catch (e) {
+    //         throw e
+    //     }
+    // }
 
     /**
      * verifyMessage is the recipricol of {@link signMessage}, it verifies that a signature is valid.
@@ -218,14 +215,14 @@ export namespace Tupelo {
      * @param signature - the {@link Signature} object to verify
      * @public
      */
-    export async function verifyMessage(address: string, message: Uint8Array, signature: Signature): Promise<boolean> {
-        const tw = await TupeloWasm.get()
-        try {
-            return await tw.verifyMessage(address, message, signature.serializeBinary())
-        } catch (e) {
-            throw e
-        }
-    }
+    // export async function verifyMessage(address: string, message: Uint8Array, signature: Signature): Promise<boolean> {
+    //     const tw = await TupeloWasm.get()
+    //     try {
+    //         return await tw.verifyMessage(address, message, signature.serializeBinary())
+    //     } catch (e) {
+    //         throw e
+    //     }
+    // }
 
     export async function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload> {
         logger("tokenPayloadForTransaction")
@@ -235,7 +232,7 @@ export namespace Tupelo {
             tip: opts.tip,
             tokenName: opts.tokenName,
             sendId: opts.sendId,
-            jsSendTxState: new Uint8Array(), // TODO: this needs the actual proof
+            jsSendTxProof: opts.proof.serializeBinary(),
         })
         return TokenPayload.deserializeBinary(respBits)
     }
@@ -257,15 +254,14 @@ export namespace Tupelo {
     }
 
     /**
-     * verifyCurrentState takes a notary group and a currentstate and makes sure it meets the requirements
-     * for being a valid signed currentState (2/3 of signers, valid signature, etc)
-     * @param notaryGroup - the protobuf version of the notary group config
-     * @param state - the CurrentState (often returned by a playTransactions)
+     * verifyProof takes a proof and makes sure it meets the requirements
+     * for being a valid signed proof (2/3 of signers, valid signature, etc)
+     * @param proof - the Proof (often returned by a playTransactions)
      * @public
      */
-    export async function verifyCurrentState(notaryGroup: NotaryGroup, state: TreeState): Promise<boolean> {
+    export async function verifyProof(proof: Proof): Promise<boolean> {
         const tw = await TupeloWasm.get()
-        return tw.verifyCurrentState(notaryGroup.serializeBinary(), state.serializeBinary())
+        return tw.verifyProof(proof.serializeBinary())
     }
 
     export async function startClient(pubsub: IPubSub, group: NotaryGroup, store: IBlockService): Promise<void> {
@@ -277,7 +273,7 @@ export namespace Tupelo {
         })
     }
 
-    export async function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<IProof> {
+    export async function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<Proof> {
         logger("playTransactions")
         if (tree.key == undefined) {
             throw new Error("playing transactions on a tree requires the tree to have a private key, use tree.key = <ecdsaKey>")
@@ -300,8 +296,8 @@ export namespace Tupelo {
             transactions: transBits,
         })
 
-        const proof = dagCBOR.util.deserialize(resp)
-        tree.tip = new CID(Buffer.from(proof.tip))
+        const proof = Proof.deserializeBinary(resp)
+        tree.tip = new CID(Buffer.from(proof.getTip_asU8()))
         return proof
     }
 

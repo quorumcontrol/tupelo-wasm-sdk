@@ -7,7 +7,7 @@
   "scripts": {
     "build": "./build.sh",
     "docs": "./build-docs.sh",
-    "test": "mocha --exit -r ts-node/register --timeout 10000 src/*.spec.ts src/**/*.spec.ts",
+    "test": "mocha",
     "test-suite": "scripts/test-suite.sh",
     "build:wasm": "scripts/build-wasm.sh"
   },
@@ -48,7 +48,7 @@
     "pull-mplex": "^0.1.2",
     "pull-ws": "^3.3.2",
     "toml": "^3.0.0",
-    "tupelo-messages": "^2.1.1",
+    "tupelo-messages": "^2.2.1",
     "util": "^0.12.1"
   },
   "devDependencies": {

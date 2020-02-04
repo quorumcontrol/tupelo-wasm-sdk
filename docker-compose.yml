@@ -19,7 +19,7 @@ services:
     volumes:
       - ./localtupelo/configs:/configs      
     command: ["node", "--config", "/configs/node0/config.toml",
-      "-L", "${TUPELO_LOG_LEVEL:-info}"]
+      "-L", "${TUPELO_LOG_LEVEL:-debug}"]
     networks:
       default:
         ipv4_address: 172.16.238.11  
