@@ -57,8 +57,8 @@ describe("browser", () => {
             const tree = await ChainTree.newEmptyTree(c.blockservice, key)
             console.log("playing transactions")
             await Tupelo.setLogLevel("*", "debug")
-            c.playTransactions(tree, trans).then((resp) => {
-                expect(resp.tip).to.exist
+            c.playTransactions(tree, trans).then((proof) => {
+                expect(proof.getTip_asU8()).to.exist
                 resolve()
             }, (err) => {
                 console.error("error playing transactions")
@@ -66,7 +66,7 @@ describe("browser", () => {
             })
         })
         return p
-    }).timeout(20000)
+    })
 
     it('can resolve trees', async ()=> {
 
@@ -75,8 +75,8 @@ describe("browser", () => {
             const trans = [setDataTransaction("/test", "oh really")]
             const key = await EcdsaKey.generate()
             const tree = await ChainTree.newEmptyTree(c.blockservice, key)
-            c.playTransactions(tree, trans).then(async (resp) => {
-                expect(resp.tip).to.exist
+            c.playTransactions(tree, trans).then(async (proof) => {
+                expect(proof.getTip_asU8()).to.exist
                 const id = await tree.id()
 
                 const respTip = await c.getTip(id)
@@ -93,6 +93,6 @@ describe("browser", () => {
             })
         })
         return p
-    }).timeout(20000)
+    })
 
 })
