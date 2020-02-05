@@ -2,7 +2,6 @@ import { Dag, IBlockService } from './dag/dag'
 import CID from 'cids'
 import { EcdsaKey } from '../crypto'
 import { Tupelo } from '../tupelo';
-import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
 import { SetDataPayload, Transaction, SetOwnershipPayload, TokenMonetaryPolicy, EstablishTokenPayload, MintTokenPayload, SendTokenPayload, ReceiveTokenPayload, TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 

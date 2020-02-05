@@ -62,7 +62,7 @@ describe('Community', () => {
       log('node started')
     })
     return p
-  }).timeout(10000)
+  })
 
   it('gets a chaintree tip', async () => {
     const c = await Community.getDefault()
@@ -79,7 +79,7 @@ describe('Community', () => {
       resolve()
     })
     return p
-  }).timeout(20000)
+  })
 
   // requires a running tupelo
   it('gets a chaintree proof', async () => {
@@ -98,7 +98,7 @@ describe('Community', () => {
     })
     return p
 
-  }).timeout(10000)
+  })
 
   it('plays transactions', async () => {
     const c = await Community.getDefault()
@@ -115,7 +115,7 @@ describe('Community', () => {
       })
     })
     return p
-  }).timeout(20000)
+  })
 
   it('sends token and gets payload', async () => {
 
@@ -156,7 +156,7 @@ describe('Community', () => {
       })
     })
     return p
-  }).timeout(20000)
+  })
 
   it('can create a community from a toml config', async ()=> {
     const repo = new Repo('community-test-toml-config', {

@@ -1,21 +1,15 @@
-declare const Go: any;
-
 import CID from 'cids';
 
 const go = require('./js/go')
-import { Transaction, Envelope } from 'tupelo-messages'
+import { Transaction } from 'tupelo-messages'
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb'
 import { IBlockService } from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
-import { Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import debug from 'debug'
-import { EcdsaKey } from './crypto';
 
 const logger = debug("tupelo")
-
-const dagCBOR:any = require('ipld-dag-cbor');
 
 /**
  * The interface describing libp2p pubsub

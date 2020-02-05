@@ -37,7 +37,7 @@ describe('ChainTree', ()=> {
         const id = await tree.id()
         expect(id).to.not.be.null
         expect(id).to.include("did:tupelo:")
-    }).timeout(2000)
+    })
 
     it('resolves data', async ()=> {
       const key = await EcdsaKey.generate()
@@ -49,6 +49,6 @@ describe('ChainTree', ()=> {
       await c.playTransactions(tree, [setDataTransaction("/path/to/somewhere", true)])
       const resp = tree.resolveData("/path/to/somewhere")
       expect((await resp).value).to.eql(true)
-    }).timeout(30000)
+    })
 
 })

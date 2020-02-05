@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import { IP2PNode, IPubSubMessage, p2p } from '../node';
+import { IP2PNode, p2p } from '../node';
 import { NotaryGroup } from 'tupelo-messages';
 import { Transaction } from 'tupelo-messages/transactions/transactions_pb'
 import CID from 'cids';
@@ -19,10 +19,6 @@ const debugLog = debug("community")
 const IpfsBitswap: any = require('ipfs-bitswap')
 const IpfsBlockService: any = require('ipfs-block-service');
 
-function tipTopicFromNotaryGroup(ng: NotaryGroup): string {
-    return ng.getId() + "-tips"
-}
-
 interface IRepo {
     blocks: IBlockService
 }
@@ -36,7 +32,6 @@ interface IRepo {
 export class Community extends EventEmitter {
     node: IP2PNode
     group: NotaryGroup
-    tip?: CID
     private repo: IRepo
     bitswap: any
     blockservice: IBlockService
@@ -138,24 +133,6 @@ export class Community extends EventEmitter {
             debugLog("bitswap started")
         })
 
-        // if (this.node.isStarted()) {
-        //     try {
-        //         await this.subscribeToTips()
-        //     } catch (err) {
-        //         this._started = false
-        //         this._startPromiseReject(err)
-        //     }
-        // } else {
-        //     this.node.once('start', async () => {
-        //         try {
-        //             await this.subscribeToTips()
-        //         } catch (err) {
-        //             this._started = false
-        //             this._startPromiseReject(err)
-        //         }
-        //     })
-        // }
-
         await Tupelo.startClient(this.node.pubsub, this.group, this.blockservice)
 
         debugLog("started")
@@ -169,30 +146,6 @@ export class Community extends EventEmitter {
         this.bitswap.stop(()=>{})
         this.node.stop()
     }
-
-    // async subscribeToTips() {
-    //     let resolve: Function, reject: Function
-    //     const p = new Promise((res, rej) => { resolve = res, reject = rej })
-
-    //     this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg: IPubSubMessage) => {
-    //         if (msg.data.length > 0) {
-    //             this.tip = new CID(Buffer.from(msg.data))
-    //             this.emit('tip', this.tip)
-    //             debugLog("tip received: cid: ", this.tip, " raw: ", msg.data)
-    //         } else {
-    //             debugLog("received null tip")
-    //         }
-
-    //     }, (err: Error) => {
-    //         if (err) {
-    //             reject(err)
-    //             return
-    //         }
-    //         debugLog("subscribed to tips")
-    //         resolve()
-    //     })
-    // }
-
 }
 
 export namespace Community {

@@ -82,7 +82,7 @@ describe('Tupelo', () => {
     }, (err) => { reject(err) })
 
     return p
-  }).timeout(10000)
+  })
 
   // requires a running tupelo
   it('plays transactions on a new tree', async () => {
@@ -117,9 +117,9 @@ describe('Tupelo', () => {
         resolve(true)
       })
     return p
-  }).timeout(30000)
+  })
 
-  it('verifies a returned current state', async ()=> {
+  it('verifies a returned proof', async ()=> {
     const c = await Community.getDefault()
 
     const p = new Promise(async (resolve, reject)=> {
@@ -132,61 +132,8 @@ describe('Tupelo', () => {
       } catch(e) {
         reject(e)
       }
-
-
-      // let sig = resp.getSignature()
-      // if (sig === undefined) {
-      //   throw new Error("missing signature")
-      // }
-      // // now make it intentionally bad
-      // sig.setSignersList([0,0,1])
-      // resp.setSignature(sig)
-      // verified = await Tupelo.verifyCurrentState(c.group, resp)
-      // expect(verified).to.be.false
-
       resolve()
     })
     return p
   })
-
-  // describe('signing and verifying messages', ()=> {
-  //   let key:EcdsaKey
-  //   let sig:Signature
-  //   let message:Uint8Array
-  //   before(async ()=> {
-  //     key = await EcdsaKey.generate()  
-  //     message = Buffer.from("test message")
-  //     sig = await Tupelo.signMessage(key, message)
-  //   })
-
-  //   it('returns verified when everything is good', async ()=> {
-  //     const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
-  //     const verified = await Tupelo.verifyMessage(addr, message, sig)
-  //     expect(verified).to.be.true
-  //   })
-
-  //   it('returns invalid when using a different addr', async ()=> {
-  //     const addr = "notthecorrectaddr"
-  //     try {
-  //       const verified = await Tupelo.verifyMessage(addr, message, sig)
-  //       expect(verified).to.be.false
-  //     } catch(e) {
-  //       expect(e).to.include("unsigned by address")
-  //     }
-  //   })
-
-  //   it('returns invalid when using a different message', async ()=> {
-  //     const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
-  //     try {
-  //       const verified = await Tupelo.verifyMessage(addr, Buffer.from('a different message'), sig)
-  //       expect(verified).to.be.false
-  //     } catch(e) {
-  //       // you need to know the message to recover the correct key, so this looks like the same error
-  //       // as passing in a different address even though we just changed the message
-  //       expect(e).to.include("unsigned by address")
-  //     }
-  //   })
-
-  // })
-
 })

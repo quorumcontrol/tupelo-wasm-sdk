@@ -48,37 +48,3 @@ Mocha.suiteSetup(()=> {
   })
   return beforePromise
 })
-
-// before(() => {
-//   if (beforePromise !== undefined) {
-//     return beforePromise;
-//   }
-//   beforePromise = new Promise(async (res, rej) => {
-//     const repo = new Repo('test', {
-//       lock: 'memory',
-//       storageBackends: {
-//         root: MemoryDatastore,
-//         blocks: MemoryDatastore,
-//         keys: MemoryDatastore,
-//         datastore: MemoryDatastore
-//       }
-//     })
-//     await repo.init({})
-//     await repo.open()
-
-//     let tomlConfig: string;
-//     if (!isNode) {
-//       rej(new Error("browser not supported yet"))
-//       return
-//     }
-
-//     const tomlFile = path.join(__dirname, '../../localtupelo/configs/localdocker.toml')
-//     tomlConfig = fs.readFileSync(tomlFile).toString()
-
-
-//     const testCommunity = await Community.fromNotaryGroupToml(tomlConfig, repo)
-//     Community.setDefault(testCommunity)
-//     res(true)
-//   })
-//   return beforePromise
-// })
