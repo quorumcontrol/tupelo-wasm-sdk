@@ -135,8 +135,7 @@ describe('Community', () => {
         throw new Error("unknown sender id")
       }
       const tokenName = "testtoken"
-      await c.playTransactions(senderTree, [establishTokenTransaction(tokenName, 10)])
-      await c.playTransactions(senderTree, [mintTokenTransaction(tokenName, 5)])
+      await c.playTransactions(senderTree, [establishTokenTransaction(tokenName, 10),mintTokenTransaction(tokenName, 5)])
 
       const sendId = "anewsendid"
       const payload = await c.sendTokenAndGetPayload(senderTree, sendTokenTransaction(sendId, senderid + ":" + tokenName, 5, receiverId))
