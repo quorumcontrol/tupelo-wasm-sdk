@@ -60,24 +60,20 @@ export class Community extends EventEmitter {
         this._startPromise = new Promise((resolve) => { this._startPromiseResolve = resolve })
     }
 
-    async waitForStart(): Promise<Community> {
+    waitForStart(): Promise<Community> {
         return this._startPromise
     }
 
 
-    // /**
-    //  * getCurrentState returns the current state (signatures)
-    //  * for a given ChainTree (its DID)
-    //  * @public
-    // */
-    // async getCurrentState(did: string) {
-    //     await this.start()
-    //     await this.nextUpdate()
-    //     if (this.tip == undefined) {
-    //         throw new Error("tip still undefined, even though community started and update received")
-    //     }
-    //     return Tupelo.getTip(did)
-    // }
+    /**
+     * getProof returns the proof for the current tip of a ChainTree
+     * for a given ChainTree (its DID)
+     * @param did - The DID of the ChainTree
+     * @public
+    */
+    getProof(did: string) {
+        return Tupelo.getTip(did)
+    }
 
     /**
      * returns the TIP as a CID of the ChainTree. This is more of a convenience function 
@@ -85,8 +81,8 @@ export class Community extends EventEmitter {
      * @param did - The DID of the ChainTree
      */
     async getTip(did: string):Promise<CID> {
-        const state = await Tupelo.getTip(did)
-        return new CID(Buffer.from(state.getTip_asU8()))
+        const proof = await Tupelo.getTip(did)
+        return new CID(Buffer.from(proof.getTip_asU8()))
     }
 
     async sendTokenAndGetPayload(tree: ChainTree, tx: Transaction) {
@@ -110,7 +106,6 @@ export class Community extends EventEmitter {
      * easier when using a fully community client
     */
     async playTransactions(tree: ChainTree, transactions: Transaction[]) {
-        console.log("play transactions: ", transactions[0].toObject())
         return await Tupelo.playTransactions(tree, transactions)
     }
 

@@ -46,7 +46,7 @@ describe('Tupelo', () => {
     expect(addr).to.have.lengthOf(42)
   })
 
-  it.skip('gets token payload', async () => {
+  it('gets token payload', async () => {
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
     const c = await Community.getDefault()

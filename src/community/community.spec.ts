@@ -64,18 +64,6 @@ describe('Community', () => {
     return p
   }).timeout(10000)
 
-  // requires a running tupelo
-  it.skip('listens to tips', async () => {
-    const c = await Community.getDefault()
-    const p = new Promise(async (resolve, rej) => {
-      c.on('tip', (tip: CID) => {
-        expect(tip).to.exist
-        resolve(tip)
-      })
-    })
-    return p
-  }).timeout(10000)
-
   it('gets a chaintree tip', async () => {
     const c = await Community.getDefault()
     const p = new Promise(async (resolve, reject) => {
@@ -86,98 +74,31 @@ describe('Community', () => {
         throw new Error("error getting id")
       }
       await c.playTransactions(tree, [setDataTransaction("/hi", "hihi")])
-
-      const recursiveGetTip = ():Promise<CID> => {
-        return new Promise(async (res,rej)=> {
-          await c.nextUpdate()
-          let respTip:CID
-          try {
-            respTip = await c.getTip(id)
-            res(respTip)
-            return
-          } catch(e) {
-            if (e == 'not found') {
-              const tip = await recursiveGetTip()
-              res(tip)
-              return
-            }
-            rej(e)
-          }
-        })
-      }
-
-      let respTip:CID
-      try {
-        respTip = await recursiveGetTip()
-      } catch(e) {
-        reject(e)
-        return
-      }
+      const respTip = await c.getTip(id)
       expect(respTip.toString()).to.equal(tree.tip.toString())
       resolve()
     })
     return p
   }).timeout(20000)
 
-  // // requires a running tupelo
-  // it.skip('gets a chaintree currentState', async () => {
-  //   const c = await Community.getDefault()
-  //   const p = new Promise(async (resolve, reject) => {
-  //     const node = c.node
-  //     const key = await EcdsaKey.generate()
+  // requires a running tupelo
+  it('gets a chaintree proof', async () => {
+    const c = await Community.getDefault()
+    const p = new Promise(async (resolve, reject) => {
+      const key = await EcdsaKey.generate()
+      const tree = await ChainTree.newEmptyTree(c.blockservice, key)
+      const id = await tree.id()
+      if (id == null) {
+        throw new Error("error getting id")
+      }
+      await c.playTransactions(tree, [setDataTransaction("/hi", "hihi")])
+      const proof = await c.getProof(id)
+      expect(new CID(Buffer.from(proof.getTip_asU8())).toString()).to.equal(tree.tip.toString())
+      resolve()
+    })
+    return p
 
-  //     let tree = await ChainTree.newEmptyTree(c.blockservice, key)
-  //     log("created empty tree")
-  //     const trans = new Transaction()
-  //     const payload = new SetDataPayload()
-  //     payload.setPath("/hi")
-
-  //     const serialized = dagCBOR.util.serialize("hihi")
-
-  //     payload.setValue(new Uint8Array(serialized))
-  //     trans.setType(Transaction.Type.SETDATA)
-  //     trans.setSetDataPayload(payload)
-
-
-  //     let transCurrent = await Tupelo.playTransactions(tree, [trans])
-  //     log('transaction complete')
-
-  //     log("getting current state of transaction")
-  //     const id = await tree.id()
-  //     if (id == undefined) {
-  //       throw new Error("undefined")
-  //     }
-      
-  //     let tryCount = 0;
-  //     const getStateWhenAvailable = async ():Promise<TreeState> => {
-  //         try {
-  //           await c.nextUpdate()
-  //           const communityTip = await c.getTip(id)
-  //           return communityTip
-  //         } catch(e) {
-  //           if (e === "not found") {
-  //               tryCount++;
-  //               if (tryCount > 100) {
-  //                 throw new Error("tried to get state over 100 times")
-  //               }
-  //               return await getStateWhenAvailable();
-  //           }            
-  //           throw e
-  //         }
-  //     }
-      
-  //     const communityCurrent = await getStateWhenAvailable()
-  //     if (transCurrent !== undefined && communityCurrent !== undefined) {
-  //       expect(communityCurrent.getNewTip_asB64()).to.equal(transCurrent.getNewTip_asB64())
-  //       resolve()
-  //       return
-  //     }
-  //     reject("undefined signatures")
-  //     return
-  //   })
-  //   return p
-
-  // }).timeout(10000)
+  }).timeout(10000)
 
   it('plays transactions', async () => {
     const c = await Community.getDefault()
@@ -219,14 +140,12 @@ describe('Community', () => {
 
       const sendId = "anewsendid"
       const payload = await c.sendTokenAndGetPayload(senderTree, sendTokenTransaction(sendId, senderid + ":" + tokenName, 5, receiverId))
-      // console.log("send payload: ", payload.toObject())
       const proof = payload.getProof()
       if (proof == undefined) {
         throw new Error("undefined proof")
       }
       const isValid = await Tupelo.verifyProof(proof)
       expect(isValid).to.be.true
-      console.log("valid proof: ", isValid)
 
       // now lets use that payload to do a receive
       c.playTransactions(receiverTree, [receiveTokenTransactionFromPayload(payload)]).then((resp) => {
@@ -237,7 +156,7 @@ describe('Community', () => {
       })
     })
     return p
-  }).timeout(10000)
+  }).timeout(20000)
 
   it('can create a community from a toml config', async ()=> {
     const repo = new Repo('community-test-toml-config', {
