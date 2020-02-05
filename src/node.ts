@@ -11,6 +11,7 @@ export interface IP2PNode {
     isStarted():boolean;
     stop():null;
     on(evt:string, cb:Function):null;
+    off(evt:string, cb:Function):null;
     once(evt:string, cb:Function):null;
     emit(evt:string):null;
 }

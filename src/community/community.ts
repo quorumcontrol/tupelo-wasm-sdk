@@ -59,7 +59,6 @@ export class Community extends EventEmitter {
         return this._startPromise
     }
 
-
     /**
      * getProof returns the proof for the current tip of a ChainTree
      * for a given ChainTree (its DID)
@@ -114,9 +113,7 @@ export class Community extends EventEmitter {
         // let resolve: Function
         // const p = new Promise((res, _rej) => { resolve = res })
         // this.once('tip', () => { resolve() })
-        return new Promise((res)=> {
-            setTimeout(res, 1000) //TODO: this is silly, no need for this function anymore
-        })
+        return Promise.resolve()
     }
 
     /**
@@ -129,12 +126,12 @@ export class Community extends EventEmitter {
         this._started = true
         debugLog("start()")
 
-        this.bitswap.start(() => {
-            debugLog("bitswap started")
-        })
+
+        await this.bitswap.start()
+        debugLog("bitswap started")
 
         await Tupelo.startClient(this.node.pubsub, this.group, this.blockservice)
-
+    
         debugLog("started")
         this._startPromiseResolve(this)
         this.emit('start')
@@ -146,6 +143,26 @@ export class Community extends EventEmitter {
         this.bitswap.stop(()=>{})
         this.node.stop()
     }
+}
+
+/**
+ * This waits until the libp2p node has connected to two peers
+ * @private
+ */
+export function afterTwoPeersConnected(node:IP2PNode):Promise<void> {
+    return new Promise((resolve) => {
+        let connectCount = 0
+        const onConnect = async ()=> {
+            debugLog("peer connected: ", connectCount)
+            connectCount++
+            if (connectCount >= 2) {
+                node.off('peer:connect', onConnect)
+                resolve()
+            }
+        }
+
+        node.on('peer:connect', onConnect)
+    })
 }
 
 export namespace Community {
@@ -194,9 +211,13 @@ export namespace Community {
                     }
                 }
 
+                afterTwoPeersConnected(node).then(async ()=> {
+                    res(await c.start())
+                })
+
                 const c = new Community(node, ng, repo.repo)
                 node.start(async ()=>{
-                    res(await c.start())
+                   debugLog("p2p node started")
                 })
             } catch(e) {
                 debugLog("error creating community: ", e)

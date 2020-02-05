@@ -5,7 +5,6 @@ import './extendedglobal';
 import { Tupelo } from './tupelo';
 import { EcdsaKey } from './crypto';
 import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction } from './chaintree/chaintree';
-import { Signature } from 'tupelo-messages/signatures/signatures_pb';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { Community } from './community/community';
 import Repo from './repo';
@@ -46,6 +45,41 @@ describe('Tupelo', () => {
     expect(addr).to.have.lengthOf(42)
   })
 
+  // requires a running tupelo
+  it('plays transactions on a new tree', async () => {
+    const c = await Community.getDefault()
+
+    let resolve: Function, reject: Function
+    const p = new Promise((res, rej) => { resolve = res, reject = rej })
+
+    c.node.on('error', (err: any) => {
+      reject(err)
+      console.error('error')
+    })
+
+    const key = await EcdsaKey.generate()
+
+    let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+    debugLog("created empty tree")
+    const trans = setDataTransaction("/hi", "hihi")
+
+    Tupelo.playTransactions(tree, [trans]).then(
+      async (success: Proof) => {
+        const resolved = await tree.resolve("tree/data/hi")
+        expect(resolved.value).to.equal("hihi")
+        resolve(true)
+      },
+      (err: Error) => {
+        expect(err).to.be.null
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(true)
+      })
+    return p
+  })
+
   it('gets token payload', async () => {
     let resolve: Function, reject: Function
     const p = new Promise((res, rej) => { resolve = res, reject = rej })
@@ -80,41 +114,6 @@ describe('Tupelo', () => {
       resolve()
     }, (err) => { reject(err) })
 
-    return p
-  })
-
-  // requires a running tupelo
-  it('plays transactions on a new tree', async () => {
-    const c = await Community.getDefault()
-
-    let resolve: Function, reject: Function
-    const p = new Promise((res, rej) => { resolve = res, reject = rej })
-
-    c.node.on('error', (err: any) => {
-      reject(err)
-      console.error('error')
-    })
-
-    const key = await EcdsaKey.generate()
-
-    let tree = await ChainTree.newEmptyTree(c.blockservice, key)
-    debugLog("created empty tree")
-    const trans = setDataTransaction("/hi", "hihi")
-
-    Tupelo.playTransactions(tree, [trans]).then(
-      async (success: Proof) => {
-        const resolved = await tree.resolve("tree/data/hi")
-        expect(resolved.value).to.equal("hihi")
-        resolve(true)
-      },
-      (err: Error) => {
-        expect(err).to.be.null
-        if (err) {
-          reject(err)
-          return
-        }
-        resolve(true)
-      })
     return p
   })
 

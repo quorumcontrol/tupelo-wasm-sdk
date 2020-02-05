@@ -1,8 +1,8 @@
 version: "3"
 services:
   bootstrap:
-    image: quorumcontrol/tupelo:${TUPELO_VERSION:-g4-token-proofs}
-    command: ["bootstrap-node", "--config", "/configs/bootstrap/config.toml", "-L", "${TUPELO_LOG_LEVEL:-info}"]
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
+    command: ["bootstrap-node", "--config", "/configs/bootstrap/config.toml", "-L", "${TUPELO_LOG_LEVEL:-warn}"]
     volumes:
       - ./localtupelo/configs:/configs      
     networks:
@@ -15,11 +15,11 @@ services:
   node0:
     depends_on: 
       - bootstrap
-    image: quorumcontrol/tupelo:${TUPELO_VERSION:-g4-token-proofs}
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
     volumes:
       - ./localtupelo/configs:/configs      
     command: ["node", "--config", "/configs/node0/config.toml",
-      "-L", "${TUPELO_LOG_LEVEL:-debug}"]
+      "-L", "${TUPELO_LOG_LEVEL:-warn}"]
     networks:
       default:
         ipv4_address: 172.16.238.11  
@@ -29,20 +29,20 @@ services:
   node1:
     depends_on: 
       - bootstrap
-    image: quorumcontrol/tupelo:${TUPELO_VERSION:-g4-token-proofs}
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
     volumes:
       - ./localtupelo/configs:/configs      
     command: ["node", "--config", "/configs/node1/config.toml",
-      "-L", "${TUPELO_LOG_LEVEL:-info}"]
+      "-L", "${TUPELO_LOG_LEVEL:-warn}"]
   
   node2:
     depends_on: 
       - bootstrap
-    image: quorumcontrol/tupelo:${TUPELO_VERSION:-g4-token-proofs}
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
     volumes:
       - ./localtupelo/configs:/configs      
     command: ["node", "--config", "/configs/node2/config.toml",
-      "-L", "${TUPELO_LOG_LEVEL:-info}"]
+      "-L", "${TUPELO_LOG_LEVEL:-warn}"]
 
 networks:
   default:

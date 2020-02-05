@@ -5,7 +5,6 @@
 ```ts
 
 import CID from 'cids';
-import { Envelope } from 'tupelo-messages';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
@@ -38,11 +37,12 @@ export class Community extends EventEmitter {
     bitswap: any;
     // (undocumented)
     blockservice: IBlockService;
+    getProof(did: string): Promise<import("tupelo-messages/gossip/gossip_pb").Proof>;
     getTip(did: string): Promise<CID_2>;
     // (undocumented)
     group: NotaryGroup_2;
     // @deprecated
-    nextUpdate(): Promise<unknown>;
+    nextUpdate(): Promise<void>;
     // (undocumented)
     node: IP2PNode;
     playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/gossip/gossip_pb").Proof>;
@@ -51,8 +51,6 @@ export class Community extends EventEmitter {
     start(): Promise<Community>;
     // (undocumented)
     stop(): Promise<void>;
-    // (undocumented)
-    tip?: CID_2;
     // (undocumented)
     waitForStart(): Promise<Community>;
 }
@@ -293,11 +291,7 @@ export namespace Tupelo {
     // (undocumented)
     export function generateKey(): Promise<Uint8Array[]>;
     // (undocumented)
-    export function getSendableEnvelopeBytes(env: Envelope, key: EcdsaKey): Promise<Uint8Array>;
-    // (undocumented)
     export function getTip(did: string): Promise<Proof>;
-    // (undocumented)
-    export function hashToShardNumber(topic: string, maxShards: number): Promise<number>;
     // (undocumented)
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
@@ -311,6 +305,8 @@ export namespace Tupelo {
     // (undocumented)
     export function startClient(pubsub: IPubSub, group: NotaryGroup, store: IBlockService): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
     export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
     export function verifyProof(proof: Proof): Promise<boolean>;
 }

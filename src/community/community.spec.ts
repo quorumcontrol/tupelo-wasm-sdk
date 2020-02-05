@@ -48,6 +48,7 @@ describe('Community', () => {
 
     node.once('peer:connect', async () => {
       log("peer connected");
+      await c.start()
       // now the node has connected to the network
       const nodeBuff = Buffer.from("hi");
       const nodeCid = await dagCBOR.util.cid(nodeBuff);
@@ -58,7 +59,6 @@ describe('Community', () => {
       resolve()
     })
     node.start(() => {
-      c.start()
       log('node started')
     })
     return p
