@@ -15,6 +15,9 @@ import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
 
 // @public
+export function afterTwoPeersConnected(node: IP2PNode): Promise<void>;
+
+// @public
 export class ChainTree extends Dag {
     constructor(opts: IChainTreeInitializer);
     id(): Promise<string | null>;
@@ -171,6 +174,8 @@ export interface IP2PNode {
     emit(evt: string): null;
     // (undocumented)
     isStarted(): boolean;
+    // (undocumented)
+    off(evt: string, cb: Function): null;
     // (undocumented)
     on(evt: string, cb: Function): null;
     // (undocumented)
