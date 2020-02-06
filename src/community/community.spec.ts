@@ -131,7 +131,7 @@ describe('Community', () => {
       const senderKey = await EcdsaKey.generate()
       const senderTree = await ChainTree.newEmptyTree(c.blockservice, senderKey)
       const senderid = await senderTree.id()
-      if (senderid == null) {
+      if (senderid === null) {
         throw new Error("unknown sender id")
       }
       const tokenName = "testtoken"
@@ -140,7 +140,7 @@ describe('Community', () => {
       const sendId = "anewsendid"
       const payload = await c.sendTokenAndGetPayload(senderTree, sendTokenTransaction(sendId, senderid + ":" + tokenName, 5, receiverId))
       const proof = payload.getProof()
-      if (proof == undefined) {
+      if (proof === undefined) {
         throw new Error("undefined proof")
       }
       const isValid = await Tupelo.verifyProof(proof)

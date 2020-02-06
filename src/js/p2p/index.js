@@ -88,7 +88,7 @@ class TupeloP2P extends libp2p {
     })
     this.once('stop', ()=> {
       routingDiscoverer.stop(()=> {
-        log("routing stopped", this.peerID);
+        log("routing stopped: ", this.peerID);
       })
     })
    
