@@ -15,7 +15,8 @@ describe("browser", () => {
                 const config = toCamel(toCamel(notaryGroupConfig))
                 let newBoostrap:string[] = []
                 config.bootstrapAddresses.forEach((addr:string) => {
-                    if (addr.includes("127.0.0.1") && addr.includes("/ws/")) {
+                   // if (addr.includes("127.0.0.1") && addr.includes("/ws/")) {
+                   if (addr.includes("/wss/")) {
                         newBoostrap.push(addr)
                     }
                 })
