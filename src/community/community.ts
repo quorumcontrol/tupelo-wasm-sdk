@@ -190,39 +190,44 @@ export namespace Community {
     }
 
     /**
-     * fromNotaryGroupToml creates a community from a notary grou TOML string with no boiler plate around
-     * creating a new libp2p node and only optionally requires a repo (a new repo will be created if one isn't passed in)
+     * fromNotaryGroup creates a community from a notary group TOML string without requiring boiler plate code for 
+     * creating a new libp2p node. repo argument is optional and will create one if not specified.
      * @param tomlString - the TOML for the notary group
      * @param repo - (optional) the repo to use for this notary group. Will default to an ondisk repo named after the notary group
      */
     export function fromNotaryGroupToml(tomlString: string, repo?:Repo):Promise<Community> {
+        const ng = tomlToNotaryGroup(tomlString)
+        return fromNotaryGroup(ng, repo)
+    }
+
+    /**
+     * fromNotaryGroup creates a community from a NotaryGroup without requiring boiler plate code for 
+     * creating a new libp2p node. repo argument is optional and will create one if not specified.
+     * @param notaryGroup - the notaryGroup
+     * @param repo - (optional) the repo to use for this notary group. Will default to an ondisk repo named after the notary group
+     */
+    export function fromNotaryGroup(notaryGroup: NotaryGroup, repo?:Repo):Promise<Community> {
         return new Promise(async (res,rej)=> {
-            const ng = tomlToNotaryGroup(tomlString)
-            try {
-                const node = await p2p.createNode({ bootstrapAddresses: ng.getBootstrapAddressesList() });
+            const node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
 
-                if (repo == undefined) {
-                    repo = new Repo(ng.getId())
-                    try {
-                        await repo.init({})
-                        await repo.open()
-                    } catch(e) {
-                        rej(e)
-                    }
+            if (repo == undefined) {
+                repo = new Repo(notaryGroup.getId())
+                try {
+                    await repo.init({})
+                    await repo.open()
+                } catch(e) {
+                    rej(e)
                 }
-
-                afterTwoPeersConnected(node).then(async ()=> {
-                    res(await c.start())
-                })
-
-                const c = new Community(node, ng, repo.repo)
-                node.start(async ()=>{
-                   debugLog("p2p node started")
-                })
-            } catch(e) {
-                debugLog("error creating community: ", e)
-                rej(e)
             }
+
+            afterTwoPeersConnected(node).then(async ()=> {
+                res(await c.start())
+            })
+
+            const c = new Community(node, notaryGroup, repo.repo)
+            node.start(async ()=>{
+                debugLog("p2p node started")
+            })
         })
     }
 }

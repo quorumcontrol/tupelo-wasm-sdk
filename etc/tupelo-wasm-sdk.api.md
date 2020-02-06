@@ -60,6 +60,7 @@ export class Community extends EventEmitter {
 
 // @public (undocumented)
 export namespace Community {
+    export function fromNotaryGroup(notaryGroup: NotaryGroup_2, repo?: Repo): Promise<Community>;
     export function fromNotaryGroupToml(tomlString: string, repo?: Repo): Promise<Community>;
     export function getDefault(repo?: Repo): Promise<Community>;
     export function setDefault(community: Community): void;

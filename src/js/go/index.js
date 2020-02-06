@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 const log = require('debug')('gowasm');
+const golog = require('debug')('go');
 
 (() => {
     if (typeof global !== "undefined") {
@@ -56,6 +57,7 @@ const log = require('debug')('gowasm');
                 outputBuf += decoder.decode(buf);
                 const nl = outputBuf.lastIndexOf("\n");
                 if (nl != -1) {
+                    golog(outputBuf.substr(0, nl));
                     outputBuf = outputBuf.substr(nl + 1);
                 }
                 return buf.length;
