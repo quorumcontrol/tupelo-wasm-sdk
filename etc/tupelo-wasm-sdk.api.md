@@ -15,7 +15,7 @@ import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
 
 // @public
-export function afterTwoPeersConnected(node: IP2PNode): Promise<void>;
+export function afterThreePeersConnected(node: IP2PNode): Promise<void>;
 
 // @public
 export class ChainTree extends Dag {

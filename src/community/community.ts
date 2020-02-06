@@ -149,13 +149,13 @@ export class Community extends EventEmitter {
  * This waits until the libp2p node has connected to two peers
  * @private
  */
-export function afterTwoPeersConnected(node:IP2PNode):Promise<void> {
+export function afterThreePeersConnected(node:IP2PNode):Promise<void> {
     return new Promise((resolve) => {
         let connectCount = 0
         const onConnect = async ()=> {
             debugLog("peer connected: ", connectCount)
             connectCount++
-            if (connectCount >= 2) {
+            if (connectCount >= 3) {
                 node.off('peer:connect', onConnect)
                 resolve()
             }
@@ -220,7 +220,7 @@ export namespace Community {
                 }
             }
 
-            afterTwoPeersConnected(node).then(async ()=> {
+            afterThreePeersConnected(node).then(async ()=> {
                 res(await c.start())
             })
 
