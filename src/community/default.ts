@@ -1,4 +1,4 @@
-import { Community, afterThreePeersConnected } from "./community";
+import { Community, afterOneSignerConnected } from "./community";
 import { tomlToNotaryGroup } from "../notarygroup";
 import Repo from "../repo";
 import { p2p } from "../node";
@@ -92,7 +92,7 @@ export const _getDefault = (repo?:Repo): Promise<Community> => {
 
         const c = new Community(node, defaultNotaryGroup, repo.repo)
     
-        afterThreePeersConnected(node).then(()=> {
+        afterOneSignerConnected(node, defaultNotaryGroup).then(()=> {
             resolve(c.start())
         })
 

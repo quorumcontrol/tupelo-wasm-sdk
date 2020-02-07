@@ -11,7 +11,7 @@ import { _getDefault, _setDefault } from './default';
 
 import debug from 'debug'
 import Repo from '../repo';
-import tomlToNotaryGroup from '../notarygroup';
+import tomlToNotaryGroup, { notaryGroupToSignerPeerIds } from '../notarygroup';
 
 const debugLog = debug("community")
 
@@ -146,18 +146,21 @@ export class Community extends EventEmitter {
 }
 
 /**
- * This waits until the libp2p node has connected to two peers
+ * This waits until the libp2p node has connected to a signer
  * @private
  */
-export function afterThreePeersConnected(node:IP2PNode):Promise<void> {
+export async function afterOneSignerConnected(node:IP2PNode, group:NotaryGroup):Promise<void> {
+    const peerIds = await notaryGroupToSignerPeerIds(group) 
     return new Promise((resolve) => {
-        let connectCount = 0
-        const onConnect = async (peer:any)=> {
-            debugLog("peer connected: ", peer.id.toB58String(), " count: ", connectCount)
-            connectCount++
-            if (connectCount >= 2) {
-                node.off('peer:connect', onConnect)
-                resolve()
+        const onConnect = (peer:any)=> {
+            debugLog("peer connected: ", peer.id.toB58String())
+            for (let id of peerIds) {
+                if (id.isEqual(peer.id)) {
+                    debugLog("signer connected")
+                    node.off('peer:connect', onConnect)
+                    resolve()
+                    return
+                }
             }
         }
 
@@ -221,7 +224,7 @@ export namespace Community {
                 }
             }
 
-            afterThreePeersConnected(node).then(async ()=> {
+            afterOneSignerConnected(node, notaryGroup).then(async ()=> {
                 res(await c.start())
             })
 
