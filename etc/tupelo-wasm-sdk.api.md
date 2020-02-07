@@ -168,6 +168,8 @@ export interface IDagStore {
 export interface INodeOptions {
     // (undocumented)
     bootstrapAddresses?: string[];
+    // (undocumented)
+    namespace?: string;
 }
 
 // @public

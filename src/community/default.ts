@@ -84,7 +84,10 @@ export const _getDefault = (repo?:Repo): Promise<Community> => {
             await repo.open()
         }
 
-        const node = await p2p.createNode({ bootstrapAddresses: defaultNotaryGroup.getBootstrapAddressesList() });
+        const node = await p2p.createNode({
+            namespace: defaultNotaryGroup.getId(),
+            bootstrapAddresses: defaultNotaryGroup.getBootstrapAddressesList()
+        });
         node.on('error', (err: Error) => {
             console.error('p2p error: ', err)
             reject(err)

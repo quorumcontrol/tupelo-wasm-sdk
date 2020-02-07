@@ -32,6 +32,7 @@ export interface IPubSubMessage {
  * @public
  */
 export interface INodeOptions {
+    namespace?:string
     bootstrapAddresses?:string[]
 }
 
@@ -46,6 +47,7 @@ export namespace p2p {
      */
     export async function createNode(opts:INodeOptions):Promise<IP2PNode> {
         return libp2p.CreateNode({
+            namespace: opts.namespace,
             config: {
                 peerDiscovery: {
                     bootstrap: {
