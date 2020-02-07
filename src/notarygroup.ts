@@ -1,6 +1,10 @@
 import { NotaryGroup, PublicKeySet } from 'tupelo-messages/config/config_pb';
-import fs from 'fs';
 import TOML from 'toml'
+
+const PeerId:any = require('peer-id')
+const cryptoKeys = require('libp2p-crypto/src/keys')
+const Secp256k1PublicKey = cryptoKeys.supportedKeys.secp256k1.Secp256k1PublicKey
+
 
 interface IPublicKeyCreator {
   verKeyHex: string
@@ -11,6 +15,36 @@ interface INotaryGroupCreator {
   id: string
   bootstrapAddresses: string[]
   signers: IPublicKeyCreator[]
+}
+
+export interface IPeerId {
+  toB58String():string
+  isEqual(other:IPeerId):boolean
+}
+
+/**
+ * publicKeySetToPeerId returns the libp2p peerID from the signer dstKey config
+ * @param set - the PublicKeySet (this is a signer in the NotaryGroup)
+ */
+export function publicKeySetToPeerId(set:PublicKeySet):Promise<IPeerId> {
+  return new Promise((resolve,reject)=> {
+    const key = new Secp256k1PublicKey(Buffer.from(set.getDestKey_asU8()))
+       
+    PeerId.createFromPubKey(key.bytes, (err:Error, resp:IPeerId)=> {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(resp)
+    })
+  })
+}
+
+export function notaryGroupToSignerPeerIds(ng:NotaryGroup) {
+  let _idPromises = ng.getSignersList().map((signer)=> {
+    return publicKeySetToPeerId(signer)
+  })
+  return Promise.all(_idPromises)
 }
 
 function hexToBuffer(hex: string): Buffer {

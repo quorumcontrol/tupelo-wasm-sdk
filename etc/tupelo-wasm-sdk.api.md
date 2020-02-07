@@ -10,12 +10,13 @@ import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
 import OldCId from 'cids';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
+import { PublicKeySet } from 'tupelo-messages/config/config_pb';
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
 
 // @public
-export function afterThreePeersConnected(node: IP2PNode): Promise<void>;
+export function afterOneSignerConnected(node: IP2PNode, group: NotaryGroup_2): Promise<void>;
 
 // @public
 export class ChainTree extends Dag {
@@ -167,6 +168,8 @@ export interface IDagStore {
 export interface INodeOptions {
     // (undocumented)
     bootstrapAddresses?: string[];
+    // (undocumented)
+    namespace?: string;
 }
 
 // @public
@@ -189,6 +192,14 @@ export interface IP2PNode {
     state: any;
     // (undocumented)
     stop(): null;
+}
+
+// @public (undocumented)
+export interface IPeerId {
+    // (undocumented)
+    isEqual(other: IPeerId): boolean;
+    // (undocumented)
+    toB58String(): string;
 }
 
 // @public
@@ -231,10 +242,16 @@ export interface IResolveResponse {
 export const mintTokenTransaction: (name: string, amount: number) => Transaction_2;
 
 // @public (undocumented)
+export function notaryGroupToSignerPeerIds(ng: NotaryGroup): Promise<IPeerId[]>;
+
+// @public (undocumented)
 export namespace p2p {
     // (undocumented)
     export function createNode(opts: INodeOptions): Promise<IP2PNode>;
 }
+
+// @public
+export function publicKeySetToPeerId(set: PublicKeySet): Promise<IPeerId>;
 
 // @public (undocumented)
 export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, proof: Proof, leaves: Uint8Array[]) => Transaction_2;

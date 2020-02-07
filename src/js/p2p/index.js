@@ -14,13 +14,20 @@ const util = require('util')
 
 const log = require('debug')("p2p")
 
-const RoutingDiscovery = require('./discovery')
+const discovery = require('./discovery')
   
 const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
 
 class TupeloP2P extends libp2p {
   constructor (_options) {
-    const routingDiscoverer = new RoutingDiscovery({namespace: 'tupelo-transaction-gossipers'});
+    let discoverer;
+
+    if (_options.namespace !== undefined) {
+      discoverer = new discovery.RoutingDiscovery({namespace: _options.namespace});
+    } else {
+      discoverer = new discovery.NullDiscovery();
+    }
+    delete _options.namespace
 
     const defaults = {
       switch: {
@@ -43,7 +50,7 @@ class TupeloP2P extends libp2p {
         ],
         peerDiscovery: [
           Bootstrap,
-          routingDiscoverer.stub()
+          discoverer.stub()
         ],
         dht: KadDHT,
         pubsub: require('libp2p-floodsub')
@@ -73,7 +80,7 @@ class TupeloP2P extends libp2p {
     }
 
     super(mergeOptions(defaults, _options))
-    routingDiscoverer.node = this;
+    discoverer.node = this;
     this.on('error', (err) => {
       log("node error: ", err)
     })
@@ -82,17 +89,17 @@ class TupeloP2P extends libp2p {
     })
     this.once('peer:connect', () => {
       log("first peer:connect")
-      routingDiscoverer.start(() => {
+      discoverer.start(() => {
         log("discovery started");
       })
     })
     this.once('stop', ()=> {
-      routingDiscoverer.stop(()=> {
+      discoverer.stop(()=> {
         log("routing stopped: ", this.peerID);
       })
     })
    
-    this._routingDiscoverer = routingDiscoverer
+    this._discoverer = discoverer
   }
 }
 

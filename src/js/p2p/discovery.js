@@ -51,6 +51,24 @@ class RoutingStub extends EventEmitter {
 }
 
 
+class NullDiscovery extends EventEmitter {
+    constructor() {
+        super()
+    }
+
+    start(callback) {
+        callback()
+    }
+
+    stop(callback) {
+        callback()
+    }
+
+    stub() {
+        return this;
+    }
+}
+
 class RoutingDiscovery extends EventEmitter {
     constructor(options) {
         super()
@@ -130,6 +148,8 @@ class RoutingDiscovery extends EventEmitter {
     }
 }
 
+module.exports.RoutingDiscovery = RoutingDiscovery
+module.exports.NullDiscovery = NullDiscovery
 
-exports = module.exports = RoutingDiscovery
+exports = module.exports
 exports.tag = 'routing'
