@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "parcel tupelo.wasm index.html",
+    "dev": "parcel tupelo.wasm index.html --port 8080 --https",
     "build": "parcel build tupelo.wasm index.html"
   },
   "keywords": [],

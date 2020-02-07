@@ -87,6 +87,7 @@ class TupeloP2P extends libp2p {
       log("node error: ", err)
     })
     this.on('peer:discovery', (peer) => {
+      console.log("discovered addresses: ", peer.multiaddrs.toArray().map((ma)=> {return ma.toString()}))
       log("discovered addresses: ", peer.multiaddrs.toArray().map((ma)=> {return ma.toOptions()}))
     })
     this.once('peer:connect', () => {
