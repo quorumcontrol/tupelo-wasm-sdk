@@ -42,7 +42,10 @@ describe('Community', () => {
 
     const testNotaryGroup = (await Community.getDefault()).group
 
-    var node = await p2p.createNode({ bootstrapAddresses: testNotaryGroup.getBootstrapAddressesList() });
+    var node = await p2p.createNode({
+      namespace: testNotaryGroup.getId(),
+      bootstrapAddresses: testNotaryGroup.getBootstrapAddressesList()
+    })
 
     const c = new Community(node, testNotaryGroup, repo.repo)
 

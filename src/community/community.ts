@@ -212,7 +212,10 @@ export namespace Community {
     export function fromNotaryGroup(notaryGroup: NotaryGroup, repo?:Repo):Promise<Community> {
 
         return new Promise(async (res,rej)=> {
-            const node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
+            const node = await p2p.createNode({
+                namespace: notaryGroup.getId(),
+                bootstrapAddresses: notaryGroup.getBootstrapAddressesList()
+            })
 
             if (repo == undefined) {
                 repo = new Repo(notaryGroup.getId())
@@ -224,11 +227,12 @@ export namespace Community {
                 }
             }
 
+            const c = new Community(node, notaryGroup, repo.repo)
+
             afterOneSignerConnected(node, notaryGroup).then(async ()=> {
                 res(await c.start())
             })
 
-            const c = new Community(node, notaryGroup, repo.repo)
             node.start(async ()=>{
                 debugLog("p2p node started")
             })
