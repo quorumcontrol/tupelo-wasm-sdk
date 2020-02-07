@@ -152,10 +152,10 @@ export class Community extends EventEmitter {
 export function afterThreePeersConnected(node:IP2PNode):Promise<void> {
     return new Promise((resolve) => {
         let connectCount = 0
-        const onConnect = async ()=> {
-            debugLog("peer connected: ", connectCount)
+        const onConnect = async (peer:any)=> {
+            debugLog("peer connected: ", peer.id.toB58String(), " count: ", connectCount)
             connectCount++
-            if (connectCount >= 3) {
+            if (connectCount >= 2) {
                 node.off('peer:connect', onConnect)
                 resolve()
             }
@@ -207,6 +207,7 @@ export namespace Community {
      * @param repo - (optional) the repo to use for this notary group. Will default to an ondisk repo named after the notary group
      */
     export function fromNotaryGroup(notaryGroup: NotaryGroup, repo?:Repo):Promise<Community> {
+
         return new Promise(async (res,rej)=> {
             const node = await p2p.createNode({ bootstrapAddresses: notaryGroup.getBootstrapAddressesList() });
 
