@@ -15,6 +15,7 @@ const util = require('util')
 const log = require('debug')("p2p")
 
 const discovery = require('./discovery')
+const WssPeerBook = require('./wss-peer-book')
   
 const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
 
@@ -30,6 +31,7 @@ class TupeloP2P extends libp2p {
     delete _options.namespace
 
     const defaults = {
+      peerBook: new WssPeerBook(),
       switch: {
         blacklistTTL: 2 * 60 * 1e3, // 2 minute base
         blackListAttempts: 5, // back off 5 times
