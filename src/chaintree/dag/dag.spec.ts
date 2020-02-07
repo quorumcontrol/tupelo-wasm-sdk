@@ -13,7 +13,7 @@ const multicodec = require('multicodec')
 
 
 const testRepo = async () => {
-    const repo = new Repo('test', {
+    const repo = new Repo('dag-test', {
       lock: 'memory',
       storageBackends: {
         root: MemoryDatastore,
@@ -60,5 +60,5 @@ describe('Dag', ()=> {
         const d = new Dag(cid3, dagStore)
         const resp = await d.resolve("two/one/someData")
         expect(resp.value).to.equal("I am 1")
-    }).timeout(2000)
+    })
 })

@@ -13,7 +13,7 @@ const MemoryDatastore:any = require('interface-datastore').MemoryDatastore;
 
 
 const testRepo = async () => {
-    const repo = new Repo('test', {
+    const repo = new Repo('chaintree-test', {
       lock: 'memory',
       storageBackends: {
         root: MemoryDatastore,
@@ -37,14 +37,13 @@ describe('ChainTree', ()=> {
         const id = await tree.id()
         expect(id).to.not.be.null
         expect(id).to.include("did:tupelo:")
-    }).timeout(2000)
+    })
 
     it('resolves data', async ()=> {
       const key = await EcdsaKey.generate()
-      const repo = await testRepo()
-      const c = await Community.getDefault(repo)
+      const c = await Community.getDefault()
 
-      const tree = await ChainTree.newEmptyTree(new WrappedBlockService(new IpfsBlockService(repo.repo)), key)
+      const tree = await ChainTree.newEmptyTree(c.blockservice, key)
       expect(tree).to.exist
 
       await c.playTransactions(tree, [setDataTransaction("/path/to/somewhere", true)])

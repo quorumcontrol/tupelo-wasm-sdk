@@ -5,16 +5,17 @@
 ```ts
 
 import CID from 'cids';
-import { Envelope } from 'tupelo-messages';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
 import OldCId from 'cids';
-import { Signature } from 'tupelo-messages/signatures/signatures_pb';
+import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
-import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
+
+// @public
+export function afterTwoPeersConnected(node: IP2PNode): Promise<void>;
 
 // @public
 export class ChainTree extends Dag {
@@ -36,26 +37,23 @@ export class Community extends EventEmitter {
     // Warning: (ae-forgotten-export) The symbol "IRepo" needs to be exported by the entry point index.d.ts
     constructor(node: IP2PNode, group: NotaryGroup_2, repo: IRepo);
     // (undocumented)
-    bitswap: ICallbackBitswap;
+    bitswap: any;
     // (undocumented)
     blockservice: IBlockService;
-    getCurrentState(did: string): Promise<import("tupelo-messages/signatures/signatures_pb").TreeState>;
+    getProof(did: string): Promise<import("tupelo-messages/gossip/gossip_pb").Proof>;
     getTip(did: string): Promise<CID_2>;
     // (undocumented)
     group: NotaryGroup_2;
-    nextUpdate(): Promise<unknown>;
+    // @deprecated
+    nextUpdate(): Promise<void>;
     // (undocumented)
     node: IP2PNode;
-    playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/signatures/signatures_pb").TreeState>;
+    playTransactions(tree: ChainTree, transactions: Transaction_2[]): Promise<import("tupelo-messages/gossip/gossip_pb").Proof>;
     // (undocumented)
     sendTokenAndGetPayload(tree: ChainTree, tx: Transaction_2): Promise<import("tupelo-messages").TokenPayload>;
     start(): Promise<Community>;
     // (undocumented)
     stop(): Promise<void>;
-    // (undocumented)
-    subscribeToTips(): Promise<void>;
-    // (undocumented)
-    tip?: CID_2;
     // (undocumented)
     waitForStart(): Promise<Community>;
 }
@@ -65,20 +63,6 @@ export namespace Community {
     export function fromNotaryGroupToml(tomlString: string, repo?: Repo): Promise<Community>;
     export function getDefault(repo?: Repo): Promise<Community>;
     export function setDefault(community: Community): void;
-}
-
-// @beta
-export class CommunityMessenger {
-    constructor(name: string, shards: number, key: EcdsaKey, localIdentifier: Uint8Array, pubsub: IPubSub);
-    // (undocumented)
-    localIdentifier: Uint8Array;
-    // (undocumented)
-    name: string;
-    // (undocumented)
-    publish(topic: string, payload: Uint8Array): Promise<unknown>;
-    // (undocumented)
-    subscribe(topic: string, subscriber: Function): Promise<unknown>;
-    unsubscribe(topic: string, subscriber: Function): Promise<unknown>;
 }
 
 // Warning: (ae-forgotten-export) The symbol "INotaryGroupCreator" needs to be exported by the entry point index.d.ts
@@ -116,9 +100,7 @@ export class EcdsaKey {
     privateKey?: Uint8Array;
     // (undocumented)
     publicKey: Uint8Array;
-    signMessage(msg: Uint8Array): Promise<Signature>;
     toDid(): Promise<string>;
-    verifyMessage(msg: Uint8Array, sig: Signature): Promise<boolean>;
 }
 
 // @public
@@ -161,32 +143,6 @@ export interface IBlockService {
 }
 
 // @public
-export interface ICallbackBitswap {
-    // (undocumented)
-    get(cid: CID_2, cb: Function): void;
-    // (undocumented)
-    getMany(cids: CID_2[], callback: Function): void;
-    // (undocumented)
-    getWantlist(): any;
-    // (undocumented)
-    ledgerForPeer(peerId: any): Object;
-    // (undocumented)
-    peers(): any;
-    // (undocumented)
-    put(block: IBlock, cb: Function): void;
-    // (undocumented)
-    putMany(blocks: IBlock[], callback: Function): void;
-    // (undocumented)
-    start(cb: Function): void;
-    // (undocumented)
-    stat(): any;
-    // (undocumented)
-    stop(cb: Function): void;
-    // (undocumented)
-    wantlistForPeer(peerID: any): any;
-}
-
-// @public
 export interface IChainTreeInitializer {
     // (undocumented)
     key?: EcdsaKey;
@@ -218,6 +174,8 @@ export interface IP2PNode {
     emit(evt: string): null;
     // (undocumented)
     isStarted(): boolean;
+    // (undocumented)
+    off(evt: string, cb: Function): null;
     // (undocumented)
     on(evt: string, cb: Function): null;
     // (undocumented)
@@ -278,7 +236,7 @@ export namespace p2p {
 }
 
 // @public (undocumented)
-export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, treeState: TreeState, leaves: Uint8Array[]) => Transaction_2;
+export const receiveTokenTransaction: (sendId: string, tip: Uint8Array, proof: Proof, leaves: Uint8Array[]) => Transaction_2;
 
 // @public
 export const receiveTokenTransactionFromPayload: (payload: TokenPayload) => Transaction_2;
@@ -287,17 +245,17 @@ export const receiveTokenTransactionFromPayload: (payload: TokenPayload) => Tran
 export class Repo {
     constructor(name: string, opts?: RepoOpts);
     // (undocumented)
-    close(): Promise<any>;
+    close(): any;
     // (undocumented)
-    get(key: IKey): Promise<any>;
+    get(key: IKey): any;
     // (undocumented)
-    init(opts: any): Promise<any>;
+    init(opts: any): any;
     // (undocumented)
-    open(): Promise<any>;
+    open(): any;
     // Warning: (ae-forgotten-export) The symbol "IKey" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    put(key: IKey, val: Uint8Array): Promise<any>;
+    put(key: IKey, val: Uint8Array): any;
     // (undocumented)
     query(query: IQuery): any;
     // (undocumented)
@@ -337,14 +295,8 @@ export namespace Tupelo {
     export function ecdsaPubkeyToDid(pubKey: Uint8Array): Promise<string>;
     // (undocumented)
     export function generateKey(): Promise<Uint8Array[]>;
-    // Warning: (ae-forgotten-export) The symbol "IGetCurrentStateOptions" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    export function getCurrentState(opts: IGetCurrentStateOptions): Promise<TreeState>;
-    // (undocumented)
-    export function getSendableEnvelopeBytes(env: Envelope, key: EcdsaKey): Promise<Uint8Array>;
-    // (undocumented)
-    export function hashToShardNumber(topic: string, maxShards: number): Promise<number>;
+    export function getTip(did: string): Promise<Proof>;
     // (undocumented)
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
@@ -352,43 +304,16 @@ export namespace Tupelo {
     // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
-    export function playTransactions(publisher: IPubSub, notaryGroup: NotaryGroup, tree: ChainTree, transactions: Transaction[]): Promise<TreeState>;
-    export function signMessage(key: EcdsaKey, message: Uint8Array): Promise<Signature>;
+    export function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<Proof>;
+    // (undocumented)
+    export function setLogLevel(name: string, level: string): Promise<void>;
+    // (undocumented)
+    export function startClient(pubsub: IPubSub, group: NotaryGroup, store: IBlockService): Promise<void>;
     // Warning: (ae-forgotten-export) The symbol "ITransactionPayloadOpts" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     export function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload>;
-    export function verifyCurrentState(notaryGroup: NotaryGroup, state: TreeState): Promise<boolean>;
-    export function verifyMessage(address: string, message: Uint8Array, signature: Signature): Promise<boolean>;
-}
-
-// @public
-export class WrappedBitswap {
-    constructor(bitswap: ICallbackBitswap);
-    // (undocumented)
-    delete(cid: CID_2): Promise<unknown>;
-    // (undocumented)
-    get(cid: CID_2): Promise<IBlock>;
-    // (undocumented)
-    getMany(cids: CID_2[]): Promise<unknown>;
-    // (undocumented)
-    getWantlist(): any;
-    // (undocumented)
-    ledgerForPeer(peerID: any): Object;
-    // (undocumented)
-    peers(): any;
-    // (undocumented)
-    put(block: IBlock): Promise<any>;
-    // (undocumented)
-    putMany(blocks: IBlock[]): Promise<unknown>;
-    // (undocumented)
-    start(): () => Promise<unknown>;
-    // (undocumented)
-    stat(): any;
-    // (undocumented)
-    stop(): () => Promise<unknown>;
-    // (undocumented)
-    wantlistForPeer(peerID: any): any;
+    export function verifyProof(proof: Proof): Promise<boolean>;
 }
 
 // @public

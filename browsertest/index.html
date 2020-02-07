@@ -14,7 +14,10 @@
     <script src="https://unpkg.com/mocha/mocha.js"></script>
 
     <script class="mocha-init">
-        mocha.setup('bdd');
+        mocha.setup({
+            ui: 'bdd',
+            timeout: 20000,
+        });
     </script>
     <script src="tests/browser.ts"></script>
     <script class="mocha-exec">

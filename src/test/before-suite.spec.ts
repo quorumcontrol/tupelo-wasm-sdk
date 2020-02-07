@@ -1,18 +1,24 @@
+import Mocha from 'mocha'
 import isNode from 'detect-node';
 import fs from 'fs';
 import path from 'path';
 import { Community } from '../community';
 import Repo from '../repo';
+import debug from 'debug'
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
-// we only want to set the default *once* and not every time, so use a promise
-let beforePromise:Promise<boolean>
+var log = debug("beforesuite")
 
-before(() => {
+// we only want to set the default *once* and not every time, so use a promise
+let beforePromise: Promise<boolean>
+
+Mocha.suiteSetup(()=> {
+  log("suiteSetup")
   if (beforePromise !== undefined) {
     return beforePromise;
-  }  
-  beforePromise = new Promise(async (res,rej)=> {
+  }
+  beforePromise = new Promise(async (res, rej) => {
+    log("setting up default community")
     const repo = new Repo('test', {
       lock: 'memory',
       storageBackends: {
@@ -22,25 +28,22 @@ before(() => {
         datastore: MemoryDatastore
       }
     })
-  await repo.init({})
-  await repo.open()
+    await repo.init({})
+    await repo.open()
 
     let tomlConfig: string;
-    if (isNode) {
-      let tomlFile
-      if (fs.existsSync("/tupelo-local/config/notarygroup.toml")) {
-        tomlFile = '/tupelo-local/config/notarygroup.toml'
-      } else {
-        tomlFile = path.join(__dirname, 'notarygroup.toml')
-      }
-  
-      tomlConfig = fs.readFileSync(tomlFile).toString()
-    } else {
-      throw new Error("browser not supported yet, you must add notary group resolution over http")
+    if (!isNode) {
+      rej(new Error("browser not supported yet"))
+      return
     }
-  
+
+    const tomlFile = path.join(__dirname, '../../localtupelo/configs/localdocker.toml')
+    tomlConfig = fs.readFileSync(tomlFile).toString()
+    log("setting up community")
+
     const testCommunity = await Community.fromNotaryGroupToml(tomlConfig, repo)
     Community.setDefault(testCommunity)
+    log("suiteSetup done")
     res(true)
   })
   return beforePromise

@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/quorumcontrol/tupelo-wasm-sdk#readme",
   "dependencies": {
+    "multicodec": "^0.5.6",
     "tupelo-wasm-sdk": "latest"
   },
   "devDependencies": {

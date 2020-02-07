@@ -1,0 +1,12 @@
+version: "3"
+
+# this is designed to be run in conjunction with a local running tupelo docker-compose
+
+services:
+  tester:
+    depends_on:
+      - bootstrap # this is defined in the docker-compose.yml next to this file, designed to be run with two -f (eg -f docker-compose.yml -f docker-compose.test.yml)
+    build: .
+    command: ["npm", "run", "test"]
+    volumes:
+      - .:/usr/src/app

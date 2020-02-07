@@ -2,8 +2,8 @@ import { Dag, IBlockService } from './dag/dag'
 import CID from 'cids'
 import { EcdsaKey } from '../crypto'
 import { Tupelo } from '../tupelo';
-import { TreeState } from 'tupelo-messages/signatures/signatures_pb';
 import { SetDataPayload, Transaction, SetOwnershipPayload, TokenMonetaryPolicy, EstablishTokenPayload, MintTokenPayload, SendTokenPayload, ReceiveTokenPayload, TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
+import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 
 const dagCBOR = require('ipld-dag-cbor');
 
@@ -188,11 +188,11 @@ export const sendTokenTransaction = (sendId: string, name: string, amount: numbe
     return txn;
 };
 
-const receiveTokenPayload = (sendId: string, tip: Uint8Array, treeState: TreeState, leaves: Uint8Array[]) => {
+const receiveTokenPayload = (sendId: string, tip: Uint8Array, proof: Proof, leaves: Uint8Array[]) => {
     var payload = new ReceiveTokenPayload();
     payload.setSendTokenTransactionId(sendId);
     payload.setTip(tip);
-    payload.setTreeState(treeState);
+    payload.setProof(proof);
     payload.setLeavesList(leaves);
 
     return payload;
@@ -201,8 +201,8 @@ const receiveTokenPayload = (sendId: string, tip: Uint8Array, treeState: TreeSta
 /** 
  * @public
  */
-export const receiveTokenTransaction = (sendId: string, tip: Uint8Array, treeState: TreeState, leaves: Uint8Array[]) => {
-    var payload = receiveTokenPayload(sendId, tip, treeState, leaves);
+export const receiveTokenTransaction = (sendId: string, tip: Uint8Array, proof: Proof, leaves: Uint8Array[]) => {
+    var payload = receiveTokenPayload(sendId, tip, proof, leaves);
 
     var txn = new Transaction();
     txn.setType(Transaction.Type.RECEIVETOKEN);
@@ -222,18 +222,20 @@ export const receiveTokenTransactionFromPayload = (payload:TokenPayload) => {
     var txn = new Transaction();
     txn.setType(Transaction.Type.RECEIVETOKEN);
     const tip = new CID(payload.getTip())
-    const state = payload.getTreeState()
-    if (state === undefined) {
-        throw new Error("treeState must be defined")
-    }
     const leaves = payload.getLeavesList_asU8()
     if (leaves === undefined) {
         throw new Error('leaves must be defined')
     }
+
+    const proof = payload.getProof()
+    if (proof === undefined) {
+        throw new Error("proof must be defined")
+    }
+
     txn.setReceiveTokenPayload(receiveTokenPayload(
         payload.getTransactionId(),
         tip.buffer,
-        state,
+        proof,
         leaves,
     ));
     return txn

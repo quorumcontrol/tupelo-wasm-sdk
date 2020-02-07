@@ -7,7 +7,7 @@ import 'mocha';
 
 describe('configToNotaryGroup', ()=> {
     it('converts a config to a notary group', async ()=> {
-        const toml = fs.readFileSync(path.join(__dirname, 'test/notarygroup.toml')).toString()
+        const toml = fs.readFileSync(path.join(__dirname, '../localtupelo/configs/localdocker.toml')).toString()
         const testNotaryGroup = tomlToNotaryGroup(toml)
         expect(testNotaryGroup.getId()).to.equal("tupelolocal")
         expect(testNotaryGroup.getSignersList()).to.have.length(3)

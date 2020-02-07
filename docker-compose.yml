@@ -1,24 +1,48 @@
 version: "3"
-
 services:
-  tupelo:
-    image: quorumcontrol/tupelo-local:latest
+  bootstrap:
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
+    command: ["bootstrap-node", "--config", "/configs/bootstrap/config.toml", "-L", "${TUPELO_LOG_LEVEL:-warn}"]
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - tupelo-local:/tupelo-local
-    environment:
-      TUPELO_VERSION: ${TUPELO_VERSION:-latest}
-      COMMUNITY_VERSION: ${COMMUNITY_VERSION:-latest}
-    logging:
-      driver: none
+      - ./localtupelo/configs:/configs      
+    networks:
+      default:
+        ipv4_address: 172.16.238.10
+    ports:
+      - "34001:34001"
+      - "50000:50000"
+      
+  node0:
+    depends_on: 
+      - bootstrap
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
+    volumes:
+      - ./localtupelo/configs:/configs      
+    command: ["node", "--config", "/configs/node0/config.toml",
+      "-L", "${TUPELO_LOG_LEVEL:-warn}"]
+    networks:
+      default:
+        ipv4_address: 172.16.238.11  
+    ports:
+      - "50001:50001"  
 
-  tester:
-    build: .
-    entrypoint: ["/tupelo-local/wait-for-tupelo.sh"]
-    command: ["npm", "run", "test"]
+  node1:
+    depends_on: 
+      - bootstrap
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
     volumes:
-      - tupelo-local:/tupelo-local
-      - .:/usr/src/app
+      - ./localtupelo/configs:/configs      
+    command: ["node", "--config", "/configs/node1/config.toml",
+      "-L", "${TUPELO_LOG_LEVEL:-warn}"]
+  
+  node2:
+    depends_on: 
+      - bootstrap
+    image: quorumcontrol/tupelo:${TUPELO_VERSION:-master}
+    volumes:
+      - ./localtupelo/configs:/configs      
+    command: ["node", "--config", "/configs/node2/config.toml",
+      "-L", "${TUPELO_LOG_LEVEL:-warn}"]
 
 networks:
   default:
@@ -26,7 +50,4 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 172.16.247.0/24
-
-volumes:
-  tupelo-local:
+        - subnet: 172.16.238.0/24

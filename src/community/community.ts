@@ -1,10 +1,9 @@
 import EventEmitter from 'events';
-import { IP2PNode, IPubSubMessage, p2p } from '../node';
+import { IP2PNode, p2p } from '../node';
 import { NotaryGroup } from 'tupelo-messages';
 import { Transaction } from 'tupelo-messages/transactions/transactions_pb'
 import CID from 'cids';
 import { IBlockService } from '../chaintree/dag/dag'
-import { ICallbackBitswap } from './wrappedbitswap'
 import { WrappedBlockService } from './wrappedblockservice'
 import Tupelo from '../tupelo';
 import { ChainTree } from '../chaintree';
@@ -20,10 +19,6 @@ const debugLog = debug("community")
 const IpfsBitswap: any = require('ipfs-bitswap')
 const IpfsBlockService: any = require('ipfs-block-service');
 
-function tipTopicFromNotaryGroup(ng: NotaryGroup): string {
-    return ng.getId() + "-tips"
-}
-
 interface IRepo {
     blocks: IBlockService
 }
@@ -37,9 +32,8 @@ interface IRepo {
 export class Community extends EventEmitter {
     node: IP2PNode
     group: NotaryGroup
-    tip?: CID
     private repo: IRepo
-    bitswap: ICallbackBitswap
+    bitswap: any
     blockservice: IBlockService
 
     private _started: boolean
@@ -61,27 +55,18 @@ export class Community extends EventEmitter {
         this._startPromise = new Promise((resolve) => { this._startPromiseResolve = resolve })
     }
 
-    async waitForStart(): Promise<Community> {
+    waitForStart(): Promise<Community> {
         return this._startPromise
     }
 
-
     /**
-     * getCurrentState returns the current state (signatures)
+     * getProof returns the proof for the current tip of a ChainTree
      * for a given ChainTree (its DID)
+     * @param did - The DID of the ChainTree
      * @public
     */
-    async getCurrentState(did: string) {
-        await this.start()
-        await this.nextUpdate()
-        if (this.tip == undefined) {
-            throw new Error("tip still undefined, even though community started and update received")
-        }
-        return Tupelo.getCurrentState({
-            did: did,
-            blockService: this.blockservice,
-            tip: this.tip,
-        })
+    getProof(did: string) {
+        return Tupelo.getTip(did)
     }
 
     /**
@@ -90,8 +75,8 @@ export class Community extends EventEmitter {
      * @param did - The DID of the ChainTree
      */
     async getTip(did: string):Promise<CID> {
-        const state = await this.getCurrentState(did)
-        return new CID(Buffer.from(state.getNewTip_asU8()))
+        const proof = await Tupelo.getTip(did)
+        return new CID(Buffer.from(proof.getTip_asU8()))
     }
 
     async sendTokenAndGetPayload(tree: ChainTree, tx: Transaction) {
@@ -100,13 +85,13 @@ export class Community extends EventEmitter {
             throw new Error("must use a send token transaction here")
         }
 
-        const resp = await this.playTransactions(tree, [tx])
+        const proof = await this.playTransactions(tree, [tx])
         return Tupelo.tokenPayloadForTransaction({
             blockService: this.blockservice,
             tip: tree.tip,
             tokenName: sendTokenPayload.getName(),
             sendId: sendTokenPayload.getId(),
-            treeState: resp,
+            proof: proof,
         })
     }
 
@@ -115,18 +100,20 @@ export class Community extends EventEmitter {
      * easier when using a fully community client
     */
     async playTransactions(tree: ChainTree, transactions: Transaction[]) {
-        return Tupelo.playTransactions(this.node.pubsub, this.group, tree, transactions)
+        return await Tupelo.playTransactions(tree, transactions)
     }
 
     /** next update is a helper function
      * which lets you do an await until the next tip
      * update of the community
+     * @deprecated
     */
     async nextUpdate() {
-        let resolve: Function
-        const p = new Promise((res, _rej) => { resolve = res })
-        this.once('tip', () => { resolve() })
-        return p
+        //TODO: deprecated
+        // let resolve: Function
+        // const p = new Promise((res, _rej) => { resolve = res })
+        // this.once('tip', () => { resolve() })
+        return Promise.resolve()
     }
 
     /**
@@ -139,27 +126,12 @@ export class Community extends EventEmitter {
         this._started = true
         debugLog("start()")
 
-        this.bitswap.start(() => {
-            debugLog("bitswap started")
-        })
 
-        if (this.node.isStarted()) {
-            try {
-                await this.subscribeToTips()
-            } catch (err) {
-                this._started = false
-                this._startPromiseReject(err)
-            }
-        } else {
-            this.node.once('start', async () => {
-                try {
-                    await this.subscribeToTips()
-                } catch (err) {
-                    this._started = false
-                    this._startPromiseReject(err)
-                }
-            })
-        }
+        await this.bitswap.start()
+        debugLog("bitswap started")
+
+        await Tupelo.startClient(this.node.pubsub, this.group, this.blockservice)
+    
         debugLog("started")
         this._startPromiseResolve(this)
         this.emit('start')
@@ -171,30 +143,26 @@ export class Community extends EventEmitter {
         this.bitswap.stop(()=>{})
         this.node.stop()
     }
+}
 
-    async subscribeToTips() {
-        let resolve: Function, reject: Function
-        const p = new Promise((res, rej) => { resolve = res, reject = rej })
-
-        this.node.pubsub.subscribe(tipTopicFromNotaryGroup(this.group), (msg: IPubSubMessage) => {
-            if (msg.data.length > 0) {
-                this.tip = new CID(Buffer.from(msg.data))
-                this.emit('tip', this.tip)
-                debugLog("tip received: cid: ", this.tip, " raw: ", msg.data)
-            } else {
-                debugLog("received null tip")
+/**
+ * This waits until the libp2p node has connected to two peers
+ * @private
+ */
+export function afterTwoPeersConnected(node:IP2PNode):Promise<void> {
+    return new Promise((resolve) => {
+        let connectCount = 0
+        const onConnect = async ()=> {
+            debugLog("peer connected: ", connectCount)
+            connectCount++
+            if (connectCount >= 2) {
+                node.off('peer:connect', onConnect)
+                resolve()
             }
+        }
 
-        }, (err: Error) => {
-            if (err) {
-                reject(err)
-                return
-            }
-            debugLog("subscribed to tips")
-            resolve()
-        })
-    }
-
+        node.on('peer:connect', onConnect)
+    })
 }
 
 export namespace Community {
@@ -232,6 +200,7 @@ export namespace Community {
             const ng = tomlToNotaryGroup(tomlString)
             try {
                 const node = await p2p.createNode({ bootstrapAddresses: ng.getBootstrapAddressesList() });
+
                 if (repo == undefined) {
                     repo = new Repo(ng.getId())
                     try {
@@ -241,10 +210,14 @@ export namespace Community {
                         rej(e)
                     }
                 }
-                const c = new Community(node, ng, repo.repo)
 
-                node.start(async ()=>{
+                afterTwoPeersConnected(node).then(async ()=> {
                     res(await c.start())
+                })
+
+                const c = new Community(node, ng, repo.repo)
+                node.start(async ()=>{
+                   debugLog("p2p node started")
                 })
             } catch(e) {
                 debugLog("error creating community: ", e)
