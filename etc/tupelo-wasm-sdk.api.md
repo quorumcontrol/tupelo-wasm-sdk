@@ -15,7 +15,7 @@ import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
 
 // @public
-export function afterTwoPeersConnected(node: IP2PNode): Promise<void>;
+export function afterThreePeersConnected(node: IP2PNode): Promise<void>;
 
 // @public
 export class ChainTree extends Dag {
@@ -60,6 +60,7 @@ export class Community extends EventEmitter {
 
 // @public (undocumented)
 export namespace Community {
+    export function fromNotaryGroup(notaryGroup: NotaryGroup_2, repo?: Repo): Promise<Community>;
     export function fromNotaryGroupToml(tomlString: string, repo?: Repo): Promise<Community>;
     export function getDefault(repo?: Repo): Promise<Community>;
     export function setDefault(community: Community): void;

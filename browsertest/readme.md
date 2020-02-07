@@ -7,3 +7,9 @@ Run: `npm run dev` (from the browsertest directory) and then visit http://localh
 You need to have a local tupelo running... `docker-compose up tupelo` will do that for you from the main directory (`../` from this directory).
 
 The tests use Parcel to compile and serve the HTML and the mocha browser runner/css to display results.
+
+## Logging / Debugging
+
+Run `npm run dev` with ` DEBUG=` environment variable set to the names of the various debug namespaces in this project. Additionally, using `DEBUG=go` will turn on all the wasm / tupelo-go-sdk logs. The following is a reasonably verbose output:
+
+`DEBUG=community,tupelo,go npm run dev`

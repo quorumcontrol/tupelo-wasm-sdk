@@ -1,5 +1,6 @@
 import { expect } from 'chai'
-import { Community, EcdsaKey, p2p, Repo, configToNotaryGroup, toCamel, setDataTransaction, ChainTree, Tupelo } from 'tupelo-wasm-sdk'
+import debug from 'debug';
+import { Community, EcdsaKey, configToNotaryGroup, toCamel, setDataTransaction, ChainTree, Tupelo } from 'tupelo-wasm-sdk'
 
 import notaryGroupConfig from '../../localtupelo/configs/localdocker.toml' // parcel does this magic for us
 
@@ -12,32 +13,26 @@ describe("browser", () => {
 
         return new Promise(async (res, rej) => {
             try {
-                const config = toCamel(toCamel(notaryGroupConfig))
+                if (debug.enabled("go")) {
+                    await Tupelo.setLogLevel("*", "debug")
+                }
+
+                const ng = configToNotaryGroup(toCamel(notaryGroupConfig))
+
                 let newBoostrap:string[] = []
-                config.bootstrapAddresses.forEach((addr:string) => {
-                    if (addr.includes("127.0.0.1") && addr.includes("/ws/")) {
+
+                ng.getBootstrapAddressesList().forEach((addr:string) => {
+                    // bootstrap to local ws nodes OR remote wss nodes
+                    if ((addr.includes("127.0.0.1") && addr.includes("/ws/")) || addr.includes("/wss/")) {
                         newBoostrap.push(addr)
                     }
                 })
 
-                config.bootstrapAddresses = newBoostrap
-                const ng = configToNotaryGroup(config)  
-                const node = await p2p.createNode({ bootstrapAddresses: ng.getBootstrapAddressesList() });
-                const repo = new Repo(ng.getId())
-                try {
-                    await repo.init({})
-                    await repo.open()
-                } catch (e) {
-                    rej(e)
-                }
-                const c = new Community(node, ng, repo.repo)
+                ng.setBootstrapAddressesList(newBoostrap)
 
-                node.start(async () => {
-                    await c.start()
-                    console.log("community start")
-                    Community.setDefault(c)
-                    res()
-                })
+                const c = await Community.fromNotaryGroup(ng)
+                Community.setDefault(c)
+                res()
             } catch (e) {
                 rej(e)
             }
@@ -56,7 +51,6 @@ describe("browser", () => {
             const key = await EcdsaKey.generate()
             const tree = await ChainTree.newEmptyTree(c.blockservice, key)
             console.log("playing transactions")
-            await Tupelo.setLogLevel("*", "debug")
             c.playTransactions(tree, trans).then((proof) => {
                 expect(proof.getTip_asU8()).to.exist
                 resolve()
@@ -69,7 +63,6 @@ describe("browser", () => {
     })
 
     it('can resolve trees', async ()=> {
-
         const c = await Community.getDefault()
         const p = new Promise(async (resolve, reject) => {
             const trans = [setDataTransaction("/test", "oh really")]
