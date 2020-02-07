@@ -33,8 +33,5 @@ describe('configToNotaryGroup', ()=> {
             "16Uiu2HAmGUJEzuaJ6MZHn2gb5WbuhX32zVsuhXj8rALjczR9eRE5",
             "16Uiu2HAmKhC8rdvoMnSmpxK2otEtNcs9dkp6WwJUugERzWPwPmVy",
         ])
-
-        notaryGroupToSignerPeerIds
     })
-
 })
