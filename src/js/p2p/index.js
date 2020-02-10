@@ -15,6 +15,7 @@ const util = require('util')
 const log = require('debug')("p2p")
 
 const discovery = require('./discovery')
+const WssPeerBook = require('./wss-peer-book')
   
 const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
 
@@ -115,6 +116,7 @@ module.exports.CreateNode = async function(options) {
       const key = await crypto.generateKeyPair('secp256k1')
       const peerID = await util.promisify(PeerId.createFromPrivKey)(key.bytes)
       const peerInfo = new PeerInfo(peerID);
+
       if (isNodeJS) {
         // nodejs requires that you listen to the address to be able
         // to dial it, the browser *can't* listen to an address.
@@ -122,6 +124,13 @@ module.exports.CreateNode = async function(options) {
         peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0/wss')
         peerInfo.multiaddrs.add('/ip4/0.0.0.0/tcp/0')
       }
+
+      // If in the browser and running under https, then force
+      // WSS connections by filtering out non WSS addrs
+      if (!isNodeJS && location.protocol == 'https:') {
+        options.peerBook = new WssPeerBook()
+      }
+
       options.peerInfo = peerInfo;
       const node = new TupeloP2P(options);
       log("peerIdStr ", peerID.toB58String());
