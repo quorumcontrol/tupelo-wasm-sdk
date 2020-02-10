@@ -1,5 +1,5 @@
 NotaryGroupConfig = "../localdocker.toml"
-WebsocketPort = 50000
+WebsocketPort = 50002
 
 [PrivateKeySet]
 SignKeyHex = "0x39a9b8ab3266811852b8b18d1fd0562ffc907f3ecba297c9b2a89f742d349dc9"
