@@ -6,16 +6,13 @@ import debug from 'debug';
 
 const log = debug("community:default")
 
-const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
-
-
 const testNetToml = `id = "gossip4"
 
 BootstrapAddresses = [
-  "/ip4/52.88.225.180/tcp/34001/ipfs/16Uiu2HAmQgHD5eqxDskKe21ythvG2T9o5i521kEdLrdgjc94sgCr",
-  "/ip4/15.188.248.188/tcp/34001/ipfs/16Uiu2HAmNBupyDCfGSqo6ypNUmpHbYWy4jSaTBsbz6uRnsnY3JZN",
   "/dns4/94sgcr.bootstrap.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAmQgHD5eqxDskKe21ythvG2T9o5i521kEdLrdgjc94sgCr",
   "/dns4/ny3jzn.bootstrap.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAmNBupyDCfGSqo6ypNUmpHbYWy4jSaTBsbz6uRnsnY3JZN",
+  "/ip4/52.88.225.180/tcp/34001/ipfs/16Uiu2HAmQgHD5eqxDskKe21ythvG2T9o5i521kEdLrdgjc94sgCr",
+  "/ip4/15.188.248.188/tcp/34001/ipfs/16Uiu2HAmNBupyDCfGSqo6ypNUmpHbYWy4jSaTBsbz6uRnsnY3JZN",
 ]
 
 [[signers]]
@@ -64,12 +61,14 @@ export const _getDefault = (repo?:Repo): Promise<Community> => {
         return _defaultCommunity
     }
     _defaultCommunity = new Promise(async (resolve,reject) => {    
+        log("opening repo")
         if (repo == undefined) {
             repo = new Repo("default")
             await repo.init({})
             await repo.open()
         }
 
+        log("opening creating node")
         const node = await p2p.createNode({
             namespace: defaultNotaryGroup.getId(),
             bootstrapAddresses: defaultNotaryGroup.getBootstrapAddressesList()
@@ -81,16 +80,20 @@ export const _getDefault = (repo?:Repo): Promise<Community> => {
 
         const c = new Community(node, defaultNotaryGroup, repo.repo)
     
+        log("waiting for signer connected")
         afterOneSignerConnected(node, defaultNotaryGroup).then(()=> {
+            log("signer connected, starting community")
             resolve(c.start())
         })
 
+        log("starting node")
         node.start(async () => {
             log("node started");
         });
     
         // clear the defaultcommunity on a node stopage
         node.once('stop', async ()=> {
+            log("node stopped, clearing community")
             _defaultCommunity = undefined
         })
     })
