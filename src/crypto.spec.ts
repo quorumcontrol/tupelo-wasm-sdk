@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import 'mocha'
 import {EcdsaKey} from './crypto'
+import { PublicKey } from 'tupelo-messages/signatures/signatures_pb'
 
 describe('EcdsaKeys', ()=> {
     it('generates a pair', async ()=> {
@@ -22,5 +23,12 @@ describe('EcdsaKeys', ()=> {
             expect(key.publicKey).to.have.length(65)
             expect(key.privateKey).to.have.length(32)
         }
+    })
+
+    it('generates a publicKeyProtobuf', async ()=> {
+        const key = await EcdsaKey.generate()
+        const pb = key.toPublicKeyPB()
+        expect(pb.getPublicKey_asU8()).to.equal(key.publicKey)
+        expect(pb.getType()).to.equal(PublicKey.Type.KEYTYPESECP256K1)
     })
 })
