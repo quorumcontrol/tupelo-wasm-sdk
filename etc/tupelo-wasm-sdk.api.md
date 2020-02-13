@@ -133,6 +133,14 @@ export interface IBlock {
 }
 
 // @public
+export interface IBlockOptions {
+    // (undocumented)
+    conditions?: string;
+    // (undocumented)
+    preImage?: string;
+}
+
+// @public
 export interface IBlockService {
     // (undocumented)
     delete(cid: CID_2): Promise<any>;
@@ -320,15 +328,16 @@ export namespace Tupelo {
     // (undocumented)
     export function getTip(did: string): Promise<Proof>;
     // (undocumented)
+    export function hash(bits: Uint8Array): Promise<Uint8Array>;
+    // (undocumented)
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
     export function newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID_2>;
-    // (undocumented)
     export function ownershipToAddress(ownership: Ownership): Promise<string>;
     // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
-    export function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<Proof>;
+    export function playTransactions(tree: ChainTree, transactions: Transaction[], options?: IBlockOptions): Promise<Proof>;
     // (undocumented)
     export function setLogLevel(name: string, level: string): Promise<void>;
     // (undocumented)
