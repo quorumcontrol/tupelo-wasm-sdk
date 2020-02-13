@@ -8,6 +8,8 @@ import ChainTree from './chaintree/chaintree';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import debug from 'debug'
+import { Ownership } from 'tupelo-messages/signatures/signatures_pb';
+import { EcdsaKey } from './crypto';
 
 const logger = debug("tupelo")
 
@@ -59,11 +61,8 @@ class UnderlyingWasm {
     keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]> {
         return new Promise<Uint8Array[]>((res, rej) => { }) // replaced by wasm
     }
-    ecdsaPubkeyToDid(pubKey: Uint8Array): Promise<string> {
-        return new Promise<string>((res, rej) => { }) // replaced by wasm
-    }
-    ecdsaPubkeyToAddress(pubKey: Uint8Array): Promise<string> {
-        return new Promise<string>((res, rej) => { }) // replaced by wasm
+    ownershipToAddress(ownership:Uint8Array):Promise<string> {
+        return new Promise<string>((res,rej)=>{}) // replaced by wasm
     }
     getTip(did:string): Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
@@ -140,16 +139,35 @@ export namespace Tupelo {
         return tw.keyFromPrivateBytes(bytes)
     }
 
-    export async function ecdsaPubkeyToDid(pubKey: Uint8Array): Promise<string> {
+    /**
+     * 
+     * @deprecated - use EcdsaKey#toDid() instead
+     */
+    export function ecdsaPubkeyToDid(pubKey: Uint8Array): Promise<string> {
         logger("ecdsaPubkeyToDid")
-        const tw = await TupeloWasm.get()
-        return tw.ecdsaPubkeyToDid(pubKey)
+        const key = new EcdsaKey(pubKey)
+        return key.toDid()
     }
 
-    export async function ecdsaPubkeyToAddress(pubKey: Uint8Array): Promise<string> {
+    /**
+     * 
+     * @deprecated - use EcdaKey#address() instead
+     */
+    export function ecdsaPubkeyToAddress(pubKey: Uint8Array): Promise<string> {
         logger("ecdsaPubkeyToAddress")
+        const key = new EcdsaKey(pubKey)
+        return key.address()
+    }
+
+    /**
+     * ownershipToAddress takes an Ownership and converts it to an address
+     * this address is suitable for setOwnership transactions
+     * @param ownership - the Ownership protobuf to convert into an address
+     */
+    export async function ownershipToAddress(ownership: Ownership): Promise<string> {
+        logger("ownershipToAddress")
         const tw = await TupeloWasm.get()
-        return tw.ecdsaPubkeyToAddress(pubKey)
+        return tw.ownershipToAddress(ownership.serializeBinary())
     }
 
     export async function getTip(did:string): Promise<Proof> {

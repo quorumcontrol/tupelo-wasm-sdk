@@ -7,41 +7,21 @@ import { EcdsaKey } from './crypto';
 import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction } from './chaintree/chaintree';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { Community } from './community/community';
-import Repo from './repo';
 import debug from 'debug';
+import { Ownership } from 'tupelo-messages/signatures/signatures_pb';
 
 // import {LocalCommunity} from 'local-tupelo';
 
 const debugLog = debug("tupelospec")
 
-const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
-
-const testRepo = async () => {
-  const repo = new Repo('test', {
-    lock: 'memory',
-    storageBackends: {
-      root: MemoryDatastore,
-      blocks: MemoryDatastore,
-      keys: MemoryDatastore,
-      datastore: MemoryDatastore
-    }
-  })
-  await repo.init({})
-  await repo.open()
-  return repo
-}
-
 describe('Tupelo', () => {
-  it('gets a DID from a publicKey', async () => {
+  it('generates an address from an ownership', async ()=> {
     const key = await EcdsaKey.generate()
-    const did = await Tupelo.ecdsaPubkeyToDid(key.publicKey)
-    expect(did).to.include("did:tupelo:")
-    expect(did).to.have.lengthOf(53)
-  })
 
-  it('gets an address from a publicKey', async () => {
-    const key = await EcdsaKey.generate()
-    const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
+    const ownership = new Ownership()
+    ownership.setPublicKey(key.toPublicKeyPB())
+    
+    const addr = await Tupelo.ownershipToAddress(ownership)
     expect(addr).to.have.lengthOf(42)
   })
 

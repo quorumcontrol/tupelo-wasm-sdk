@@ -31,4 +31,19 @@ describe('EcdsaKeys', ()=> {
         expect(pb.getPublicKey_asU8()).to.equal(key.publicKey)
         expect(pb.getType()).to.equal(PublicKey.Type.KEYTYPESECP256K1)
     })
+
+    it('converts to an address', async ()=> {
+        const key = await EcdsaKey.generate()
+        const addr = await key.address()
+        expect(addr).to.have.length(42)
+    })
+
+    it('converts to an did', async ()=> {
+        const key = await EcdsaKey.generate()
+        const addr = await key.toDid()
+        const parts = addr.split(":")
+        expect(parts[0]).to.equal('did')
+        expect(parts[1]).to.equal('tupelo')
+        expect(parts[2]).to.have.length(42)
+    })
 })

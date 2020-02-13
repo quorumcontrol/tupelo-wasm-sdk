@@ -1,5 +1,5 @@
 import {Tupelo} from './tupelo'
-import { Signature, PublicKey } from 'tupelo-messages/signatures/signatures_pb'
+import { Signature, PublicKey, Ownership } from 'tupelo-messages/signatures/signatures_pb'
 
 /**
  * EcdsaKey defines the public/private key-pairs used to interact with Tupelo.
@@ -43,7 +43,9 @@ export class EcdsaKey {
      * @public
      */
     async address() {
-        return Tupelo.ecdsaPubkeyToAddress(this.publicKey)
+        const ownership = new Ownership()
+        ownership.setPublicKey(this.toPublicKeyPB())
+        return Tupelo.ownershipToAddress(ownership)
     }
 
     /**
@@ -51,7 +53,7 @@ export class EcdsaKey {
      * @public
      */
     async toDid() {
-        return Tupelo.ecdsaPubkeyToDid(this.publicKey)
+        return "did:tupelo:" + (await this.address())
     }
     
     /**

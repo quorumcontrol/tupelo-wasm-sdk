@@ -9,7 +9,9 @@ import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
 import { NotaryGroup as NotaryGroup_2 } from 'tupelo-messages';
 import OldCId from 'cids';
+import { Ownership } from 'tupelo-messages/signatures/signatures_pb';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
+import { PublicKey } from 'tupelo-messages/signatures/signatures_pb';
 import { PublicKeySet } from 'tupelo-messages/config/config_pb';
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb';
 import { Transaction } from 'tupelo-messages';
@@ -103,6 +105,8 @@ export class EcdsaKey {
     // (undocumented)
     publicKey: Uint8Array;
     toDid(): Promise<string>;
+    // @internal
+    toPublicKeyPB(): PublicKey;
 }
 
 // @public
@@ -307,9 +311,9 @@ export function tomlToNotaryGroup(tomlString: string): NotaryGroup;
 
 // @public
 export namespace Tupelo {
-    // (undocumented)
+    // @deprecated (undocumented)
     export function ecdsaPubkeyToAddress(pubKey: Uint8Array): Promise<string>;
-    // (undocumented)
+    // @deprecated (undocumented)
     export function ecdsaPubkeyToDid(pubKey: Uint8Array): Promise<string>;
     // (undocumented)
     export function generateKey(): Promise<Uint8Array[]>;
@@ -319,6 +323,8 @@ export namespace Tupelo {
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
     export function newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID_2>;
+    // (undocumented)
+    export function ownershipToAddress(ownership: Ownership): Promise<string>;
     // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
