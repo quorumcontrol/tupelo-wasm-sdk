@@ -4,7 +4,7 @@ import 'mocha';
 import './extendedglobal';
 import { Tupelo } from './tupelo';
 import { EcdsaKey } from './crypto';
-import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction } from './chaintree/chaintree';
+import ChainTree, { setDataTransaction, establishTokenTransaction, mintTokenTransaction, sendTokenTransaction, setOwnershipTransaction } from './chaintree/chaintree';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { Community } from './community/community';
 import debug from 'debug';
@@ -58,6 +58,35 @@ describe('Tupelo', () => {
         resolve(true)
       })
     return p
+  })
+
+  it('hashes', async ()=> {
+    const preImage = Buffer.from("hi")
+    const hash = await Tupelo.hash(preImage)
+    expect(hash).to.have.lengthOf(32)
+  })
+
+  it('plays transactions with conditions', async ()=> {
+    const c = await Community.getDefault()
+    const key = await EcdsaKey.generate()
+    let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+
+    const preImage = Buffer.from('secret!')
+    const hash = await Tupelo.hash(preImage)
+
+    const ownership = new Ownership()
+    ownership.setPublicKey(key.toPublicKeyPB())
+    ownership.setConditions('(== (hashed-preimage) "' + "0x" + Buffer.from(hash).toString('hex') +'")')
+
+    const addr = await Tupelo.ownershipToAddress(ownership)
+    const ownershipTrans = setOwnershipTransaction([addr])
+    await Tupelo.playTransactions(tree, [ownershipTrans])
+
+    // now let's do a transaction using our new preimage
+
+    const dataTrans = setDataTransaction("/test", true)
+    await Tupelo.playTransactions(tree, [dataTrans], {preImage: preImage.toString(), conditions: ownership.getConditions()})
+
   })
 
   it('gets token payload', async () => {

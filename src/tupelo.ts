@@ -23,10 +23,19 @@ export interface IPubSub {
     unsubscribe(topic: string, onMsg: Function, cb: Function): null
 }
 
+/**
+ * IBlockOptions is used to specify additional options for playTransactions
+ */
+export interface IBlockOptions {
+    conditions?:string
+    preImage?: string
+}
+
 interface IPlayTransactionOptions {
     privateKey: Uint8Array,
     tip: CID,
     transactions: Uint8Array[],
+    options?: IBlockOptions,
 }
 
 interface IClientOptions {
@@ -84,6 +93,9 @@ class UnderlyingWasm {
     }
     setLogLevel(name:string, level:string):void {
         return // replaced by wasm
+    }
+    hash(bits:Uint8Array):Uint8Array {
+        return new Uint8Array() // replaced by wasm
     }
 }
 
@@ -222,7 +234,7 @@ export namespace Tupelo {
         })
     }
 
-    export async function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<Proof> {
+    export async function playTransactions(tree: ChainTree, transactions: Transaction[], options?:IBlockOptions): Promise<Proof> {
         logger("playTransactions")
         if (tree.key == undefined) {
             throw new Error("playing transactions on a tree requires the tree to have a private key, use tree.key = <ecdsaKey>")
@@ -243,11 +255,17 @@ export namespace Tupelo {
             privateKey: privateKey,
             tip: tree.tip,
             transactions: transBits,
+            options: options,
         })
 
         const proof = Proof.deserializeBinary(resp)
         tree.tip = new CID(Buffer.from(proof.getTip_asU8()))
         return proof
+    }
+
+    export async function hash(bits:Uint8Array):Promise<Uint8Array> {
+        const tw = await TupeloWasm.get()
+        return tw.hash(bits)
     }
 
     export async function setLogLevel(name:string, level:string): Promise<void> {
