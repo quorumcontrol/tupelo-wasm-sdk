@@ -32,4 +32,5 @@ jobs:
       - uses: actions/download-artifact@v1
         with:
           name: lib
+      - run: npm install
       - run: npm run test-suite

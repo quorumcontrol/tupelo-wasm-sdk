@@ -41,6 +41,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+      - run: npm install
       - name: version check
         run: scripts/ci-release-ver-check.sh
       - run: npm run test-suite
