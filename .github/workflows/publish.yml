@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - uses: action/download-artifact@v1
+      - uses: actions/download-artifact@v1
         with:
           name: lib
       - uses: actions/setup-node@v1
