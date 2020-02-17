@@ -1,9 +1,8 @@
 src/js/go/tupelo.wasm
 node_modules
-lib // ignore the generated code
+lib/
 .tmp
 go.mod
 dist/
-lib/
 temp/
 .cache

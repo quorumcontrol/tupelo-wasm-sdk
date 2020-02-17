@@ -22,15 +22,16 @@ jobs:
         run: npm run build
       - uses: actions/upload-artifact@v1
         with:
-          name: built-sdk
-          path: .
+          name: lib
+          path: lib
   ownerhsip-transfer:
     needs: build-sdk
     runs-on: ubuntu-18.04
     steps:
+      - uses: actions/checkout@v2
       - uses: action/download-artifact@v1
         with:
-          name: built-sdk
+          name: lib
       - name: ownership transfer example
         run: |
           cd examples/ownership-transfer
@@ -40,9 +41,10 @@ jobs:
     needs: build-sdk
     runs-on: ubuntu-18.04
     steps:
+      - uses: actions/checkout@v2
       - uses: action/download-artifact@v1
         with:
-          name: built-sdk
+          name: lib
       - name: set-and-get-data example
         run: |
           cd examples/set-and-get-data
@@ -52,9 +54,10 @@ jobs:
     needs: build-sdk
     runs-on: ubuntu-18.04
     steps:
+      - uses: actions/checkout@v2
       - uses: action/download-artifact@v1
         with:
-          name: built-sdk
+          name: lib
       - name: token example
         run: |
           cd examples/tokens
