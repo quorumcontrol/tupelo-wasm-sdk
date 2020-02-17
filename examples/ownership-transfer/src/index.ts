@@ -41,7 +41,7 @@ const main = async () => {
   ]);
   await community.nextUpdate();
 
-  const newOwners = (await tradingCard.resolve(["tree", "_tupelo", 'authentications'])).value;
+  const newOwners = (await tradingCard.resolve('tree/_tupelo/authentications')).value;
   assert.deepEqual(newOwners, [bobAddress,]);
 
   console.log(`* Transfer successfully made!`);
