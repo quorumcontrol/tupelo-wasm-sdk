@@ -22,11 +22,18 @@ jobs:
         run: npm install
       - name: Build SDK
         run: npm run build
+      - uses: actions/upload-artifact@v1
+        with:
+          name: built-sdk
+          path: .
   publish:
     needs:
       - build-sdk
     runs-on: ubuntu-18.04
     steps:
+      - uses: action/download-artifact@v1
+        with:
+          name: built-sdk
       - uses: actions/setup-node@v1
         with:
           node-version: 12

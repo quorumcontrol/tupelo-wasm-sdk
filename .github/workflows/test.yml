@@ -20,8 +20,15 @@ jobs:
         run: npm install
       - name: Build SDK
         run: npm run build
+      - uses: actions/upload-artifact@v1
+        with:
+          name: built-sdk
+          path: .
   test:
     needs: build-sdk
     runs-on: ubuntu-18.04
     steps:
+      - uses: action/download-artifact@v1
+        with:
+          name: built-sdk
       - run: npm run test-suite
