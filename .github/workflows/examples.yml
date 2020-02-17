@@ -3,37 +3,45 @@ name: Run each example
 on: [push]
 
 jobs:
-  ownerhsip-transfer:
+  build-sdk:
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      - name: Checkout submodules
+        shell: bash
+        run: |
+          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+          git submodule sync --recursive
+          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
+      - name: Install deps
+        run: npm install
+      - name: Build SDK
+        run: npm run build
+  ownerhsip-transfer:
+    needs: build-sdk
+    runs-on: ubuntu-18.04
+    steps:
       - name: ownership transfer example
         run: |
           cd examples/ownership-transfer
           npm install
           npm start
   set-get-data-example:
+    needs: build-sdk
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
       - name: set-and-get-data example
         run: |
           cd examples/set-and-get-data
           npm install
           npm start
   token-examples:
+    needs: build-sdk
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
       - name: token example
         run: |
           cd examples/tokens
