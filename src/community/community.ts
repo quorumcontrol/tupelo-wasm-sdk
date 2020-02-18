@@ -146,20 +146,26 @@ export class Community extends EventEmitter {
 }
 
 /**
- * This waits until the libp2p node has connected to a signer
+ * This waits until the libp2p node has connected to at least 2/3 of signers
  * @private
  */
-export async function afterOneSignerConnected(node:IP2PNode, group:NotaryGroup):Promise<void> {
-    const peerIds = await notaryGroupToSignerPeerIds(group) 
+export async function afterQuorumSignersConnected(node:IP2PNode, group:NotaryGroup):Promise<void> {
+    const peerIds = await notaryGroupToSignerPeerIds(group)
+    const minConnected = Math.ceil((peerIds.length / 3) * 2)
+
     return new Promise((resolve) => {
+        let connected = 0
         const onConnect = (peer:any)=> {
             debugLog("peer connected: ", peer.id.toB58String())
             for (let id of peerIds) {
                 if (id.isEqual(peer.id)) {
-                    debugLog("signer connected")
-                    node.off('peer:connect', onConnect)
-                    resolve()
-                    return
+                    connected++
+                    debugLog(`${connected} / ${minConnected} signers connected`)
+                    if (connected >= minConnected) {
+                        node.off('peer:connect', onConnect)
+                        resolve()
+                        return
+                    }
                 }
             }
         }
@@ -229,7 +235,7 @@ export namespace Community {
 
             const c = new Community(node, notaryGroup, repo.repo)
 
-            afterOneSignerConnected(node, notaryGroup).then(async ()=> {
+            afterQuorumSignersConnected(node, notaryGroup).then(async ()=> {
                 res(await c.start())
             })
 
