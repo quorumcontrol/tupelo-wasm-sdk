@@ -33,5 +33,5 @@ jobs:
         with:
           name: lib
       - run: npm install
-      - run: ln -nsf lib/js/go/tupelo.wasm src/js/go/tupelo.wasm
+      - run: cp lib/js/go/tupelo.wasm src/js/go/tupelo.wasm
       - run: npm run test-suite
