@@ -16,7 +16,7 @@ import { Transaction } from 'tupelo-messages';
 import { Transaction as Transaction_2 } from 'tupelo-messages/transactions/transactions_pb';
 
 // @public
-export function afterOneSignerConnected(node: IP2PNode, group: NotaryGroup_2): Promise<void>;
+export function afterQuorumSignersConnected(node: IP2PNode, group: NotaryGroup_2): Promise<void>;
 
 // @public
 export class ChainTree extends Dag {

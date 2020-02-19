@@ -1,4 +1,4 @@
-import { Community, afterOneSignerConnected } from "./community";
+import { Community, afterQuorumSignersConnected } from "./community";
 import { tomlToNotaryGroup } from "../notarygroup";
 import Repo from "../repo";
 import { p2p } from "../node";
@@ -80,9 +80,9 @@ export const _getDefault = (repo?:Repo): Promise<Community> => {
 
         const c = new Community(node, defaultNotaryGroup, repo.repo)
     
-        log("waiting for signer connected")
-        afterOneSignerConnected(node, defaultNotaryGroup).then(()=> {
-            log("signer connected, starting community")
+        log("waiting for signers connected")
+        afterQuorumSignersConnected(node, defaultNotaryGroup).then(()=> {
+            log("enough signers connected, starting community")
             resolve(c.start())
         })
 
