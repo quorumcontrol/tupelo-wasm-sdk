@@ -6,3 +6,4 @@ go.mod
 dist/
 temp/
 .cache
+builddocker/.gopath
