@@ -14,14 +14,16 @@ Clone the repository:
 git clone https://github.com/quorumcontrol/tupelo-wasm-sdk
 ```
 
-Install dependencies:
+### 2. Follow the instructions in the main README.md to build the WASM SDK
+
+### 3. Install dependencies:
 
 ```
 $ cd tupelo-wasm-sdk/examples/ownership-transfer
 $ npm install
 ```
 
-### 2. Run the Example
+### 4. Run the Example
 Assuming you're still in the example's directory, i.e. tupelo-wasm-sdk/examples/ownership-transfer/,
 execute it as follows:
 

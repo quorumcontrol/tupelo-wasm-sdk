@@ -2,14 +2,16 @@
 
 set -x -e
 
-pushd $(dirname "$0")/../tupelo-go-sdk
+pushd $(dirname "$0")/../builddocker
 trap popd EXIT
 
-export GOPATH=`go env GOPATH`
+if hash go >/dev/null 2>&1 ; then
+  GOPATH=$(go env GOPATH)
+else
+  mkdir -p $(pwd)/.gopath/pkg/mod
+  GOPATH=$(pwd)/.gopath
+fi
 
-go mod download
-
-popd
-pushd $(dirname "$0")/../builddocker
+export GOPATH
 
 docker-compose run --rm builder

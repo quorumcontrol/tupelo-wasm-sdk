@@ -49,7 +49,7 @@ const main = async () => {
         const tip = await community.getTip(id)
         console.log("new tip: ", tip.toString())
         // Get trading card properties stored in ChainTree
-        const { value: { series, item, condition, }, } = await tradingCard.resolve(['tree', 'data',]);
+        const { value: { series, item, condition, }, } = await tradingCard.resolve('tree/data');
         assert.strictEqual(series, 'Topps UCL Living Set Card');
         assert.strictEqual(item, '#48 - Frank Lampard');
         assert.strictEqual(condition, 'Mint condition');

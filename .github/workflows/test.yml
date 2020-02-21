@@ -3,18 +3,35 @@ name: Build WASM and Test
 on: [push]
 
 jobs:
-  test:
+  build-sdk:
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      - name: Checkout submodules
+        shell: bash
+        run: |
+          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+          git submodule sync --recursive
+          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
+      - name: Install deps
+        run: npm install
+      - name: Build SDK
+        run: npm run build
+      - uses: actions/upload-artifact@v1
+        with:
+          name: lib
+          path: lib
+  test:
+    needs: build-sdk
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v1
+        with:
+          name: lib
       - run: npm install
-      - name: git setup
-        run: scripts/ci-gitsetup.sh
-      - name: build wasm and javascript
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: scripts/ci-build.sh
+      - run: cp lib/js/go/tupelo.wasm src/js/go/tupelo.wasm
       - run: npm run test-suite

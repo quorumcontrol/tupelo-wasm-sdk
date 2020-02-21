@@ -20,7 +20,7 @@
   "dependencies": {
     "@types/node": "^12.7.2",
     "multicodec": "^0.5.6",
-    "tupelo-wasm-sdk": "latest"
+    "tupelo-wasm-sdk": "../.."
   },
   "devDependencies": {
     "ts-node": "^8.3.0",
