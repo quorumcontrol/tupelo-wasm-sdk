@@ -1,6 +1,6 @@
 {
   "name": "tupelo-wasm-sdk",
-  "version": "v0.6.0-rc5",
+  "version": "v0.6.0-rc7",
   "description": "The JavaScript SDK for interacting with the Tupelo network",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
