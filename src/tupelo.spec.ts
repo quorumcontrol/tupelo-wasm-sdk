@@ -9,6 +9,7 @@ import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { Community } from './community/community';
 import Repo from './repo';
 import debug from 'debug';
+import CID from 'cids';
 
 // import {LocalCommunity} from 'local-tupelo';
 
@@ -78,6 +79,39 @@ describe('Tupelo', () => {
         resolve(true)
       })
     return p
+  })
+
+  it('gets tip', async ()=> {
+    const c = await Community.getDefault()
+    const key = await EcdsaKey.generate()
+
+    let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+    debugLog("created empty tree")
+    const trans = setDataTransaction("/hi", "hihi")
+    const playProof = await Tupelo.playTransactions(tree, [trans])
+
+    const did = await tree.id()
+
+    const tipProof = await Tupelo.getTip(did!)
+
+    expect(new CID(Buffer.from(tipProof.getTip_asU8())).equals(tree.tip)).to.be.true
+    expect(playProof.getTip_asB64()).to.equal(tipProof.getTip_asB64())
+  })
+
+  it('gets latest', async ()=> {
+    const c = await Community.getDefault()
+    const key = await EcdsaKey.generate()
+
+    let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+    debugLog("created empty tree")
+    const trans = setDataTransaction("/hi", "hihi")
+    await Tupelo.playTransactions(tree, [trans])
+
+    const did = await tree.id()
+
+    const returnedTree = await Tupelo.getLatest(did!)
+
+    expect(returnedTree.tip.equals(tree.tip)).to.be.true
   })
 
   it('gets token payload', async () => {

@@ -39,6 +39,21 @@ describe('ChainTree', ()=> {
         expect(id).to.include("did:tupelo:")
     })
 
+    it('gets latest tree', async ()=> {
+      const key = await EcdsaKey.generate()
+      const c = await Community.getDefault()
+
+      const tree = await ChainTree.newEmptyTree(c.blockservice, key)
+      expect(tree).to.exist
+
+      const did = await tree.id()
+
+      await c.playTransactions(tree, [setDataTransaction("/path/to/somewhere", true)])
+      
+      const retTree = await ChainTree.getLatest(did!)
+      expect(retTree.tip.equals(tree.tip)).to.be.true
+    })
+
     it('resolves data', async ()=> {
       const key = await EcdsaKey.generate()
       const c = await Community.getDefault()
