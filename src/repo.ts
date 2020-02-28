@@ -57,6 +57,10 @@ export class Repo {
         return this.repo.close()
     }
 
+    delete(key:IKey) {
+        return this.repo.datastore.delete(key)
+    }
+
     put(key:IKey, val:Uint8Array) {
         return this.repo.datastore.put(key,val)
     }
