@@ -7,8 +7,8 @@ const Key = require("interface-datastore").Key
 
 const MemoryDatastore: any = require('interface-datastore').MemoryDatastore;
 
-const testRepo = async () => {
-  const repo = new Repo('repo-test', {
+const testRepo = async (name:string) => {
+  const repo = new Repo(name, {
     lock: 'memory',
     storageBackends: {
       root: MemoryDatastore,
@@ -34,12 +34,31 @@ describe('Repo', () => {
   })
 
   it('puts and gets', async () => {
-    const key = new Key("/testkeys/" + "fun")
+    const key = new Key("/testkeys/fun")
     const val = Buffer.from("hi")
-    const repo = await testRepo()
+    const repo = await testRepo("puts and gets")
     await repo.put(key, val)
     const retVal = await repo.get(key)
     expect(retVal).to.equal(val)
+    repo.close()
+  })
+
+  it('deletes', async ()=> {
+    const key = new Key("deleteTest")
+    const val = Buffer.from("hi")
+    const repo = await testRepo("deletes")
+    await repo.put(key, val)
+    let retVal = await repo.get(key)
+    expect(retVal).to.equal(val)
+
+    await repo.delete(key)
+    
+    try {
+      await repo.get(key)
+    } catch(e) {
+      expect(e.code).to.equal("ERR_NOT_FOUND")
+    }
+    repo.close()
   })
 
   it('works with defaults', async () => {
@@ -47,7 +66,7 @@ describe('Repo', () => {
     await repo.init({})
     await repo.open()
 
-    const key = new Key("/testkeys/" + "fun")
+    const key = new Key("/testkeys/fun")
     const val = Buffer.from("hi")
     await repo.put(key, val)
     const retVal = await repo.get(key)
