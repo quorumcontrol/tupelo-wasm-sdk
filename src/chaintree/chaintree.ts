@@ -43,6 +43,15 @@ export class ChainTree extends Dag {
     }
 
     /**
+     * getLatest returns a ChainTree with the newest state already cached in the local repo
+     * @param did - the did of the tree
+     * @public
+     */
+    static getLatest = async(did:string) => {
+        return Tupelo.getLatest(did)
+    }
+
+    /**
      * Creates a new ChainTree
      * @param opts - {@link IChainTreeInitializer}
      * @public

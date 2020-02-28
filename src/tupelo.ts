@@ -3,7 +3,7 @@ import CID from 'cids';
 const go = require('./js/go')
 import { Transaction } from 'tupelo-messages'
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb'
-import { IBlockService } from './chaintree/dag/dag'
+import { IBlockService, IBlock } from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
@@ -68,6 +68,9 @@ class UnderlyingWasm {
     getTip(did:string): Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
+    getLatest(did:string): Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    }
     newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID> {
         return new Promise<CID>((res, rej) => { }) // replaced by wasm
     }
@@ -121,6 +124,8 @@ namespace TupeloWasm {
  */
 export namespace Tupelo {
 
+    let clientStore:IBlockService
+
     // generateKey returns a two element array of the bytes for [privateKey, publicKey]
     export async function generateKey(): Promise<Uint8Array[]> {
         logger("generateKey")
@@ -153,11 +158,37 @@ export namespace Tupelo {
     }
 
     export async function getTip(did:string): Promise<Proof> {
-        logger("getCurrentState")
+        logger("getTip: ", did)
         const tw = await TupeloWasm.get()
         try {
             let stateBits = await tw.getTip(did)
             return Proof.deserializeBinary(stateBits)
+        } catch (err) {
+            throw err
+        }
+    }
+
+    /**
+     * getLatest returns a proof (like getTip)
+     * but before resolving it has loaded up all the new
+     * blocks for the tree.
+     * @param did - the did of the tree
+     * @internal
+     */
+    export async function getLatest(did:string): Promise<ChainTree> {
+        logger("getLatest: ", did)
+
+        if (!clientStore) {
+            throw new Error("you must start the client first")
+        }
+        const tw = await TupeloWasm.get()
+        try {
+            let stateBits = await tw.getLatest(did)
+            let proof = Proof.deserializeBinary(stateBits)
+            return new ChainTree({
+                store: clientStore,
+                tip: new CID(Buffer.from(proof.getTip_asU8())),
+            })
         } catch (err) {
             throw err
         }
@@ -197,6 +228,7 @@ export namespace Tupelo {
 
     export async function startClient(pubsub: IPubSub, group: NotaryGroup, store: IBlockService): Promise<void> {
         const tw = await TupeloWasm.get()
+        clientStore = store
         return tw.startClient({
             pubsub: pubsub,
             notaryGroup: group.serializeBinary(),
