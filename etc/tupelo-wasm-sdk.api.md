@@ -21,6 +21,7 @@ export function afterQuorumSignersConnected(node: IP2PNode, group: NotaryGroup_2
 // @public
 export class ChainTree extends Dag {
     constructor(opts: IChainTreeInitializer);
+    static getLatest: (did: string) => Promise<ChainTree>;
     id(): Promise<string | null>;
     // (undocumented)
     key?: EcdsaKey;
@@ -264,14 +265,16 @@ export class Repo {
     constructor(name: string, opts?: RepoOpts);
     // (undocumented)
     close(): any;
+    // Warning: (ae-forgotten-export) The symbol "IKey" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    delete(key: IKey): any;
     // (undocumented)
     get(key: IKey): any;
     // (undocumented)
     init(opts: any): any;
     // (undocumented)
     open(): any;
-    // Warning: (ae-forgotten-export) The symbol "IKey" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     put(key: IKey, val: Uint8Array): any;
     // (undocumented)
@@ -313,6 +316,8 @@ export namespace Tupelo {
     export function ecdsaPubkeyToDid(pubKey: Uint8Array): Promise<string>;
     // (undocumented)
     export function generateKey(): Promise<Uint8Array[]>;
+    // @internal
+    export function getLatest(did: string): Promise<ChainTree>;
     // (undocumented)
     export function getTip(did: string): Promise<Proof>;
     // (undocumented)

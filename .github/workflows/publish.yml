@@ -26,9 +26,22 @@ jobs:
         with:
           name: lib
           path: lib
+  test:
+    needs: build-sdk
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v1
+        with:
+          name: lib
+      - run: npm install
+      - run: cp lib/js/go/tupelo.wasm src/js/go/tupelo.wasm
+      - run: npm run test-suite          
+      
   publish:
     needs:
       - build-sdk
+      - test
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -44,7 +57,6 @@ jobs:
       - run: npm install
       - name: version check
         run: scripts/ci-release-ver-check.sh
-      - run: npm run test-suite
       - run: npm publish --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
