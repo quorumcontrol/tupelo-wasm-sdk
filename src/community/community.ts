@@ -11,7 +11,7 @@ import { _getDefault, _setDefault } from './default';
 
 import debug from 'debug'
 import Repo from '../repo';
-import tomlToNotaryGroup, { notaryGroupToSignerPeerIds } from '../notarygroup';
+import tomlToNotaryGroup, { notaryGroupToSignerPeerIds, IPeerId } from '../notarygroup';
 
 const debugLog = debug("community")
 
@@ -152,6 +152,8 @@ export class Community extends EventEmitter {
 export async function afterQuorumSignersConnected(node:IP2PNode, group:NotaryGroup):Promise<void> {
     const peerIds = await notaryGroupToSignerPeerIds(group)
     const minConnected = Math.ceil((peerIds.length / 3) * 2)
+
+    debugLog(`waiting for ${minConnected} signers to connect, list: `, peerIds.map((id:IPeerId)=>{return id.toB58String()}))
 
     return new Promise((resolve) => {
         let connected = 0

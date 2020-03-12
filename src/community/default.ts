@@ -11,6 +11,13 @@ const testNetToml = `id = "gossip4"
 BootstrapAddresses = [
   "/dns4/94sgcr.bootstrap.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAmQgHD5eqxDskKe21ythvG2T9o5i521kEdLrdgjc94sgCr",
   "/dns4/ny3jzn.bootstrap.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAmNBupyDCfGSqo6ypNUmpHbYWy4jSaTBsbz6uRnsnY3JZN",
+
+  "/dns4/aWhvhW.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAmKXvLcaabkxaHBC56AXFRf96ELCEpMDicnaewF4aWhvhW",
+  "/dns4/odWBas.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAmAFZSNoqNLZZ53Pv9YcnvWSZfQpqfmRxRUrw5E9odWBas",
+  "/dns4/XbNSzA.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAmB8wCC2fFprjoSkfwAhfHtH1hFbpxE3XfrVFCiTXbNSzA",
+  "/dns4/1aEziG.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAm9vCSNtmNXEH2Gp5qFD1HUuz9cpHKWsqiX8WR7X1aEziG",
+  "/dns4/bNf5XD.ssl.quorumcontrol.com/tcp/443/wss/ipfs/16Uiu2HAm6TqxoQKE3geT4UACQwcz8fnf4F3RxcoSc2xYg7bNf5XD",
+  
   "/ip4/52.88.225.180/tcp/34001/ipfs/16Uiu2HAmQgHD5eqxDskKe21ythvG2T9o5i521kEdLrdgjc94sgCr",
   "/ip4/15.188.248.188/tcp/34001/ipfs/16Uiu2HAmNBupyDCfGSqo6ypNUmpHbYWy4jSaTBsbz6uRnsnY3JZN",
 ]
@@ -80,7 +87,6 @@ export const _getDefault = (repo?:Repo): Promise<Community> => {
 
         const c = new Community(node, defaultNotaryGroup, repo.repo)
     
-        log("waiting for signers connected")
         afterQuorumSignersConnected(node, defaultNotaryGroup).then(()=> {
             log("enough signers connected, starting community")
             resolve(c.start())
