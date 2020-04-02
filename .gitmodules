@@ -1,4 +1,3 @@
 [submodule "tupelo-go-sdk"]
-	path = tupelo-go-sdk
-	url = https://github.com/quorumcontrol/tupelo-go-sdk.git
-	branch = upgrade/go-1.14
+        path = tupelo-go-sdk
+        url = https://github.com/quorumcontrol/tupelo-go-sdk.git
