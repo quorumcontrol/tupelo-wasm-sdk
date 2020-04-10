@@ -28,6 +28,7 @@
     "ipfs-block-service": "^0.16.0",
     "ipfs-repo": "^0.30.1",
     "ipld": "^0.25.3",
+    "ipld-dag-cbor": "^0.15.2",
     "libp2p": "^0.26.2",
     "libp2p-bootstrap": "^0.9.7",
     "libp2p-crypto": "^0.17.1",
