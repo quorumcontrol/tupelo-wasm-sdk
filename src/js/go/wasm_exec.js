@@ -39,9 +39,14 @@ const golog = require('debug')('go');
 		return err;
 	};
 
-	if (!global.fs) {
+	// Tupelo note: added the check for writeSync and the merging of these ontop of the existing here
+	// not sure why we need that here maybe some other package we use adds a global.fs (but not enough of it)
+	// so we instead do a little more checking and keep whatever the other thing wrote.
+	if (!global.fs || !global.fs.writeSync) {
+		const existingFs = global.fs || {}
 		let outputBuf = "";
 		global.fs = {
+			...existingFs, // merge these on top
 			constants: { O_WRONLY: -1, O_RDWR: -1, O_CREAT: -1, O_TRUNC: -1, O_APPEND: -1, O_EXCL: -1 }, // unused
 			writeSync(fd, buf) {
 				outputBuf += decoder.decode(buf);

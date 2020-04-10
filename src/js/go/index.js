@@ -4,6 +4,7 @@
 
 const log = require('debug')('gowasm');
 const isNodeJS = require('detect-node');
+const buffer = require('buffer');
 
 require("./wasm_exec"); // require here for the side effect of establishing global.Go
 
@@ -27,10 +28,17 @@ global.Go.readyPromise = new Promise((resolve) => {
     global.Go.readyResolver = resolve;
 });
 
+if (!global.Buffer) {
+    global.Buffer = buffer.Buffer;
+}
+
+if (!global.process.title) {
+    global.process.title = window.navigator.userAgent
+}
+
 const runner = {
     run: async () => {
         log('outer go.run')
-        const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
 
         const go = new Go();
         go.env = Object.assign({ TMPDIR: require("os").tmpdir() }, process.env);
