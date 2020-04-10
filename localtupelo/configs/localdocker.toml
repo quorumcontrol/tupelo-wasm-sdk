@@ -4,6 +4,7 @@ BootstrapAddresses = [
     "/ip4/172.16.238.10/tcp/34001/ipfs/16Uiu2HAm3TGSEKEjagcCojSJeaT5rypaeJMKejijvYSnAjviWwV5",
     "/ip4/172.16.238.11/tcp/50001/ws/ipfs/16Uiu2HAmVGfmbkFFe3c9tHUioE2Q8j7VYrTDAn7Q6bH7coJPvUpv",
     "/ip4/127.0.0.1/tcp/50001/ws/ipfs/16Uiu2HAmVGfmbkFFe3c9tHUioE2Q8j7VYrTDAn7Q6bH7coJPvUpv",
+    "/ip4/172.16.238.10/tcp/50000/ws/ipfs/16Uiu2HAm3TGSEKEjagcCojSJeaT5rypaeJMKejijvYSnAjviWwV5", #bootstrap node websocket is last
     "/ip4/127.0.0.1/tcp/50000/ws/ipfs/16Uiu2HAm3TGSEKEjagcCojSJeaT5rypaeJMKejijvYSnAjviWwV5", #bootstrap node websocket is last
 ]
 [[signers]]

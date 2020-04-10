@@ -11,13 +11,13 @@ const crypto = require('libp2p-crypto').keys
 const PeerId = require('peer-id')
 const TCP = require('libp2p-tcp')
 const util = require('util')
+const isNodeJS = require('detect-node')
 
 const log = require('debug')("p2p")
 
 const discovery = require('./discovery')
 const WssPeerBook = require('./wss-peer-book')
   
-const isNodeJS = global.process && global.process.title.indexOf("node") !== -1;
 
 class TupeloP2P extends libp2p {
   constructor (_options) {
