@@ -10,6 +10,7 @@ import { Community } from './community/community';
 import Repo from './repo';
 import debug from 'debug';
 import CID from 'cids';
+import { AddBlockRequest } from 'tupelo-messages/services/services_pb';
 
 // import {LocalCommunity} from 'local-tupelo';
 
@@ -44,6 +45,37 @@ describe('Tupelo', () => {
     const key = await EcdsaKey.generate()
     const addr = await Tupelo.ecdsaPubkeyToAddress(key.publicKey)
     expect(addr).to.have.lengthOf(42)
+  })
+
+  it('creates a new AddBlockRequest', async () => {
+    const c = await Community.getDefault()
+    const key = await EcdsaKey.generate()
+
+    let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+    debugLog("created empty tree")
+    const trans = setDataTransaction("/hi", "hihi")
+
+    const abr = await Tupelo.newAddBlockRequest(tree, [trans])
+    expect(abr).instanceOf(AddBlockRequest)
+    return true
+  })
+
+  it('sends an ABR', async ()=> {
+    const c = await Community.getDefault()
+    const key = await EcdsaKey.generate()
+
+    let tree = await ChainTree.newEmptyTree(c.blockservice, key)
+    debugLog("created empty tree")
+    const trans = setDataTransaction("/hi", "hihi")
+
+    const abr = await Tupelo.newAddBlockRequest(tree, [trans])
+    expect(abr).instanceOf(AddBlockRequest)
+
+    const proof = await Tupelo.sendAddBlockRequest(abr)
+    tree.tip = new CID(Buffer.from(proof.getTip_asU8()))
+    const resolved = await tree.resolve("tree/data/hi")
+    expect(resolved.value).to.equal("hihi")
+    return true
   })
 
   // requires a running tupelo
@@ -81,7 +113,7 @@ describe('Tupelo', () => {
     return p
   })
 
-  it('gets tip', async ()=> {
+  it('gets tip', async () => {
     const c = await Community.getDefault()
     const key = await EcdsaKey.generate()
 
@@ -98,7 +130,7 @@ describe('Tupelo', () => {
     expect(playProof.getTip_asB64()).to.equal(tipProof.getTip_asB64())
   })
 
-  it('gets latest', async ()=> {
+  it('gets latest', async () => {
     const c = await Community.getDefault()
     const key = await EcdsaKey.generate()
 
@@ -133,7 +165,7 @@ describe('Tupelo', () => {
       throw new Error("unknown sender id")
     }
     const tokenName = "testtoken"
-    await c.playTransactions(senderTree, [establishTokenTransaction(tokenName, 10),mintTokenTransaction(tokenName, 5)])
+    await c.playTransactions(senderTree, [establishTokenTransaction(tokenName, 10), mintTokenTransaction(tokenName, 5)])
 
     const sendId = "anewsendid"
     let resp = await c.playTransactions(senderTree, [sendTokenTransaction(sendId, tokenName, 5, receiverId)])
@@ -151,17 +183,17 @@ describe('Tupelo', () => {
     return p
   })
 
-  it('verifies a returned proof', async ()=> {
+  it('verifies a returned proof', async () => {
     const c = await Community.getDefault()
 
-    const p = new Promise(async (resolve, reject)=> {
+    const p = new Promise(async (resolve, reject) => {
       const k = await EcdsaKey.generate()
       const tree = await ChainTree.newEmptyTree(c.blockservice, k)
       const resp = await c.playTransactions(tree, [setDataTransaction("hi", "hi")])
       try {
         let verified = await Tupelo.verifyProof(resp)
         expect(verified).to.be.true
-      } catch(e) {
+      } catch (e) {
         reject(e)
       }
       resolve()
