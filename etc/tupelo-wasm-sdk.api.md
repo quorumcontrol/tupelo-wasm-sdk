@@ -4,6 +4,7 @@
 
 ```ts
 
+import { AddBlockRequest } from 'tupelo-messages/services/services_pb';
 import CID from 'cids';
 import EventEmitter from 'events';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
@@ -322,12 +323,15 @@ export namespace Tupelo {
     export function getTip(did: string): Promise<Proof>;
     // (undocumented)
     export function keyFromPrivateBytes(bytes: Uint8Array): Promise<Uint8Array[]>;
+    export function newAddBlockRequest(tree: ChainTree, transactions: Transaction[]): Promise<AddBlockRequest>;
     // (undocumented)
     export function newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID_2>;
     // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
     export function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<Proof>;
+    // (undocumented)
+    export function sendAddBlockRequest(addBlockRequest: AddBlockRequest, timeout?: number): Promise<Proof>;
     // (undocumented)
     export function setLogLevel(name: string, level: string): Promise<void>;
     // (undocumented)

@@ -2,8 +2,9 @@ import CID from 'cids';
 
 const go = require('./js/go')
 import { Transaction } from 'tupelo-messages'
+import {AddBlockRequest} from 'tupelo-messages/services/services_pb'
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb'
-import { IBlockService, IBlock } from './chaintree/dag/dag'
+import { IBlockService } from './chaintree/dag/dag'
 import ChainTree from './chaintree/chaintree';
 import { Proof } from 'tupelo-messages/gossip/gossip_pb';
 import { NotaryGroup } from 'tupelo-messages/config/config_pb';
@@ -25,6 +26,11 @@ interface IPlayTransactionOptions {
     privateKey: Uint8Array,
     tip: CID,
     transactions: Uint8Array[],
+}
+
+interface ISendAddBlockRequestOptions {
+    addBlockRequest: Uint8Array,
+    timeout?: number,
 }
 
 interface IClientOptions {
@@ -75,6 +81,12 @@ class UnderlyingWasm {
         return new Promise<CID>((res, rej) => { }) // replaced by wasm
     }
     playTransactions(opts: IPlayTransactionOptions): Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    }
+    newAddBlockRequest(opts: IPlayTransactionOptions): Promise<Uint8Array> {
+        return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
+    }
+    sendAddBlockRequest(opts: ISendAddBlockRequestOptions): Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
     startClient(opts: IClientOptions): void {
@@ -234,6 +246,55 @@ export namespace Tupelo {
             notaryGroup: group.serializeBinary(),
             blockService: store,
         })
+    }
+
+    /**
+     * 
+     * @param addBlockRequest - the AddBlockRequest to send to the network 
+     * @param timeout - the timeout to wait for the transaction to complete
+     */
+    export async function sendAddBlockRequest(addBlockRequest:AddBlockRequest, timeout?:number):Promise<Proof> {
+        const tw = await TupeloWasm.get()
+        const abrBits = addBlockRequest.serializeBinary()
+        const resp = await tw.sendAddBlockRequest({
+            addBlockRequest: abrBits,
+            timeout: timeout,
+        })
+
+        const proof = Proof.deserializeBinary(resp)
+        return proof
+    }
+
+    /**
+     * newAddBlockRequest is mostly desigend in order to play transactions *locally* before sending these off to the network
+     * useful when you want your UI to update immediately
+     * @param tree - the tree to create the AddBlockRequest
+     * @param transactions - the list of transactions
+     */
+    export async function newAddBlockRequest(tree:ChainTree, transactions: Transaction[]): Promise<AddBlockRequest> {
+        logger("newAddBlockRequest")
+        if (tree.key == undefined) {
+            throw new Error("playing transactions on a tree requires the tree to have a private key, use tree.key = <ecdsaKey>")
+        }
+        const tw = await TupeloWasm.get()
+        let transBits: Uint8Array[] = new Array<Uint8Array>()
+        for (var t of transactions) {
+            const serialized = t.serializeBinary()
+            transBits = transBits.concat(serialized)
+        }
+
+        const privateKey: Uint8Array = tree.key.privateKey ? tree.key.privateKey : new Uint8Array()
+        if (privateKey.length == 0) {
+            throw new Error("can only play transactions on a tree with a private key attached")
+        }
+
+        const resp = await tw.newAddBlockRequest({
+            privateKey: privateKey,
+            tip: tree.tip,
+            transactions: transBits,
+        })
+        const abr = AddBlockRequest.deserializeBinary(resp)
+        return abr
     }
 
     export async function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<Proof> {
