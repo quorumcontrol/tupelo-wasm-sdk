@@ -4,5 +4,5 @@
 
 set -x
 
-cd /app/tupelo-go-sdk/wasm
+cd /app/tupelo/sdk/wasm
 GOOS=js GOARCH=wasm go build -gcflags=-trimpath="${PWD}" -asmflags=-trimpath="${PWD}" -ldflags='-s -w' -o /app/src/js/go/tupelo.wasm
