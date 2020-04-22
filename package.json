@@ -1,6 +1,6 @@
 {
   "name": "tupelo-wasm-sdk",
-  "version": "v0.6.3",
+  "version": "v0.7.0",
   "description": "The JavaScript SDK for interacting with the Tupelo network",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -11,8 +11,9 @@
     "test-suite": "scripts/test-suite.sh",
     "build:wasm": "scripts/build-wasm.sh"
   },
-  "author": "",
-  "license": "rights reserved.",
+  "author": "Quorum Control",
+  "repository": "https://github.com/quorumcontrol/tupelo-wasm-sdk",
+  "license": "MIT",
   "dependencies": {
     "@types/debug": "^4.1.5",
     "@types/detect-node": "^2.0.0",
