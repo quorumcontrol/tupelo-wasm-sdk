@@ -106,12 +106,14 @@ const golog = require('debug')('go');
 		}
 	}
 
-	if (!global.crypto) {
+	// Tupelo note: something in our build process makes global.crypto equal to the require('crypto') below
+	// unsure what it is, but it does *not* add the getRandomValues which golang needs - so this 
+	// makes sure that function is available and works as the original wasm_exec expects.
+	if (!global.crypto || !global.crypto.getRandomValues) {
 		const nodeCrypto = require("crypto");
-		global.crypto = {
-			getRandomValues(b) {
+		global.crypto = global.crypto || {};
+		global.crypto.getRandomValues = function (b) {
 				nodeCrypto.randomFillSync(b);
-			},
 		};
 	}
 
