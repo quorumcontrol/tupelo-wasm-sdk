@@ -74,6 +74,9 @@ class UnderlyingWasm {
     newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID> {
         return new Promise<CID>((res, rej) => { }) // replaced by wasm
     }
+    newNamedTree(namespace: string, name: string, owners: string[]): Promise<CID> {
+        return new Promise<CID>((res, rej) => { }) // replaced by wasm
+    }
     playTransactions(opts: IPlayTransactionOptions): Promise<Uint8Array> {
         return new Promise<Uint8Array>((res, rej) => { }) // replaced by wasm
     }
@@ -200,6 +203,15 @@ export namespace Tupelo {
         logger("newEmptyTree")
         const tw = await TupeloWasm.get()
         return tw.newEmptyTree(store, publicKey)
+    }
+
+    // NewNamedTree creates a new ChainTree who's id is deterministically
+    // generated from both a namespace and name, but is owned by the specified
+    // owner keys.
+    export async function newNamedTree(namespace: string, name: string, owners: string[]): Promise<CID> {
+        logger("newNamedTree")
+        const tw = await TupeloWasm.get()
+        return tw.newNamedTree(namespace, name, owners)
     }
 
     export async function tokenPayloadForTransaction(opts: ITransactionPayloadOpts): Promise<TokenPayload> {
