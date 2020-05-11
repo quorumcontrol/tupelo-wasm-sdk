@@ -1,6 +1,6 @@
 import debug from 'debug'
 import path from 'path'
-import { NotaryGroup } from 'tupelo-messages'
+import { NotaryGroup, AddBlockRequest } from 'tupelo-messages'
 const Go = require('../js/go')
 
 const log = debug("aggregator.wasm")
@@ -44,8 +44,12 @@ namespace ValidatorWasm {
 
 export namespace Aggregator {
     export async function setupValidator(group:NotaryGroup) {
-        log("waiting for wasm")
         const vw = await ValidatorWasm.get()
         return vw.setupValidator({notaryGroup: group.serializeBinary()})
+    }
+
+    export async function validate(abr:AddBlockRequest) {
+        const vw = await ValidatorWasm.get()
+        return vw.validate(abr.serializeBinary())
     }
 }
