@@ -1,6 +1,6 @@
 import CID from 'cids';
 
-const go = require('./js/go')
+const Go = require('./js/go')
 import { Transaction } from 'tupelo-messages'
 import { TokenPayload } from 'tupelo-messages/transactions/transactions_pb'
 import { IBlockService, IBlock } from './chaintree/dag/dag'
@@ -105,9 +105,9 @@ namespace TupeloWasm {
         _tupelowasm = new Promise(async (resolve, reject) => {
             const wasm = new UnderlyingWasm;
             logger("go.run for first time");
-            go.run("./main.wasm");
+            const go = await Go.run();
             await go.ready();
-            go.populate(wasm, {
+            go.populateLibrary(wasm, {
                 "cids": CID,
                 "ipfs-block": require('ipfs-block'),
             });

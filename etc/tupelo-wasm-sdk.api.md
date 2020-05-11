@@ -325,6 +325,8 @@ export namespace Tupelo {
     // (undocumented)
     export function newEmptyTree(store: IBlockService, publicKey: Uint8Array): Promise<CID_2>;
     // (undocumented)
+    export function newNamedTree(namespace: string, name: string, owners: string[]): Promise<CID_2>;
+    // (undocumented)
     export function passPhraseKey(phrase: Uint8Array, salt: Uint8Array): Promise<Uint8Array[]>;
     // (undocumented)
     export function playTransactions(tree: ChainTree, transactions: Transaction[]): Promise<Proof>;
