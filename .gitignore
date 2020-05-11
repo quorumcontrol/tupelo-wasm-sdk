@@ -1,4 +1,4 @@
-src/js/go/tupelo.wasm
+*.wasm
 node_modules
 lib/
 .tmp
